@@ -1,0 +1,7 @@
+/vendor
+/node_modules
+/public/hot
+/public/storage
+.env        <-- INI PALING PENTING
+.env.backup
+.phpunit.result.cache
