@@ -24,6 +24,7 @@ Route::post('/otp-resend', [AuthController::class, 'resendOtp'])->name('otp.rese
 Route::get('/otp-verification', [AuthController::class, 'showOtpForm'])->name('otp.verify');
 Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('otp.check');
 
+
 // 4. DASHBOARD (Contoh setelah login)
 Route::get('/dashboard', function () {
     return "Halo Siswa! (Halaman Dashboard)";
