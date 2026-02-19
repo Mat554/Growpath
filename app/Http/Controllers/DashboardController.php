@@ -19,20 +19,45 @@ class DashboardController extends Controller
         return view('dashboard');
     }
 
-    // Halaman Dashboard Orang Tua
    public function ortu()
     {
-        // 1. Pastikan yang akses cuma Ortu
         if (Auth::user()->role !== 'ortu') {
             return redirect()->route('dashboard');
         }
 
-        // 2. Cari data anak berdasarkan child_id_code yang dimasukkan ortu saat register
         $anak = \App\Models\User::where('user_code', Auth::user()->child_id_code)
                                 ->where('role', 'siswa')
                                 ->first();
 
-        // 3. Tampilkan View Dashboard Ortu sambil mengirim data anak
-        return view('dashboard.ortu', compact('anak'));
+        // UBAH BARIS INI:
+        // Jika nama filenya 'ortu-dashboard.blade.php' di dalam folder views
+        return view('ortu.ortu-dashboard', compact('anak')); 
     }
+    // Tambahkan fungsi ini di bawah fungsi index() yang sudah ada
+    public function profile()
+    {
+        // Pastikan hanya user yang login yang bisa akses
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        return view('profile');
+    }
+
+    public function profileOrtu()
+    {
+        if (Auth::user()->role !== 'ortu') {
+            return redirect()->route('dashboard');
+        }
+        return view('ortu.ortu-profile');
+    }
+
+    public function dashboardAdmin()
+    {
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('dashboard');
+        }
+        return view('admin.admin-dashboard');
+    }
+    
 }

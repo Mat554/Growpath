@@ -19,13 +19,14 @@ class AuthController extends Controller
     }
 
     // --- 2. PROSES LOGIN (Kirim OTP) ---
+   // --- 2. PROSES LOGIN ---
     public function login(Request $request)
     {
         // A. Validasi Input
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'role' => ['required', 'in:siswa,ortu'], // Validasi Role dari Tab
+            'role' => ['required', 'in:siswa,ortu,admin'], // Pastikan admin ada di sini
         ]);
 
         // B. Cari User
@@ -36,15 +37,25 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Email atau password salah.']);
         }
 
-        // D. Cek Kesesuaian Role (Siswa tidak boleh login di tab Ortu)
+        // D. Cek Kesesuaian Role
         if ($user->role !== $request->role) {
-            $roleName = $user->role === 'siswa' ? 'Siswa' : 'Orang Tua';
+            $roleName = ucfirst($user->role);
             return back()->withErrors([
                 'email' => "Akun ini terdaftar sebagai $roleName. Silakan pindah ke tab $roleName.",
             ]);
         }
 
-        // --- MULAI LOGIKA OTP ---
+        // --- 🚀 BARU: JALUR KHUSUS ADMIN (TANPA OTP) ---
+        if ($user->role === 'admin') {
+            // Langsung login resmi
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            // Langsung arahkan ke dashboard admin
+            return redirect()->intended('/admin-dashboard');
+        }
+
+        // --- MULAI LOGIKA OTP (Hanya untuk Siswa & Ortu) ---
 
         // E. Generate OTP
         $otp = rand(100000, 999999);
@@ -57,11 +68,9 @@ class AuthController extends Controller
 
         // G. Kirim Email (Gunakan Try-Catch agar tidak error jika internet putus)
         try {
-            Mail::to($user->email)->send(new OTPMail($otp));
+            Mail::to($user->email)->send(new \App\Mail\OTPMail($otp));
         } catch (\Exception $e) {
-            // Jika mau debug error email, uncomment baris bawah:
-            // dd($e->getMessage());
-            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Cek koneksi SMTP atau file .env Anda.']);
+            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Cek koneksi SMTP.']);
         }
 
         // H. Simpan ID sementara di session (Bukan Login permanen)
