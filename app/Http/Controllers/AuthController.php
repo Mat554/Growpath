@@ -169,32 +169,45 @@ class AuthController extends Controller
     // --- 6. PROSES REGISTER ---
     public function register(Request $request)
     {
+        // 1. Validasi Input + Cek Kode Siswa
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|in:siswa,ortu',
             'kelas' => 'required_if:role,siswa|nullable|integer',
-            'child_id_code' => 'required_if:role,ortu|nullable|string',
+            
+            // Aturan 'exists:users,user_code' memastikan kode yang diketik ada di database
+            'child_id_code' => 'required_if:role,ortu|nullable|string|exists:users,user_code', 
+        ], [
+            // Pesan error kustom jika kodenya salah/tidak ditemukan
+            'child_id_code.exists' => 'User ID Siswa tidak ditemukan. Pastikan kodenya sudah benar.'
         ]);
 
+        // 2. Logika Generate Kode Siswa (Kode yang kita buat sebelumnya)
+        $generatedUserCode = null;
+        if ($validated['role'] === 'siswa') {
+            $randomNumber = rand(10000, 99999);
+            $generatedUserCode = 'SIS-' . $validated['kelas'] . '-' . $randomNumber;
+        }
+
+        // 3. Simpan ke Database
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'kelas' => $validated['role'] === 'siswa' ? $validated['kelas'] : null,
+            'user_code' => $generatedUserCode, 
+            
+            // Kolom ini sekarang dijamin valid dan benar-benar terhubung dengan akun siswa!
             'child_id_code' => $validated['role'] === 'ortu' ? $validated['child_id_code'] : null,
         ];
 
-        $user = User::create($userData);
+        User::create($userData);
 
-        // Opsi: Langsung login atau minta login manual (pilih salah satu)
-        // Auth::login($user); // Jika mau langsung login tanpa OTP setelah daftar
-        
         return redirect('/login')->with('success', 'Akun berhasil dibuat! Silakan masuk.');
     }
-
     // --- 7. LOGOUT ---
     public function logout(Request $request)
     {

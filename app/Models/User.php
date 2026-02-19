@@ -25,7 +25,8 @@ class User extends Authenticatable
     'kelas',
     'child_id_code',
     'otp',              // Add this
-    'otp_expires_at',   // Add this
+    'otp_expires_at',
+    'user_code',   // Add this
 ];
 
     /**

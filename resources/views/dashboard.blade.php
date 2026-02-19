@@ -21,7 +21,7 @@
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
                 <i class="ph ph-user text-lg"></i> Profil Saya
             </a>
             <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
@@ -125,7 +125,7 @@
             <i class="ph ph-clipboard-text text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Tes</span>
         </a>
-        <a href="#" class="flex flex-col items-center text-gray-400">
+       <a href="{{ route('profile') }}" class="flex flex-col items-center text-gray-400">
             <i class="ph ph-user text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Profil</span>
         </a>

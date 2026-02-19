@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController; // <--- Pastikan ini ada
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController; // <--- Pastikan ini ada
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,3 +34,19 @@ Route::get('/dashboard', function () {
 Route::get('/dashboard-ortu', function () {
     return "Halo Orang Tua! (Halaman Dashboard)";
 })->middleware('auth');
+
+
+
+Route::middleware(['auth'])->group(function () {
+    
+// Pastikan baris ini ada di dalam Route::middleware(['auth'])->group(function () { ... })
+    Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
+    // Rute untuk Siswa (Sesuai redirect di AuthController tadi)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Rute untuk Orang Tua
+    Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu');
+
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
