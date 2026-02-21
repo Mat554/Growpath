@@ -52,40 +52,8 @@
     </div>
 
     <script>
-        // 1. Data Dummy Soal (RIASEC)
-        const questions = [
-            {
-                id: 1,
-                question_text: "Kegiatan apa yang paling Anda sukai saat memiliki waktu luang?",
-                opt_r: "Memperbaiki barang elektronik atau kendaraan",
-                opt_i: "Membaca buku ilmiah, ensiklopedia, atau teka-teki",
-                opt_a: "Melukis, menulis cerita, atau bermain musik",
-                opt_s: "Mengajar adik atau membantu teman curhat",
-                opt_e: "Berjualan online atau memimpin organisasi",
-                opt_c: "Mengorganisir file komputer atau merapikan kamar"
-            },
-            {
-                id: 2,
-                question_text: "Pelajaran atau topik apa yang paling menarik minat Anda?",
-                opt_r: "Olahraga, Teknik, atau Prakarya",
-                opt_i: "Sains, Matematika, atau Biologi",
-                opt_a: "Seni Budaya, Sastra, atau Bahasa",
-                opt_s: "Sosiologi, Sejarah, atau BK",
-                opt_e: "Ekonomi, Bisnis, atau Public Speaking",
-                opt_c: "Akuntansi, TIK, atau Administrasi"
-            },
-            {
-                id: 3,
-                question_text: "Jika bekerja nanti, lingkungan seperti apa yang Anda harapkan?",
-                opt_r: "Bekerja di luar ruangan atau bengkel",
-                opt_i: "Bekerja di laboratorium atau perpustakaan",
-                opt_a: "Bekerja di studio kreatif atau panggung seni",
-                opt_s: "Bekerja di sekolah, rumah sakit, atau yayasan",
-                opt_e: "Bekerja di kantor startup atau ruang rapat",
-                opt_c: "Bekerja di kantor arsip atau bank yang rapi"
-            }
-        ];
-
+       
+        const questions = @json($questions);
         // 2. State Aplikasi
         let currentIndex = 0;
         let userAnswers = []; // Array of arrays (karena multi-select)
@@ -227,10 +195,19 @@
             console.log("Skor Akhir:", scores);
             console.log("Kode Dominan:", dominantCode);
 
-            setTimeout(() => {
-                alert(`✅ Tes Selesai!\n\nKode Dominan Anda: ${dominantCode}\n\nKlik OK untuk melihat laporan lengkap.`);
-                // Redirect ke Route Laravel Laporan
-                window.location.href = "{{ route('laporan') }}"; 
+          setTimeout(() => {
+                alert(`✅ Tes Selesai!\n\nKode Dominan Anda: ${dominantCode}`);
+                
+                // Gunakan Blade directive untuk membedakan Beta Test vs Ujian Asli
+                @if(isset($is_beta) && $is_beta)
+                    alert("Mode Beta selesai. Tab pratinjau ini akan ditutup.");
+                    window.close(); // Otomatis menutup tab browser
+                @else
+                    // Jika nanti rute laporan sudah ada, ubah tulisan "/dashboard" di bawah ini
+                    // menjadi: "{{ route('nama.rute.laporan') }}"
+                    window.location.href = "/dashboard"; 
+                @endif
+
             }, 1500);
         }
 

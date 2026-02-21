@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController; // <--- Pastikan ini ada
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminController; // <--- Pastikan ini ada
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,11 +38,12 @@ Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('ot
 
 Route::middleware(['auth'])->group(function () {
 
-
-
-    Route::get('/admin-dashboard', [DashboardController::class, 'dashboardAdmin'])->name('dashboard.admin'); // Untuk Admin
-
-
+    Route::post('/admin-dashboard/beta-test', [AdminController::class, 'betaTestPreview'])->name('admin.beta.test');
+    Route::post('/admin-dashboard/publish', [AdminController::class, 'publishExam'])->name('admin.publish.exam');
+// Rute Dashboard Admin (Sekarang diarahkan ke controller)
+Route::get('/admin-dashboard', [AdminController::class, 'dashboard'])->name('dashboard.admin');
+    Route::post('/admin-dashboard/question', [AdminController::class, 'storeQuestion'])->name('admin.question.store');
+    Route::post('/admin-dashboard/question/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('admin.question.toggle');
     
       Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Untuk Siswa
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu'); // Untuk Ortu
@@ -49,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Rute untuk Orang Tua
-Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
+    Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
