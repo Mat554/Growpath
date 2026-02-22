@@ -38,6 +38,10 @@ Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('ot
 
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
+    Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');
+    Route::get('/laporan', [DashboardController::class, 'laporan'])->name('laporan');
+
     Route::post('/admin-dashboard/beta-test', [AdminController::class, 'betaTestPreview'])->name('admin.beta.test');
     Route::post('/admin-dashboard/publish', [AdminController::class, 'publishExam'])->name('admin.publish.exam');
 // Rute Dashboard Admin (Sekarang diarahkan ke controller)

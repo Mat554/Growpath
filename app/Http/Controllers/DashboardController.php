@@ -4,20 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Exam;
+use App\Models\ExamResult;
 
 class DashboardController extends Controller
 {
     // Halaman Dashboard Siswa
-    public function index()
+ public function index()
     {
-        // 1. Pastikan yang akses cuma Siswa
-        if (Auth::user()->role !== 'siswa') {
-            return redirect()->route('dashboard.ortu');
+        $user = Auth::user();
+        
+        // Ambil ujian yang target kelasnya sama dengan kelas siswa yang sedang login
+        // Diurutkan dari yang terbaru dibuat
+        $exams = Exam::where('target_class', $user->kelas)
+                     ->orderBy('created_at', 'desc')
+                     ->get();
+
+        // Kirim data $exams ke halaman dashboard
+        return view('dashboard', compact('exams'));
+    }
+
+    // 1. Menampilkan Soal ke Siswa
+    public function takeExam($id)
+    {
+        // Ambil ujian beserta relasi soal-soalnya
+        $exam = Exam::with('questions')->findOrFail($id);
+        
+        return view('tes', [
+            'exam' => $exam,
+            'questions' => $exam->questions,
+            'is_beta' => false,
+            'duration' => $exam->duration_minutes
+        ]);
+    }
+
+    // 2. Menerima Jawaban dari Javascript dan Simpan ke DB
+    public function submitExam(Request $request, $id)
+    {
+        $scores = $request->scores;
+
+        ExamResult::create([
+            'user_id' => Auth::id(),
+            'exam_id' => $id,
+            'score_r' => $scores['R'],
+            'score_i' => $scores['I'],
+            'score_a' => $scores['A'],
+            'score_s' => $scores['S'],
+            'score_e' => $scores['E'],
+            'score_c' => $scores['C'],
+            'dominant_code' => $request->dominant_code,
+        ]);
+
+        return response()->json(['success' => true, 'redirect_url' => route('laporan')]);
+    }
+
+    // 3. Menampilkan Halaman Laporan
+    public function laporan()
+    {
+        // Ambil hasil ujian terakhir milik siswa ini
+        $result = ExamResult::where('user_id', Auth::id())->latest()->first();
+        
+        if (!$result) {
+            return redirect()->route('dashboard')->with('error', 'Selesaikan kuesioner terlebih dahulu!');
         }
 
-        // 2. Tampilkan View Dashboard Siswa
-        return view('dashboard');
+        return view('laporan', compact('result'));
     }
+
 
    public function ortu()
     {

@@ -166,13 +166,19 @@
     <script>
         // Simulasi Data Hasil Tes (Mockup Frontend)
         // Di aplikasi nyata, data ini diambil dari API backend berdasarkan ID User
+     // MENGAMBIL DATA ASLI DARI DATABASE (Dikirim oleh Controller)
         const mockResult = {
-            created_at: new Date().toISOString(),
-            // Skor RIASEC (Nilai max misal 10-20 tergantung jumlah soal)
-            scores: { R: 8, I: 12, A: 5, S: 10, E: 7, C: 9 }, 
-            dominant_code: "ISR" // Investigative, Social, Realistic
+            created_at: "{{ $result->created_at }}",
+            scores: { 
+                R: {{ $result->score_r }}, 
+                I: {{ $result->score_i }}, 
+                A: {{ $result->score_a }}, 
+                S: {{ $result->score_s }}, 
+                E: {{ $result->score_e }}, 
+                C: {{ $result->score_c }} 
+            }, 
+            dominant_code: "{{ $result->dominant_code }}"
         };
-
         // Database Deskripsi Sederhana
         const descriptions = {
             'R': { title: "Realistic (The Doers)", desc: "Anda praktis, mandiri, dan suka bekerja dengan alat atau mesin. Anda lebih suka aktivitas fisik dan bekerja di luar ruangan." },

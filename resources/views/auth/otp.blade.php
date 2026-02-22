@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi OTP</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/otp.js'])
 </head>
 <body class="bg-[#F8F9FD] min-h-screen flex justify-center items-center p-5 font-sans">
 
@@ -63,41 +63,9 @@
     </div>
 
     <script>
-        // Ambil waktu expired dari Controller (dikali 1000 karena JS pakai milidetik)
-        // {{ $expired_time }} adalah timestamp dari PHP
-        const expiredTime = {{ $expired_time }} * 1000; 
-
-        const timerContainer = document.getElementById('timerContainer');
-        const resendContainer = document.getElementById('resendContainer');
-        const countdownElem = document.getElementById('countdown');
-
-        // Update hitungan mundur setiap 1 detik
-        const x = setInterval(function() {
-
-            // Waktu sekarang
-            const now = new Date().getTime();
-
-            // Selisih waktu expired dengan sekarang
-            const distance = expiredTime - now;
-
-            // Hitung menit dan detik
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            // Tampilkan di layar (tambah angka 0 jika di bawah 10)
-            countdownElem.innerHTML = 
-                (minutes < 10 ? "0" + minutes : minutes) + ":" + 
-                (seconds < 10 ? "0" + seconds : seconds);
-
-            // JIKA WAKTU HABIS
-            if (distance < 0) {
-                clearInterval(x);
-                // Sembunyikan Timer
-                timerContainer.classList.add('hidden');
-                // Munculkan Tombol Resend
-                resendContainer.classList.remove('hidden');
-            }
-        }, 1000);
+        window.otpExpiredTime = {{ $expired_time }};
     </script>
+</body>
+</html>
 </body>
 </html>

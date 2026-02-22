@@ -272,9 +272,9 @@
                                 <i class="ph-fill ph-flask"></i> Beta Test
                             </button>
                             
-                            <button onclick="compileCard()" class="py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all flex justify-center items-center gap-2">
-                                <i class="ph-fill ph-rocket-launch"></i> Publish
-                            </button>
+                          <button onclick="window.compileCard(event)" class="py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all flex justify-center items-center gap-2">
+    <i class="ph-fill ph-rocket-launch"></i> Publish
+</button>
                         </div>
                     </div>
                 </div>

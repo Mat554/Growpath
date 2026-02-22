@@ -15,16 +15,28 @@ public function betaTestPreview(Request $request)
         $questionIds = explode(',', $request->question_ids); 
         $questions = Question::whereIn('id', $questionIds)->get();
 
-        // UBAH BARIS RETURN INI: Tambahkan 'is_beta' => true
+        // Tangkap durasi dari request (default 60 jika tidak ada)
+        $duration = $request->duration ?? 60;
+
         return view('tes', [
             'questions' => $questions,
-            'is_beta' => true
+            'is_beta' => true,
+            'duration' => $duration // <--- Kirim ke Blade
         ]); 
     }
     // Fungsi 2: Untuk Simpan (Publish) Konfigurasi Card
     public function publishExam(Request $request)
     {
-        // Simpan data Ujian utama
+        // 1. Validasi untuk mencegah error SQL
+        $request->validate([
+            'title' => 'required|string',
+            'target_class' => 'required|string',
+            'duration_minutes' => 'required|integer',
+            'exam_date' => 'required|date',
+            'question_ids' => 'required|array'
+        ]);
+
+        // 2. Simpan Ujian
         $exam = Exam::create([
             'title' => $request->title,
             'target_class' => $request->target_class,
@@ -32,12 +44,13 @@ public function betaTestPreview(Request $request)
             'exam_date' => $request->exam_date,
         ]);
 
-        // Hubungkan ujian dengan soal-soal yang diceklis
+        // 3. Hubungkan ke Soal-soal (Many-to-Many)
         $exam->questions()->attach($request->question_ids);
 
+        // 4. Kirim respon sukses ke JS
         return response()->json(['success' => true, 'message' => 'Tes berhasil di-publish ke siswa!']);
     }
-
+    
     // 1. Tampilkan Dashboard beserta Data Soal
  public function dashboard()
     {

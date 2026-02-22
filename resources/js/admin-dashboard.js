@@ -119,10 +119,16 @@ window.loadQuestions = function() {
     }
 }
 
+
+
 window.startBetaTest = function() {
     if(window.selectedQuestionIds.size === 0) { 
         alert("Pilih minimal 1 soal untuk Beta Test!"); return; 
     }
+
+    // Ambil nilai dari input "Waktu (Menit)"
+    const timeInput = document.getElementById('cardTime').value;
+    const duration = timeInput ? timeInput : 60; // Default 60 menit jika kosong
     
     // Kita buat form tak terlihat untuk mengirim data ke tab baru
     const form = document.createElement('form');
@@ -130,24 +136,34 @@ window.startBetaTest = function() {
     form.action = '/admin-dashboard/beta-test';
     form.target = '_blank'; // Buka di tab baru!
 
+    // Token CSRF
     const csrf = document.createElement('input');
     csrf.type = 'hidden';
     csrf.name = '_token';
     csrf.value = window.csrfToken; 
     form.appendChild(csrf);
 
+    // Kirim ID Soal
     const qInput = document.createElement('input');
     qInput.type = 'hidden';
     qInput.name = 'question_ids';
-    qInput.value = Array.from(window.selectedQuestionIds).join(','); // Ubah set ke teks "1,2,5"
+    qInput.value = Array.from(window.selectedQuestionIds).join(','); 
     form.appendChild(qInput);
+
+    // --- TAMBAHAN BARU: Kirim Waktu (Durasi) ---
+    const durInput = document.createElement('input');
+    durInput.type = 'hidden';
+    durInput.name = 'duration';
+    durInput.value = duration; 
+    form.appendChild(durInput);
 
     document.body.appendChild(form);
     form.submit(); // Eksekusi
     document.body.removeChild(form);
 }
 
-window.compileCard = function() { // Ini untuk tombol Publish
+// Kita tambahkan parameter 'event' di sini
+window.compileCard = function(event) { 
     if(window.selectedQuestionIds.size === 0) { alert("Pilih minimal 1 soal!"); return; }
     
     const title = document.getElementById('cardTitle').value;
@@ -157,16 +173,22 @@ window.compileCard = function() { // Ini untuk tombol Publish
 
     if(!title || !time || !date) { alert("Mohon lengkapi semua Konfigurasi Card!"); return; }
 
-    // Ubah tombol jadi loading
-    const btnPublish = event.currentTarget;
+    // Ubah tombol jadi loading (menggunakan event.currentTarget atau querySelector)
+    const btnPublish = event ? event.currentTarget : document.querySelector('button[onclick="compileCard(event)"]');
+    if (!btnPublish) {
+        console.error("Tombol tidak ditemukan!"); return;
+    }
+    
     const originalText = btnPublish.innerHTML;
     btnPublish.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...';
+    btnPublish.disabled = true;
 
     fetch('/admin-dashboard/publish', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': window.csrfToken
+            'X-CSRF-TOKEN': window.csrfToken,
+            'Accept': 'application/json' // Meminta Laravel membalas dengan JSON, bukan HTML error
         },
         body: JSON.stringify({
             title: title,
@@ -176,7 +198,14 @@ window.compileCard = function() { // Ini untuk tombol Publish
             question_ids: Array.from(window.selectedQuestionIds)
         })
     })
-    .then(res => res.json())
+    .then(async res => {
+        if (!res.ok) {
+            // Jika server Laravel error (misal 500 atau 422), tangkap pesannya
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || "Terjadi kesalahan di server database.");
+        }
+        return res.json();
+    })
     .then(data => {
         if(data.success) {
             alert("🚀 " + data.message);
@@ -185,7 +214,16 @@ window.compileCard = function() { // Ini untuk tombol Publish
             window.loadForPublisher();
             document.getElementById('cardTitle').value = '';
         }
+    })
+    .catch(err => {
+        // Tampilkan error di layar!
+        console.error("Error Publish:", err);
+        alert("Gagal Publish: " + err.message);
+    })
+    .finally(() => {
+        // Kembalikan tombol seperti semula walau sukses maupun gagal
         btnPublish.innerHTML = originalText;
+        btnPublish.disabled = false;
     });
 }
 

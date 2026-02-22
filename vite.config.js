@@ -7,7 +7,9 @@ export default defineConfig({
             input: [
                 'resources/css/app.css', 
                 'resources/js/app.js',
-                'resources/js/admin-dashboard.js' // <--- Tambahkan baris ini
+                'resources/js/admin-dashboard.js',
+                'resources/js/otp.js' ,
+                'resources/js/exam.js'
             ],
             refresh: true,
         }),

@@ -62,7 +62,8 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group">
+            @forelse ($exams as $exam)
+            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group flex flex-col">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 bg-[#EBF5FF] text-[#4A90E2] rounded-xl flex items-center justify-center text-2xl">
                         <i class="ph-fill ph-exam"></i>
@@ -71,16 +72,33 @@
                         Belum Tes
                     </span>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Tes Gaya Berpikir</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                    Analisis potensi diri Anda melalui kuesioner psikologis untuk mengetahui gaya belajar dominan.
-                </p>
-                <button class="w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
-                    Mulai Kuesioner
-                </button>
+                
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ $exam->title }}</h3>
+                
+                <div class="text-gray-500 text-sm leading-relaxed mb-6 space-y-1">
+                    <div class="flex items-center gap-2">
+                        <i class="ph-fill ph-clock text-[#4A90E2]"></i> Waktu: {{ $exam->duration_minutes }} Menit
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="ph-fill ph-calendar text-[#4A90E2]"></i> Tenggat: {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                    </div>
+                </div>
+                
+                <a href="{{ route('exam.take', $exam->id) }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 text-center block">
+                      Mulai Kuesioner
+                    </a>
             </div>
+            @empty
+            <div class="bg-white p-6 rounded-[18px] shadow-sm border border-gray-100 border-dashed flex flex-col justify-center items-center text-center opacity-70">
+                <div class="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center text-3xl mb-3">
+                    <i class="ph-fill ph-check-circle"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-1">Semua Beres!</h3>
+                <p class="text-gray-400 text-sm">Belum ada jadwal tes untuk kelas Anda.</p>
+            </div>
+            @endforelse
 
-            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
+            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 flex flex-col">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 bg-[#FFF4E5] text-[#FF9F43] rounded-xl flex items-center justify-center text-2xl">
                         <i class="ph-fill ph-lightbulb"></i>
@@ -90,12 +108,12 @@
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
                     Dapatkan rekomendasi metode belajar yang efektif sesuai dengan hasil tes gaya berpikir Anda.
                 </p>
-                <button onclick="alert('Selesaikan tes terlebih dahulu!')" class="w-full py-3 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
+                <button onclick="alert('Selesaikan tes terlebih dahulu!')" class="mt-auto w-full py-3 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
                     Lihat Tips
                 </button>
             </div>
 
-            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 opacity-60">
+            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 opacity-60 flex flex-col">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center text-2xl">
                         <i class="ph-fill ph-files"></i>
@@ -108,7 +126,7 @@
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
                     Unduh laporan lengkap analisis minat bakat Anda setelah menyelesaikan semua tes.
                 </p>
-                <button disabled class="w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
+                <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
                     Belum Tersedia
                 </button>
             </div>
