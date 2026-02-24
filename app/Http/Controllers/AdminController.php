@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Question;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Exam;
+use App\Models\ExamResult;
 
 class AdminController extends Controller
 {
@@ -54,6 +55,28 @@ public function betaTestPreview(Request $request)
     // 1. Tampilkan Dashboard beserta Data Soal
  public function dashboard()
     {
+
+    // 1. Ambil data soal untuk kebutuhan tabel (kode yang sudah ada)
+        $questions = \App\Models\Question::all();
+
+        // 2. HITUNG STATISTIK REAL-TIME
+        // Asumsi: Siswa memiliki kolom 'kelas', sehingga admin tidak ikut terhitung
+        $totalSiswa = \App\Models\User::whereNotNull('kelas')->count(); 
+        
+        // Menghitung total pertanyaan yang ada di Bank Soal
+        $totalSoal = \App\Models\Question::count();
+        
+        // Menghitung total laporan/hasil ujian yang sudah disubmit oleh siswa
+        $totalLaporan = \App\Models\ExamResult::count();
+
+        // 3. Kirim semua variabel ke file Blade
+        return view('admin.admin-dashboard', compact(
+            'questions', 
+            'totalSiswa', 
+            'totalSoal', 
+            'totalLaporan'
+        ));
+
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
@@ -95,4 +118,57 @@ public function betaTestPreview(Request $request)
         // Kembalikan ke dashboard dan buka langsung tab 'publish' (Kelola Soal)
         return redirect()->route('dashboard.admin')->with('success', 'Status soal berhasil diubah!')->with('tab', 'publish');
     }
+
+    public function monitoringView()
+    {
+        // Get all exams to populate the filter dropdown
+        $activeExams = Exam::orderBy('exam_date', 'desc')->get();
+        return view('admin.monitoring', compact('activeExams'));
+    }
+
+    // 2. The API Endpoint for Live Data Fetching
+    public function getMonitoringData(Request $request)
+    {
+        $examId = $request->query('exam_id');
+
+        // This query joins the Users, Exams, and ExamResults to get a comprehensive view
+        // IMPORTANT: You will need to track 'progress' and 'status' in a new table 
+        // (e.g., ExamSession) if you want real-time "Soal 5/20" tracking.
+        // For now, this is a simulated response based on the ExamResult table.
+
+        $query = \App\Models\ExamResult::with(['user', 'exam'])
+                    ->orderBy('created_at', 'desc');
+
+        if ($examId) {
+            $query->where('exam_id', $examId);
+        }
+
+        $results = $query->get();
+
+        $monitoringData = [];
+
+        foreach ($results as $result) {
+            
+            // Basic Status Logic based on your requirements
+            $status = 'Selesai';
+            $progress = 'Selesai';
+
+            // Example of how you might determine "Failed" (e.g., time ran out before finishing)
+            // if ($result->score_r == 0 && $result->score_i == 0) {
+            //    $status = 'Failed';
+            //    $progress = 'Waktu Habis';
+            // }
+
+            $monitoringData[] = [
+                'student_name' => $result->user->name ?? 'Unknown',
+                'student_class' => $result->user->kelas ?? '-',
+                'exam_title' => $result->exam->title ?? 'Unknown Exam',
+                'status' => $status,
+                'progress' => $progress,
+            ];
+        }
+
+        return response()->json($monitoringData);
+    }
+    
 }

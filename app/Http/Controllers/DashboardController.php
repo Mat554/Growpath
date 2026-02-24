@@ -14,20 +14,33 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Ambil ujian yang target kelasnya sama dengan kelas siswa yang sedang login
-        // Diurutkan dari yang terbaru dibuat
+        // 1. Ambil daftar ujian sesuai kelas
         $exams = Exam::where('target_class', $user->kelas)
                      ->orderBy('created_at', 'desc')
                      ->get();
 
-        // Kirim data $exams ke halaman dashboard
-        return view('dashboard', compact('exams'));
+        // 2. Ambil kumpulan ID ujian yang SUDAH dikerjakan oleh siswa ini
+        $completedExamIds = \App\Models\ExamResult::where('user_id', $user->id)
+                                ->pluck('exam_id')
+                                ->toArray();
+
+        // 3. Kirim ke view (tambahkan variabel $completedExamIds)
+        return view('dashboard', compact('exams', 'completedExamIds'));
     }
 
     // 1. Menampilkan Soal ke Siswa
     public function takeExam($id)
     {
-        // Ambil ujian beserta relasi soal-soalnya
+        // CEK KEAMANAN: Apakah siswa ini sudah pernah mengerjakan ujian ini?
+        $alreadyTaken = \App\Models\ExamResult::where('user_id', Auth::id())
+                            ->where('exam_id', $id)
+                            ->exists();
+                            
+        if ($alreadyTaken) {
+            // Jika sudah, lempar dia kembali ke halaman laporan
+            return redirect()->route('laporan')->with('error', 'Anda sudah menyelesaikan kuesioner ini.');
+        }
+
         $exam = Exam::with('questions')->findOrFail($id);
         
         return view('tes', [
@@ -112,5 +125,7 @@ class DashboardController extends Controller
         }
         return view('admin.admin-dashboard');
     }
+
+    
     
 }

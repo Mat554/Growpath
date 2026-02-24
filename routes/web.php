@@ -45,13 +45,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin-dashboard/beta-test', [AdminController::class, 'betaTestPreview'])->name('admin.beta.test');
     Route::post('/admin-dashboard/publish', [AdminController::class, 'publishExam'])->name('admin.publish.exam');
 // Rute Dashboard Admin (Sekarang diarahkan ke controller)
-Route::get('/admin-dashboard', [AdminController::class, 'dashboard'])->name('dashboard.admin');
+    Route::get('/admin-dashboard', [AdminController::class, 'dashboard'])->name('dashboard.admin');
     Route::post('/admin-dashboard/question', [AdminController::class, 'storeQuestion'])->name('admin.question.store');
     Route::post('/admin-dashboard/question/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('admin.question.toggle');
     
-      Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Untuk Siswa
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Untuk Siswa
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu'); // Untuk Ortu
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
+    // Existing Admin Routes...
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+// NEW: Routes for Monitoring
+    Route::get('/admin/monitoring', [AdminController::class, 'monitoringView'])->name('admin.monitoring');
+    Route::get('/admin/api/monitoring', [AdminController::class, 'getMonitoringData'])->name('admin.api.monitoring');
 
 
     // Rute untuk Orang Tua

@@ -18,8 +18,8 @@ class AuthController extends Controller
         return view('login');
     }
 
-    // --- 2. PROSES LOGIN (Kirim OTP) ---
-   // --- 2. PROSES LOGIN ---
+
+
     public function login(Request $request)
     {
         // A. Validasi Input
@@ -45,7 +45,6 @@ class AuthController extends Controller
             ]);
         }
 
-        // --- 🚀 BARU: JALUR KHUSUS ADMIN (TANPA OTP) ---
         if ($user->role === 'admin') {
             // Langsung login resmi
             Auth::login($user);

@@ -51,9 +51,9 @@
             </button>
 
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Laporan</div>
-            <button onclick="showSection('monitoring')" id="nav-monitoring" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
-                <i class="ph ph-monitor-play text-lg"></i> Monitoring
-            </button>
+            <a href="{{ route('admin.monitoring') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
+     <i class="ph ph-monitor-play text-lg"></i> Monitoring
+</a>
             <button onclick="showSection('report')" id="nav-report" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-file-text text-lg"></i> Publish Laporan
             </button>
@@ -81,31 +81,34 @@
 
         <div id="overview" class="section active">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                
                 <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
                     <div class="w-16 h-16 bg-[#EBF5FF] text-[#4A90E2] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-users"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statUsers">120</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statUsers">{{ $totalSiswa }}</h3>
                         <p class="text-gray-500 text-sm">Total Siswa</p>
                     </div>
                 </div>
+                
                 <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
                     <div class="w-16 h-16 bg-[#E8F9F5] text-[#2ECC71] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-question"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statQuestions">0</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statQuestions">{{ $totalSoal }}</h3>
                         <p class="text-gray-500 text-sm">Bank Soal</p>
                     </div>
                 </div>
+                
                 <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
                     <div class="w-16 h-16 bg-[#FFF4E5] text-[#FF9F43] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-file-dashed"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800">5</h3>
-                        <p class="text-gray-500 text-sm">Laporan Pending</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statReports">{{ $totalLaporan }}</h3>
+                        <p class="text-gray-500 text-sm">Laporan Masuk</p>
                     </div>
                 </div>
             </div>

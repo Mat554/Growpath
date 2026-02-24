@@ -62,15 +62,42 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            @forelse ($exams as $exam)
-            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group flex flex-col">
+          @forelse ($exams as $exam)
+            @php
+                // 1. Cek apakah sudah dikerjakan
+                $isCompleted = in_array($exam->id, $completedExamIds);
+                $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                
+                // 2. Cek apakah tanggal hari ini sudah melewati tanggal ujian (di penghujung hari)
+                $isOverdue = \Carbon\Carbon::parse($exam->exam_date)->endOfDay()->isPast();
+                $today = \Carbon\Carbon::now()->startOfDay();
+                $isLocked  = $today->lt($examDate); // Hari ini SEBELUM tanggal ujian
+                $isOverdue = $today->gt($examDate); // Hari ini SESUDAH tanggal ujian
+            @endphp
+            
+           <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group flex flex-col">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 bg-[#EBF5FF] text-[#4A90E2] rounded-xl flex items-center justify-center text-2xl">
                         <i class="ph-fill ph-exam"></i>
                     </div>
-                    <span class="px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-xs font-bold uppercase">
-                        Belum Tes
-                    </span>
+                    
+                    @if($isCompleted)
+                        <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase border border-green-100">
+                            Selesai
+                        </span>
+                    @elseif($isLocked)
+                        <span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold uppercase border border-gray-200">
+                            Terkunci
+                        </span>
+                    @elseif($isOverdue)
+                        <span class="px-3 py-1 bg-red-50 text-red-500 rounded-full text-xs font-bold uppercase border border-red-100">
+                            Overdue
+                        </span>
+                    @else
+                        <span class="px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-xs font-bold uppercase border border-orange-100">
+                            Belum Tes
+                        </span>
+                    @endif
                 </div>
                 
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ $exam->title }}</h3>
@@ -80,14 +107,30 @@
                         <i class="ph-fill ph-clock text-[#4A90E2]"></i> Waktu: {{ $exam->duration_minutes }} Menit
                     </div>
                     <div class="flex items-center gap-2">
-                        <i class="ph-fill ph-calendar text-[#4A90E2]"></i> Tenggat: {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                        <i class="ph-fill ph-calendar {{ $isOverdue && !$isCompleted ? 'text-red-500' : ($isLocked && !$isCompleted ? 'text-gray-400' : 'text-[#4A90E2]') }}"></i> 
+                        Jadwal: {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
                     </div>
                 </div>
                 
-                <a href="{{ route('exam.take', $exam->id) }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 text-center block">
-                      Mulai Kuesioner
+                @if($isCompleted)
+                    <a href="{{ route('laporan') }}" class="mt-auto w-full py-3 bg-white border border-[#2ECC71] text-[#2ECC71] hover:bg-[#E8F9F5] rounded-xl font-semibold text-sm transition-all text-center block">
+                        Lihat Hasil
                     </a>
+                @elseif($isLocked)
+                    <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
+                        Belum Dimulai
+                    </button>
+                @elseif($isOverdue)
+                    <button onclick="alert('Jadwal ujian ini sudah terlewat. Silakan hubungi Admin sekolah Anda.')" class="mt-auto w-full py-3 bg-red-50 border border-red-200 text-red-500 hover:bg-red-100 rounded-xl font-semibold text-sm transition-all text-center block cursor-pointer">
+                        Contact Admin
+                    </button>
+                @else
+                    <a href="{{ route('exam.take', $exam->id) }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 text-center block">
+                        Mulai Kuesioner
+                    </a>
+                @endif
             </div>
+
             @empty
             <div class="bg-white p-6 rounded-[18px] shadow-sm border border-gray-100 border-dashed flex flex-col justify-center items-center text-center opacity-70">
                 <div class="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center text-3xl mb-3">
