@@ -6,7 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController; // <--- Pastikan ini ada
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
 
 
