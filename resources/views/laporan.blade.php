@@ -179,6 +179,7 @@
             }, 
             dominant_code: "{{ $result->dominant_code }}"
         };
+        
         // Database Deskripsi Sederhana
         const descriptions = {
             'R': { title: "Realistic (The Doers)", desc: "Anda praktis, mandiri, dan suka bekerja dengan alat atau mesin. Anda lebih suka aktivitas fisik dan bekerja di luar ruangan." },
