@@ -24,9 +24,12 @@ class AppServiceProvider extends ServiceProvider
 public function boot(): void
 {
     // Tambahkan ini untuk memaksa jalur build Vite di Vercel
-    if (config('app.env') === 'production' || config('app.env') === 'local') {
-        \Illuminate\Support\Facades\Vite::useBuildDirectory('build');
+public function boot(): void
+{
+    // Cukup gunakan ini saja untuk memberitahu lokasi manifest
+    if (app()->environment('production') || env('VERCEL')) {
         \Illuminate\Support\Facades\Vite::useManifestFilename('build/manifest.json');
     }
+}
 }
 }

@@ -8395,3 +8395,13 @@ FATAL:  Authentication error, reason: \"There is no user 'postgresql://postgres'
 #43 C:\\xampp\\htdocs\\Growpath\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
 #44 {main}
 "} 
+[2026-02-26 09:03:20] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:03:20] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
