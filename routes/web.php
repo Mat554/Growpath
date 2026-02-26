@@ -33,3 +33,7 @@ Route::get('/dashboard', function () {
 Route::get('/dashboard-ortu', function () {
     return "Halo Orang Tua! (Halaman Dashboard)";
 })->middleware('auth');
+
+Route::get('/kuesioner', function () {
+    return view('kuesioner'); // Pastikan nama file view sesuai
+})->name('kuesioner');
