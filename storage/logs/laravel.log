@@ -8405,3 +8405,118 @@ FATAL:  Authentication error, reason: \"There is no user 'postgresql://postgres'
 #0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
 #1 {main}
 "} 
+[2026-02-26 09:04:07] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:10] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:10] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:23] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:41] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:41] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:47] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:04:47] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-cfae44312a91110c691459b4106ded61.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:07] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:07] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:20] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:20] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:20] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:25] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:25] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:25] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token "public" {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: syntax error, unexpected token \"public\" at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:36] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:36] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:36] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:44] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-31b934f114eabc246b541addb8b458e3.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:44] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-19804082b122017c46bdac205a3a1912.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:44] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 
+[2026-02-26 09:06:54] local.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Unclosed '{' on line 8 at C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php:33)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\Growpath\\vendor\\_laravel_ide\\discover-016c8ef007628f93e3ad930719f73821.php(62): LaravelVsCode::startupError(Object(ParseError))
+#1 {main}
+"} 

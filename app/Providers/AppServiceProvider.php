@@ -21,15 +21,11 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-public function boot(): void
-{
-    // Tambahkan ini untuk memaksa jalur build Vite di Vercel
-public function boot(): void
-{
-    // Cukup gunakan ini saja untuk memberitahu lokasi manifest
-    if (app()->environment('production') || env('VERCEL')) {
-        \Illuminate\Support\Facades\Vite::useManifestFilename('build/manifest.json');
+  public function boot(): void
+    {
+        // Memastikan Laravel mencari manifest Vite di jalur yang benar saat di Vercel
+        if (app()->environment('production') || env('VERCEL')) {
+            Vite::useManifestFilename('build/manifest.json');
+        }
     }
-}
-}
 }
