@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
     Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');
     Route::get('/laporan', [DashboardController::class, 'laporan'])->name('laporan');
+    Route::get('/tes',[DashboardController::class, 'tes'])->name('tes');
 
     Route::post('/admin-dashboard/beta-test', [AdminController::class, 'betaTestPreview'])->name('admin.beta.test');
     Route::post('/admin-dashboard/publish', [AdminController::class, 'publishExam'])->name('admin.publish.exam');
@@ -52,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Untuk Siswa
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu'); // Untuk Ortu
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
+    Route::get('/kuesioner', [DashboardController::class, 'kuesioner'])->name('kuesioner');
+
     // Existing Admin Routes...
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 

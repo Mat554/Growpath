@@ -71,6 +71,8 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'redirect_url' => route('laporan')]);
     }
 
+
+    
     // 3. Menampilkan Halaman Laporan
     public function laporan()
     {
@@ -116,6 +118,19 @@ class DashboardController extends Controller
             return redirect()->route('dashboard');
         }
         return view('ortu.ortu-profile');
+    }
+
+    public function kuesioner()
+    {
+        if (Auth::user()->role !== 'siswa') {
+            return redirect()->route('dashboard');
+        }
+        return view('kuesioner');
+    }
+
+    public function tes()
+    {
+        return view('tes');
     }
 
     public function dashboardAdmin()
