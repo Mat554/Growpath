@@ -1,0 +1,27 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-d3415a9c.css",
+    "isEntry": true,
+    "src": "resources/css/app.css"
+  },
+  "resources/js/admin-dashboard.js": {
+    "file": "assets/admin-dashboard-c293bdad.js",
+    "isEntry": true,
+    "src": "resources/js/admin-dashboard.js"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-905dcadf.js",
+    "isEntry": true,
+    "src": "resources/js/app.js"
+  },
+  "resources/js/exam.js": {
+    "file": "assets/exam-bf18496e.js",
+    "isEntry": true,
+    "src": "resources/js/exam.js"
+  },
+  "resources/js/otp.js": {
+    "file": "assets/otp-89b520c0.js",
+    "isEntry": true,
+    "src": "resources/js/otp.js"
+  }
+}
