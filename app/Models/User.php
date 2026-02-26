@@ -25,7 +25,8 @@ class User extends Authenticatable
     'kelas',
     'child_id_code',
     'otp',              // Add this
-    'otp_expires_at',   // Add this
+    'otp_expires_at',
+    'user_code',   // Add this
 ];
 
     /**
@@ -47,4 +48,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'otp_expires_at' => 'datetime', // <--- TAMBAHKAN BARIS INI
     ];
+
+    /**
+     * Relasi untuk Orang Tua mengambil data Anaknya
+     */
+    public function child()
+    {
+        // Mencocokkan 'child_id_code' milik Ortu dengan 'user_code' milik Siswa
+        return $this->belongsTo(User::class, 'child_id_code', 'user_code');
+    }
 }

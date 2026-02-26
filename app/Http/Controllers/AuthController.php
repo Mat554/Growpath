@@ -19,13 +19,14 @@ class AuthController extends Controller
     }
 
     // --- 2. PROSES LOGIN (Kirim OTP) ---
+   // --- 2. PROSES LOGIN ---
     public function login(Request $request)
     {
         // A. Validasi Input
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'role' => ['required', 'in:siswa,ortu'], // Validasi Role dari Tab
+            'role' => ['required', 'in:siswa,ortu,admin'], // Pastikan admin ada di sini
         ]);
 
         // B. Cari User
@@ -36,15 +37,25 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Email atau password salah.']);
         }
 
-        // D. Cek Kesesuaian Role (Siswa tidak boleh login di tab Ortu)
+        // D. Cek Kesesuaian Role
         if ($user->role !== $request->role) {
-            $roleName = $user->role === 'siswa' ? 'Siswa' : 'Orang Tua';
+            $roleName = ucfirst($user->role);
             return back()->withErrors([
                 'email' => "Akun ini terdaftar sebagai $roleName. Silakan pindah ke tab $roleName.",
             ]);
         }
 
-        // --- MULAI LOGIKA OTP ---
+        // --- 🚀 BARU: JALUR KHUSUS ADMIN (TANPA OTP) ---
+        if ($user->role === 'admin') {
+            // Langsung login resmi
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            // Langsung arahkan ke dashboard admin
+            return redirect()->intended('/admin-dashboard');
+        }
+
+        // --- MULAI LOGIKA OTP (Hanya untuk Siswa & Ortu) ---
 
         // E. Generate OTP
         $otp = rand(100000, 999999);
@@ -57,11 +68,9 @@ class AuthController extends Controller
 
         // G. Kirim Email (Gunakan Try-Catch agar tidak error jika internet putus)
         try {
-            Mail::to($user->email)->send(new OTPMail($otp));
+            Mail::to($user->email)->send(new \App\Mail\OTPMail($otp));
         } catch (\Exception $e) {
-            // Jika mau debug error email, uncomment baris bawah:
-            // dd($e->getMessage());
-            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Cek koneksi SMTP atau file .env Anda.']);
+            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Cek koneksi SMTP.']);
         }
 
         // H. Simpan ID sementara di session (Bukan Login permanen)
@@ -169,32 +178,45 @@ class AuthController extends Controller
     // --- 6. PROSES REGISTER ---
     public function register(Request $request)
     {
+        // 1. Validasi Input + Cek Kode Siswa
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|in:siswa,ortu',
             'kelas' => 'required_if:role,siswa|nullable|integer',
-            'child_id_code' => 'required_if:role,ortu|nullable|string',
+            
+            // Aturan 'exists:users,user_code' memastikan kode yang diketik ada di database
+            'child_id_code' => 'required_if:role,ortu|nullable|string|exists:users,user_code', 
+        ], [
+            // Pesan error kustom jika kodenya salah/tidak ditemukan
+            'child_id_code.exists' => 'User ID Siswa tidak ditemukan. Pastikan kodenya sudah benar.'
         ]);
 
+        // 2. Logika Generate Kode Siswa (Kode yang kita buat sebelumnya)
+        $generatedUserCode = null;
+        if ($validated['role'] === 'siswa') {
+            $randomNumber = rand(10000, 99999);
+            $generatedUserCode = 'SIS-' . $validated['kelas'] . '-' . $randomNumber;
+        }
+
+        // 3. Simpan ke Database
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'kelas' => $validated['role'] === 'siswa' ? $validated['kelas'] : null,
+            'user_code' => $generatedUserCode, 
+            
+            // Kolom ini sekarang dijamin valid dan benar-benar terhubung dengan akun siswa!
             'child_id_code' => $validated['role'] === 'ortu' ? $validated['child_id_code'] : null,
         ];
 
-        $user = User::create($userData);
+        User::create($userData);
 
-        // Opsi: Langsung login atau minta login manual (pilih salah satu)
-        // Auth::login($user); // Jika mau langsung login tanpa OTP setelah daftar
-        
         return redirect('/login')->with('success', 'Akun berhasil dibuat! Silakan masuk.');
     }
-
     // --- 7. LOGOUT ---
     public function logout(Request $request)
     {

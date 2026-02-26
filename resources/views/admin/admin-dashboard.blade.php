@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin-dashboard.js'])
 
     <style>
         /* Animasi Transisi Tab */
@@ -130,10 +130,18 @@
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-pencil-simple text-[#4A90E2]"></i> Buat Pertanyaan RIASEC
                 </div>
-                <form id="createForm">
+               @if(session('success'))
+                    <div class="mb-4 p-3 bg-green-50 text-green-600 text-sm rounded-lg border border-green-100 flex items-center gap-2">
+                        <i class="ph-fill ph-check-circle text-lg"></i> {{ session('success') }}
+                    </div>
+                @endif
+
+                <form id="createForm" method="POST" action="{{ route('admin.question.store') }}">
+                    @csrf
+                    
                     <div class="mb-5">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Teks Pertanyaan (Studi Kasus / Pilihan)</label>
-                        <textarea id="qText" rows="2" placeholder="Contoh: Kegiatan apa yang paling Anda sukai di waktu luang?" required
+                        <textarea name="question_text" id="qText" rows="2" placeholder="Contoh: Kegiatan apa yang paling Anda sukai di waktu luang?" required
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10"></textarea>
                     </div>
                     
@@ -142,35 +150,42 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">R</span>ealistic</label>
-                            <input type="text" id="optR" placeholder="Contoh: Memperbaiki mesin" required
+                            <input type="text" name="opt_r" id="optR" placeholder="Contoh: Memperbaiki mesin" required
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">I</span>nvestigative</label>
-                            <input type="text" id="optI" placeholder="Contoh: Membaca jurnal sains" required
+                            <input type="text" name="opt_i" id="optI" placeholder="Contoh: Membaca jurnal sains" required
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">A</span>rtistic</label>
-                            <input type="text" id="optA" placeholder="Contoh: Melukis" required
+                            <input type="text" name="opt_a" id="optA" placeholder="Contoh: Melukis" required
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">S</span>ocial</label>
-                            <input type="text" id="optS" placeholder="Contoh: Mengajar teman" required
+                            <input type="text" name="opt_s" id="optS" placeholder="Contoh: Mengajar teman" required
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">E</span>nterprising</label>
-                            <input type="text" id="optE" placeholder="Contoh: Menjual produk" required
+                            <input type="text" name="opt_e" id="optE" placeholder="Contoh: Menjual produk" required
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">C</span>onventional</label>
-                            <input type="text" id="optC" placeholder="Contoh: Menyusun arsip" required
+                            <input type="text" name="opt_c" id="optC" placeholder="Contoh: Menyusun arsip" required
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                     </div>
+
+                    <div class="mt-8 text-right">
+                        <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 flex items-center gap-2 ml-auto">
+                            <i class="ph-fill ph-floppy-disk text-lg"></i> Simpan RIASEC
+                        </button>
+                    </div>
+                </form>
 
                     <div class="mt-8 text-right">
                         <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 flex items-center gap-2 ml-auto">
@@ -390,219 +405,17 @@
         </div>
     </div>
 
-    <script>
-        // ==========================================
-        // 1. Navigation Logic
-        // ==========================================
-        function showSection(sectionId) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            // Reset nav buttons style
-            document.querySelectorAll('aside button').forEach(el => {
-                el.classList.remove('bg-[#EBF5FF]', 'text-[#4A90E2]');
-                el.classList.add('text-gray-500', 'hover:bg-gray-50');
-            });
-
-            // Show target section
-            document.getElementById(sectionId).classList.add('active');
-            
-            // Highlight nav button
-            const navBtn = document.getElementById('nav-' + sectionId);
-            navBtn.classList.remove('text-gray-500', 'hover:bg-gray-50');
-            navBtn.classList.add('bg-[#EBF5FF]', 'text-[#4A90E2]');
-
-            if(sectionId === 'publish' || sectionId === 'overview') {
-                loadQuestions();
-            }
-            if(sectionId === 'publisher-v2') {
-                loadForPublisher();
-            }
-        }
-
-        // ==========================================
-        // 2. Dummy Data & Logic (Frontend Only)
-        // ==========================================
-        // Simulasi Database Lokal
-        let globalQuestionsData = [
-            { id: 1, question_text: "Apa yang Anda lakukan saat ada waktu luang?", opt_r: "Memperbaiki motor", opt_i: "Baca buku sains", opt_a: "Melukis", opt_s: "Ngobrol sama teman", opt_e: "Jualan online", opt_c: "Merapikan kamar", is_active: true },
-            { id: 2, question_text: "Pelajaran favorit Anda?", opt_r: "Fisika/Olahraga", opt_i: "Matematika/Biologi", opt_a: "Seni Budaya", opt_s: "Sosiologi", opt_e: "Ekonomi", opt_c: "Akuntansi", is_active: true },
-            { id: 3, question_text: "Anda lebih suka bekerja dengan...", opt_r: "Alat & Mesin", opt_i: "Ide & Teori", opt_a: "Warna & Desain", opt_s: "Manusia", opt_e: "Target & Uang", opt_c: "Data & Angka", is_active: false },
-        ];
+  <script>
+        // 1. Kirim data soal ke Javascript
+        window.globalQuestionsData = @json($questions);
         
-        // Load Questions Table
-        function loadQuestions() {
-            const tbody = document.getElementById('questionTable');
-            tbody.innerHTML = '';
-            document.getElementById('statQuestions').innerText = globalQuestionsData.length;
-
-            if (globalQuestionsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-gray-400">Belum ada soal.</td></tr>';
-            } else {
-                globalQuestionsData.forEach(q => {
-                    const statusBadge = q.is_active 
-                        ? `<span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase">Tayang</span>` 
-                        : `<span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold uppercase">Draft</span>`;
-                    
-                    const btnClass = q.is_active ? 'bg-red-500 hover:bg-red-600' : 'bg-[#4A90E2] hover:bg-[#357ABD]';
-                    const btnText = q.is_active ? 'Tarik' : 'Publish';
-
-                    tbody.innerHTML += `
-                        <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                            <td class="p-4 text-sm text-gray-700">${q.question_text}</td>
-                            <td class="p-4">${statusBadge}</td>
-                            <td class="p-4 text-right">
-                                <button onclick="alert('Demo: Ubah Status')" class="px-3 py-1.5 ${btnClass} text-white rounded-lg text-xs font-semibold transition-all">
-                                    ${btnText}
-                                </button>
-                            </td>
-                        </tr>`;
-                });
-            }
-        }
-
-        // ===============================================================
-        // 3. PUBLISHER V2 LOGIC
-        // ===============================================================
-        let selectedQuestionIds = new Set();
-
-        function loadForPublisher() {
-            const container = document.getElementById('publisherList');
-            container.innerHTML = '';
-
-            globalQuestionsData.forEach(q => {
-                const isSelected = selectedQuestionIds.has(q.id);
-                const activeClass = isSelected ? 'border-[#4A90E2] bg-[#EBF5FF]' : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-[#4A90E2]';
-                const checkIconColor = isSelected ? 'text-[#4A90E2]' : 'text-gray-300';
-                const iconClass = isSelected ? 'ph-fill ph-check-square' : 'ph ph-square';
-
-                const itemHtml = `
-                <div class="p-4 rounded-xl border mb-3 cursor-pointer transition-all flex gap-4 items-start ${activeClass}" onclick="toggleSelection(${q.id})">
-                    <i class="${iconClass} text-2xl ${checkIconColor} mt-0.5"></i>
-                    <div class="flex-1">
-                        <div class="font-semibold text-sm text-gray-800 mb-2">${q.question_text}</div>
-                        <div class="flex flex-wrap gap-1">
-                            <span class="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] text-gray-500">R: ${q.opt_r}</span>
-                            <span class="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] text-gray-500">S: ${q.opt_s}</span>
-                            <span class="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] text-gray-500">...</span>
-                        </div>
-                    </div>
-                </div>`;
-                container.innerHTML += itemHtml;
-            });
-            document.getElementById('totalSelected').innerText = selectedQuestionIds.size + " Item";
-        }
-
-        function toggleSelection(id) {
-            if (selectedQuestionIds.has(id)) selectedQuestionIds.delete(id);
-            else selectedQuestionIds.add(id);
-            loadForPublisher();
-        }
-
-        // ===============================================================
-        // 4. BETA TEST / SIMULASI LOGIC
-        // ===============================================================
-        let betaQuestions = [];
-        let currentBetaIndex = 0;
-        let betaAnswers = { R:0, I:0, A:0, S:0, E:0, C:0 };
-        let tempSelectedOption = null;
-
-        function startBetaTest() {
-            if(selectedQuestionIds.size === 0) { alert("Pilih minimal 1 soal untuk simulasi!"); return; }
-            
-            betaQuestions = globalQuestionsData.filter(q => selectedQuestionIds.has(q.id));
-            currentBetaIndex = 0;
-            betaAnswers = { R:0, I:0, A:0, S:0, E:0, C:0 };
-            
-            document.getElementById('simResultArea').classList.add('hidden');
-            document.getElementById('simQuizArea').classList.remove('hidden');
-            document.getElementById('betaModal').classList.remove('hidden');
-            document.getElementById('betaModal').classList.add('flex');
-            
-            renderSimQuestion();
-        }
-
-        function renderSimQuestion() {
-            const q = betaQuestions[currentBetaIndex];
-            document.getElementById('simQText').innerText = q.question_text;
-            document.getElementById('simProgress').innerText = `Soal ${currentBetaIndex + 1} / ${betaQuestions.length}`;
-            
-            tempSelectedOption = null;
-            const container = document.getElementById('simOptions');
-            container.innerHTML = '';
-
-            const options = [
-                { type: 'R', text: q.opt_r }, { type: 'I', text: q.opt_i },
-                { type: 'A', text: q.opt_a }, { type: 'S', text: q.opt_s },
-                { type: 'E', text: q.opt_e }, { type: 'C', text: q.opt_c }
-            ];
-
-            options.forEach(opt => {
-                // Tailwind Button for Options
-                const btn = document.createElement('div'); 
-                btn.className = 'p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:bg-blue-50 hover:border-[#4A90E2] transition-all flex items-center gap-3 group';
-                btn.innerHTML = `
-                    <span class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg text-xs font-bold text-gray-500 group-hover:bg-[#4A90E2] group-hover:text-white transition-colors">${opt.type}</span> 
-                    <span class="text-sm text-gray-700 font-medium">${opt.text}</span>`;
-                
-                btn.onclick = () => {
-                    // Reset styles
-                    Array.from(container.children).forEach(c => {
-                        c.className = 'p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:bg-blue-50 hover:border-[#4A90E2] transition-all flex items-center gap-3 group';
-                        c.querySelector('span:first-child').className = 'w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg text-xs font-bold text-gray-500 group-hover:bg-[#4A90E2] group-hover:text-white transition-colors';
-                    });
-                    // Active Style
-                    btn.className = 'p-4 border-2 border-[#4A90E2] bg-[#EBF5FF] rounded-xl cursor-pointer flex items-center gap-3';
-                    btn.querySelector('span:first-child').className = 'w-8 h-8 flex items-center justify-center bg-[#4A90E2] rounded-lg text-xs font-bold text-white';
-                    
-                    tempSelectedOption = opt.type;
-                };
-                container.appendChild(btn);
-            });
-        }
-
-        function nextSimQuestion() {
-            if(!tempSelectedOption) { alert("Pilih jawaban dulu!"); return; }
-            betaAnswers[tempSelectedOption]++;
-
-            if(currentBetaIndex < betaQuestions.length - 1) {
-                currentBetaIndex++;
-                renderSimQuestion();
-            } else {
-                showBetaResult();
-            }
-        }
-
-        function showBetaResult() {
-            document.getElementById('simQuizArea').classList.add('hidden');
-            document.getElementById('simResultArea').classList.remove('hidden');
-
-            document.getElementById('scoreR').innerText = betaAnswers.R;
-            document.getElementById('scoreI').innerText = betaAnswers.I;
-            document.getElementById('scoreA').innerText = betaAnswers.A;
-            document.getElementById('scoreS').innerText = betaAnswers.S;
-            document.getElementById('scoreE').innerText = betaAnswers.E;
-            document.getElementById('scoreC').innerText = betaAnswers.C;
-
-            let entries = Object.entries(betaAnswers).sort((a, b) => b[1] - a[1]);
-            let top3 = entries.slice(0, 3).map(entry => entry[0]);
-            document.getElementById('finalDominance').innerText = top3.join(" ");
-        }
-
-        function closeBetaTest() {
-            document.getElementById('betaModal').classList.add('hidden');
-            document.getElementById('betaModal').classList.remove('flex');
-        }
-
-        function compileCard() {
-            alert("✅ Data tersimpan! (Simulasi)");
-        }
-        function confirmPublishFromBeta() {
-            closeBetaTest();
-            compileCard();
-        }
-
-        // Init Load
-        loadQuestions();
+        // 2. Kirim data session tab (jika baru saja menyimpan soal)
+        window.activeTabSession = "{{ session('tab') ?? '' }}";
+        
+        // 3. Kirim Token CSRF untuk form Javascript (opsional jika butuh fetch)
+        window.csrfToken = "{{ csrf_token() }}";
     </script>
+</body>
+</html>
 </body>
 </html>

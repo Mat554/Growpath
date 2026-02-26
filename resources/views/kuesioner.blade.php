@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -27,20 +27,23 @@
             <i class="ph-fill ph-brain text-2xl"></i> Growpath
         </div>
         <nav class="flex-1 flex flex-col gap-2">
-            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
             </a>
-            <a href="profile.html" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
                 <i class="ph ph-user text-lg"></i> Profil Saya
             </a>
-            <a href="kuesioner.html" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
+            <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
                 <i class="ph ph-clipboard-text text-lg"></i> Kuesioner
             </a>
         </nav>
         
-        <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all mt-auto cursor-pointer border-none bg-transparent text-left">
-            <i class="ph ph-sign-out text-lg"></i> Keluar
-        </button>
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all mt-auto cursor-pointer border-none bg-transparent text-left">
+                <i class="ph ph-sign-out text-lg"></i> Keluar
+            </button>
+        </form>
     </aside>
 
     <main class="flex-1 flex flex-col h-full overflow-hidden">
@@ -86,7 +89,7 @@
                         </div>
                     </div>
                     <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="tes.html" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
+                        <a href="{{ route('tes') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
                             Mulai Kerjakan
                         </a>
                     </div>
@@ -110,7 +113,7 @@
                         </div>
                     </div>
                     <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="tes.html" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
+                        <a href="{{ route('tes') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
                             Mulai Kerjakan
                         </a>
                     </div>
@@ -134,7 +137,7 @@
                         </div>
                     </div>
                     <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="laporan.html" class="block w-full md:w-auto px-8 py-3.5 text-center bg-white border-2 border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
+                        <a href="{{ route('laporan') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-white border-2 border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
                             Lihat Laporan
                         </a>
                     </div>
@@ -158,7 +161,7 @@
                         </div>
                     </div>
                     <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="laporan.html" class="block w-full md:w-auto px-8 py-3.5 text-center bg-white border-2 border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
+                        <a href="{{ route('laporan') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-white border-2 border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
                             Lihat Laporan
                         </a>
                     </div>
@@ -241,27 +244,19 @@
     </main>
 
     <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 flex md:hidden justify-around z-50">
-        <a href="dashboard.html" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
+        <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
             <i class="ph-fill ph-squares-four text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Home</span>
         </a>
-        <a href="kuesioner.html" class="flex flex-col items-center text-[#4A90E2]">
+        <a href="{{ route('kuesioner') }}" class="flex flex-col items-center text-[#4A90E2]">
             <i class="ph-fill ph-clipboard-text text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Tes</span>
         </a>
-        <a href="profile.html" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
+        <a href="{{ route('profile') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
             <i class="ph-fill ph-user text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Profil</span>
         </a>
     </div>
 
-    <script>
-        function logout() {
-            if(confirm("Yakin ingin keluar?")) {
-                localStorage.clear();
-                window.location.href = 'login.html';
-            }
-        }
-    </script>
 </body>
 </html>

@@ -57,6 +57,17 @@
                     </div>
                 @endif
 
+                 <div class="mb-5">
+                        <label class="block text-sm font-medium text-[#333] mb-2">Nama Lengkap</label>
+                        <div class="relative">
+                            <input type="text" name="name" placeholder="Masukkan Nama Lengkap" 
+                                class="w-full pl-12 pr-4 py-3.5 border border-[#e1e1e1] rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-[#333] bg-[#FCFCFC] focus:bg-white peer"
+                                value="{{ old('name') }}">
+                            <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa] text-xl peer-focus:text-[#4A90E2] transition-colors"></i>
+                        </div>
+                    </div>
+
+
                 <div id="sectionOrtu" class="hidden animate-fade-in">
                     <div class="mb-5">
                         <label class="block text-sm font-medium text-[#333] mb-2">User ID Anak</label>
@@ -79,16 +90,6 @@
                 </div>
 
                 <div id="sectionSiswa" class="animate-fade-in">
-                    <div class="mb-5">
-                        <label class="block text-sm font-medium text-[#333] mb-2">Nama Lengkap</label>
-                        <div class="relative">
-                            <input type="text" name="name" placeholder="Masukkan Nama Lengkap" 
-                                class="w-full pl-12 pr-4 py-3.5 border border-[#e1e1e1] rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-[#333] bg-[#FCFCFC] focus:bg-white peer"
-                                value="{{ old('name') }}">
-                            <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa] text-xl peer-focus:text-[#4A90E2] transition-colors"></i>
-                        </div>
-                    </div>
-
                     <div class="mb-5">
                         <label class="block text-sm font-medium text-[#333] mb-2">Kelas</label>
                         <div class="relative">
