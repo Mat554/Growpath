@@ -8,7 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @vite('resources/css/app.css')
+    @vite('resources/js/app.js')
 </head>
 <body class="bg-[#F8F9FD] min-h-screen flex justify-center items-center p-5 font-sans">
 
