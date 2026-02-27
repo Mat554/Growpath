@@ -23,10 +23,7 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
 public function boot(): void
-{
-    // Cukup gunakan ini untuk memastikan Laravel mencari manifest di lokasi standar
-    if (app()->environment('production') || env('VERCEL')) {
-        \Illuminate\Support\Facades\Vite::useManifestFilename('manifest.json');
+    {
+        // Kosongkan saja, biarkan Laravel bekerja otomatis
     }
-}
 }
