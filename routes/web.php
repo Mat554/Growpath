@@ -10,6 +10,18 @@ Route::get('/', function () {
 });
 
 
+Route::get('/cek-file', function () {
+    $manifestPath = public_path('build/manifest.json');
+    $buildPath = public_path('build');
+    
+    return response()->json([
+        '1_status_manifes' => file_exists($manifestPath) ? '✅ MANIFES DITEMUKAN!' : '❌ MANIFES HILANG',
+        '2_lokasi_pencarian' => $manifestPath,
+        '3_isi_folder_public' => file_exists(public_path()) ? scandir(public_path()) : 'Tidak ada folder public',
+        '4_isi_folder_build' => file_exists($buildPath) ? scandir($buildPath) : '❌ Folder build tidak terbawa ke Vercel!'
+    ]);
+});
+
 
 // 1. LOGIN
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
