@@ -17,7 +17,7 @@ class DashboardController extends Controller
         // 1. Ambil daftar ujian sesuai kelas
         $exams = Exam::where('target_class', $user->kelas)
                      ->orderBy('created_at', 'desc')
-                     ->get();
+                     ->get();   
 
         // 2. Ambil kumpulan ID ujian yang SUDAH dikerjakan oleh siswa ini
         $completedExamIds = \App\Models\ExamResult::where('user_id', $user->id)
@@ -28,11 +28,34 @@ class DashboardController extends Controller
         return view('dashboard', compact('exams', 'completedExamIds'));
     }
 
+    public function laporanOrtu()
+    {
+        $anak = \App\Models\User::where('user_code', Auth::user()->child_id_code)
+                                ->where('role', 'siswa')
+                                ->first();
+
+        if (!$anak) {
+            return redirect()->route('dashboard.ortu')->with('error', 'Data anak tidak ditemukan.');
+        }
+
+        // Ambil 1 hasil terbaru milik anak
+        $result = \App\Models\ExamResult::where('user_id', $anak->id)->latest()->first();
+
+        if (!$result) {
+            return redirect()->route('dashboard.ortu')->with('error', 'Anak Anda belum menyelesaikan kuesioner.');
+        }
+
+        // Kirim nama ANAK
+        $namaPemilik = $anak->name;
+
+        return view('laporan', compact('result', 'namaPemilik'));
+    }
+
     // 1. Menampilkan Soal ke Siswa
     public function takeExam($id)
     {
         // CEK KEAMANAN: Apakah siswa ini sudah pernah mengerjakan ujian ini?
-        $alreadyTaken = \App\Models\ExamResult::where('user_id', Auth::id())
+        $alreadyTaken = ExamResult::where('user_id', Auth::id())
                             ->where('exam_id', $id)
                             ->exists();
                             
@@ -76,14 +99,17 @@ class DashboardController extends Controller
     // 3. Menampilkan Halaman Laporan
     public function laporan()
     {
-        // Ambil hasil ujian terakhir milik siswa ini
+        // Ambil 1 hasil terbaru
         $result = ExamResult::where('user_id', Auth::id())->latest()->first();
         
         if (!$result) {
             return redirect()->route('dashboard')->with('error', 'Selesaikan kuesioner terlebih dahulu!');
         }
+        
+        // Kirim nama siswa yang login
+        $namaPemilik = Auth::user()->name;
 
-        return view('laporan', compact('result'));
+        return view('laporan', compact('result', 'namaPemilik'));
     }
 
 
@@ -97,10 +123,19 @@ class DashboardController extends Controller
                                 ->where('role', 'siswa')
                                 ->first();
 
-        // UBAH BARIS INI:
-        // Jika nama filenya 'ortu-dashboard.blade.php' di dalam folder views
-        return view('ortu.ortu-dashboard', compact('anak')); 
+        $hasilTesAnak = collect(); 
+
+        if ($anak) {
+            // INI KUNCI UTAMANYA: Mengambil skor langsung dari database
+            $hasilTesAnak = \App\Models\ExamResult::where('user_id', $anak->id)->get();
+        }
+
+        return view('ortu.ortu-dashboard', compact('anak', 'hasilTesAnak')); 
     }
+
+        
+
+       
     // Tambahkan fungsi ini di bawah fungsi index() yang sudah ada
     public function profile()
     {

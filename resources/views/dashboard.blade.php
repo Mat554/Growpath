@@ -64,11 +64,11 @@
             
           @forelse ($exams as $exam)
             @php
-                // 1. Cek apakah sudah dikerjakan
+
                 $isCompleted = in_array($exam->id, $completedExamIds);
                 $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
                 
-                // 2. Cek apakah tanggal hari ini sudah melewati tanggal ujian (di penghujung hari)
+                
                 $isOverdue = \Carbon\Carbon::parse($exam->exam_date)->endOfDay()->isPast();
                 $today = \Carbon\Carbon::now()->startOfDay();
                 $isLocked  = $today->lt($examDate); // Hari ini SEBELUM tanggal ujian
@@ -113,9 +113,9 @@
                 </div>
                 
                 @if($isCompleted)
-                    <a href="{{ route('laporan') }}" class="mt-auto w-full py-3 bg-white border border-[#2ECC71] text-[#2ECC71] hover:bg-[#E8F9F5] rounded-xl font-semibold text-sm transition-all text-center block">
-                        Lihat Hasil
-                    </a>
+                    <button disabled class="mt-auto w-full py-3 bg-[#E8F9F5] text-[#2ECC71] border border-[#2ECC71]/30 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
+                        Kuesioner Selesai
+                    </button>
                 @elseif($isLocked)
                     <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
                         Belum Dimulai
@@ -156,25 +156,42 @@
                 </button>
             </div>
 
-            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 opacity-60 flex flex-col">
+          @php
+                $hasAnyCompletedExam = count($completedExamIds) > 0;
+            @endphp
+
+            <div class="bg-white p-6 rounded-[18px] border border-gray-100 transition-all duration-300 flex flex-col {{ $hasAnyCompletedExam ? 'shadow-[0_5px_20px_rgba(0,0,0,0.05)] hover:-translate-y-1' : 'shadow-sm opacity-60' }}">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center text-2xl">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl {{ $hasAnyCompletedExam ? 'bg-[#EBF5FF] text-[#4A90E2]' : 'bg-gray-100 text-gray-400' }}">
                         <i class="ph-fill ph-files"></i>
                     </div>
-                    <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-xs font-bold uppercase">
-                        Terkunci
-                    </span>
+                    
+                    @if($hasAnyCompletedExam)
+                        <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase border border-green-100">
+                            Tersedia
+                        </span>
+                    @else
+                        <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-xs font-bold uppercase border border-gray-200">
+                            Terkunci
+                        </span>
+                    @endif
                 </div>
+                
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Laporan Hasil</h3>
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                    Unduh laporan lengkap analisis minat bakat Anda setelah menyelesaikan semua tes.
+                    Lihat hasil analisis gaya berpikir Anda berdasarkan kuesioner yang telah diselesaikan.
                 </p>
-                <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                    Belum Tersedia
-                </button>
+                
+                @if($hasAnyCompletedExam)
+                    <a href="{{ route('laporan') }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all text-center block shadow-lg shadow-[#4A90E2]/30">
+                        Lihat Laporan Saya
+                    </a>
+                @else
+                    <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
+                        Belum Tersedia
+                    </button>
+                @endif
             </div>
-
-        </div>
     </main>
 
     <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 p-3 flex md:hidden justify-around z-50">

@@ -47,7 +47,7 @@
                     <p class="opacity-90 text-sm">Tes Minat Bakat (RIASEC)</p>
                 </div>
                 <div class="text-right hidden md:block">
-                    <div class="text-2xl font-bold">{{ Auth::user()->name ?? 'Pengunjung' }}</div>
+                    <div class="text-2xl font-bold">{{ $namaPemilik ?? 'Pengunjung' }}</div>
                     <div class="text-sm opacity-80" id="testDate">-</div>
                 </div>
             </div>
@@ -152,9 +152,16 @@
             </div>
 
             <div class="mt-10 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-4 justify-center no-print animate-fade-in" style="animation-delay: 0.8s;">
-                <button onclick="window.location.href='{{ route('dashboard') }}'" class="px-6 py-3 border border-gray-300 text-gray-600 hover:border-[#4A90E2] hover:text-[#4A90E2] hover:bg-blue-50 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
+                
+                @php
+                    // Mengecek role user untuk menentukan arah tombol kembali
+                    $ruteKembali = Auth::user()->role === 'ortu' ? route('dashboard.ortu') : route('dashboard');
+                @endphp
+
+                <button onclick="window.location.href='{{ $ruteKembali }}'" class="px-6 py-3 border border-gray-300 text-gray-600 hover:border-[#4A90E2] hover:text-[#4A90E2] hover:bg-blue-50 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
                     <i class="ph-bold ph-house"></i> Kembali
                 </button>
+                
                 <button onclick="window.print()" class="px-8 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold shadow-lg shadow-[#4A90E2]/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                     <i class="ph-bold ph-printer"></i> Cetak PDF
                 </button>

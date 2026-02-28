@@ -49,6 +49,7 @@ Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('ot
 
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
 
     Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
     Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');

@@ -59,42 +59,40 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group">
-                
+            @php
+                // Mengecek apakah ada minimal 1 skor di database
+                $isAnakSelesai = $hasilTesAnak->isNotEmpty();
+            @endphp
+
+            <div class="bg-white p-6 rounded-[18px] border border-gray-100 transition-all duration-300 flex flex-col {{ $isAnakSelesai ? 'shadow-[0_5px_20px_rgba(0,0,0,0.05)] hover:-translate-y-1' : 'shadow-sm opacity-60' }}">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 bg-[#EBF5FF] text-[#4A90E2] rounded-xl flex items-center justify-center text-2xl">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl {{ $isAnakSelesai ? 'bg-[#EBF5FF] text-[#4A90E2]' : 'bg-gray-100 text-gray-400' }}">
                         <i class="ph-fill ph-student"></i>
                     </div>
                     
-                    @if(Auth::user()->child && Auth::user()->child->has_finished_test) 
-                        <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase">
-                            Selesai
+                    @if($isAnakSelesai)
+                        <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase border border-green-100">
+                            Tersedia
                         </span>
                     @else
-                        <span class="px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-xs font-bold uppercase">
-                            Belum Tes
+                        <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-xs font-bold uppercase border border-gray-200">
+                            Menunggu Anak
                         </span>
                     @endif
                 </div>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Hasil Gaya Berpikir Anak</h3>
+                
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Laporan Hasil {{ $anak->name ?? 'Anak' }}</h3>
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                    Lihat laporan detail analisis potensi dan rekomendasi jurusan untuk anak Anda.
+                    Lihat hasil analisis gaya berpikir anak Anda berdasarkan kuesioner yang telah diselesaikan.
                 </p>
-
-                @if(Auth::user()->child)
-                    @if(Auth::user()->child->has_finished_test)
-                        <button onclick="window.location.href='#'" class="w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
-                            Lihat Laporan Lengkap
-                        </button>
-                    @else
-                        <button onclick="alert('Anak Anda belum menyelesaikan tes kuesioner.')" class="w-full py-3 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
-                            Menunggu Hasil Tes
-                        </button>
-                    @endif
+                
+                @if($isAnakSelesai)
+                    <a href="{{ route('laporan.ortu') }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all text-center block shadow-lg shadow-[#4A90E2]/30">
+                        Lihat Laporan Lengkap
+                    </a>
                 @else
-                    <button onclick="window.location.href='{{ route('profile.ortu') }}'" class="w-full py-3 bg-[#FF9F43] hover:bg-orange-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-orange-500/30">
-                        Hubungkan Akun Anak
+                    <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
+                        Belum Tersedia
                     </button>
                 @endif
             </div>
