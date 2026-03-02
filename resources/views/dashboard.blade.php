@@ -178,19 +178,24 @@
                 </div>
                 
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Laporan Hasil</h3>
+                <div class="bg-white p-6 rounded-[18px] border border-gray-100 shadow-sm flex flex-col relative overflow-hidden group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-12 h-12 bg-gray-100 text-gray-500 rounded-xl flex items-center justify-center text-2xl">
+                        <i class="ph-fill ph-lock-key"></i>
+                    </div>
+                    
+                    <span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold uppercase border border-gray-200">
+                        Khusus Wali
+                    </span>
+                </div>
+                
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                    Lihat hasil analisis gaya berpikir Anda berdasarkan kuesioner yang telah diselesaikan.
+                    Hasil analisis kuesioner Anda akan dievaluasi oleh sekolah dan dikirimkan langsung ke dashboard Orang Tua/Wali Anda.
                 </p>
                 
-                @if($hasAnyCompletedExam)
-                    <a href="{{ route('laporan') }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all text-center block shadow-lg shadow-[#4A90E2]/30">
-                        Lihat Laporan Saya
-                    </a>
-                @else
-                    <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
-                        Belum Tersedia
-                    </button>
-                @endif
+                <button disabled class="mt-auto w-full py-3 bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed text-center block">
+                    Akses Terkunci
+                </button>
             </div>
     </main>
 

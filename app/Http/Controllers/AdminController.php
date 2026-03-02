@@ -103,7 +103,7 @@ public function betaTestPreview(Request $request)
         Question::create($validated);
 
         // Tambahkan ->with('tab', 'publish') agar setelah save langsung buka tab Kelola Soal
-        return redirect()->route('dashboard.admin')->with('success', 'Soal RIASEC berhasil ditambahkan!')->with('tab', 'publish');
+        return redirect()->route('admin.dashboard')->with('success', 'Soal RIASEC berhasil ditambahkan!')->with('tab', 'publish');
     }
 
     // 3. FUNGSI BARU: Mengubah status Tayang / Draft
@@ -116,7 +116,7 @@ public function betaTestPreview(Request $request)
         $question->save();
 
         // Kembalikan ke dashboard dan buka langsung tab 'publish' (Kelola Soal)
-        return redirect()->route('dashboard.admin')->with('success', 'Status soal berhasil diubah!')->with('tab', 'publish');
+        return redirect()->route('admin.dashboard')->with('success', 'Status soal berhasil diubah!')->with('tab', 'publish');
     }
 
     public function monitoringView()

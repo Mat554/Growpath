@@ -10,17 +10,7 @@ Route::get('/', function () {
 });
 
 
-Route::get('/cek-file', function () {
-    $manifestPath = public_path('build/manifest.json');
-    $buildPath = public_path('build');
-    
-    return response()->json([
-        '1_status_manifes' => file_exists($manifestPath) ? '✅ MANIFES DITEMUKAN!' : '❌ MANIFES HILANG',
-        '2_lokasi_pencarian' => $manifestPath,
-        '3_isi_folder_public' => file_exists(public_path()) ? scandir(public_path()) : 'Tidak ada folder public',
-        '4_isi_folder_build' => file_exists($buildPath) ? scandir($buildPath) : '❌ Folder build tidak terbawa ke Vercel!'
-    ]);
-});
+
 
 
 // 1. LOGIN
@@ -49,36 +39,43 @@ Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('ot
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
-
-    Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
-    Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');
-    Route::get('/laporan', [DashboardController::class, 'laporan'])->name('laporan');
-    Route::get('/tes',[DashboardController::class, 'tes'])->name('tes');
-
-    Route::post('/admin-dashboard/beta-test', [AdminController::class, 'betaTestPreview'])->name('admin.beta.test');
-    Route::post('/admin-dashboard/publish', [AdminController::class, 'publishExam'])->name('admin.publish.exam');
-// Rute Dashboard Admin (Sekarang diarahkan ke controller)
-    Route::get('/admin-dashboard', [AdminController::class, 'dashboard'])->name('dashboard.admin');
+    
+    // ==========================================
+    // 1. RUTE ADMIN
+    // ==========================================
+    // Menghapus duplikasi, sekarang hanya memanggil DashboardController
+    Route::get('/admin-dashboard', [DashboardController::class, 'dashboardAdmin'])->name('admin.dashboard');
+    
+    // Rute Validasi & Laporan Admin
+    Route::get('/admin/laporan/{id}', [DashboardController::class, 'laporanAdmin'])->name('admin.laporan.view');
+    Route::post('/admin/laporan/{id}/publish', [DashboardController::class, 'publishLaporan'])->name('admin.laporan.publish');
+    
+    // Rute Soal & Beta Test (Memakai AdminController)
     Route::post('/admin-dashboard/question', [AdminController::class, 'storeQuestion'])->name('admin.question.store');
     Route::post('/admin-dashboard/question/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('admin.question.toggle');
+    Route::post('/admin-dashboard/beta-test', [AdminController::class, 'betaTestPreview'])->name('admin.beta.test');
+    Route::post('/admin-dashboard/publish', [AdminController::class, 'publishExam'])->name('admin.publish.exam');
     
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Untuk Siswa
-    Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu'); // Untuk Ortu
-    Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
-    Route::get('/kuesioner', [DashboardController::class, 'kuesioner'])->name('kuesioner');
-
-    // Existing Admin Routes...
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-// NEW: Routes for Monitoring
+    // Rute Monitoring
     Route::get('/admin/monitoring', [AdminController::class, 'monitoringView'])->name('admin.monitoring');
     Route::get('/admin/api/monitoring', [AdminController::class, 'getMonitoringData'])->name('admin.api.monitoring');
 
+    // ==========================================
+    // 2. RUTE SISWA
+    // ==========================================
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
+    Route::get('/kuesioner', [DashboardController::class, 'kuesioner'])->name('kuesioner');
+    Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
+    Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');
+    Route::get('/laporan', [DashboardController::class, 'laporan'])->name('laporan');
+    Route::get('/tes', [DashboardController::class, 'tes'])->name('tes');
 
-    // Rute untuk Orang Tua
+    // ==========================================
+    // 3. RUTE ORANG TUA
+    // ==========================================
+    Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu');
     Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
+    Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
 
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

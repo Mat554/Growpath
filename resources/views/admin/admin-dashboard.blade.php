@@ -313,7 +313,7 @@
             </div>
         </div>
 
-        <div id="report" class="section">
+       <div id="report" class="section">
             <div class="bg-white p-8 rounded-2xl shadow-sm">
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-file-text text-[#4A90E2]"></i> Validasi & Publish Laporan
@@ -329,16 +329,37 @@
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm text-right">Aksi</th>
                             </tr>
                         </thead>
+                        
                         <tbody>
+                            @forelse($pendingReports as $report)
                             <tr>
-                                <td class="p-4 border-b border-gray-50">Siti Aminah</td>
-                                <td class="p-4 border-b border-gray-50 text-[#4A90E2] font-bold">SEC</td>
-                                <td class="p-4 border-b border-gray-50 text-sm text-gray-600">S:25, E:20, C:18</td>
-                                <td class="p-4 border-b border-gray-50"><span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold uppercase">Review</span></td>
-                                <td class="p-4 border-b border-gray-50 text-right">
-                                    <button onclick="alert('Laporan diterbitkan!')" class="px-3 py-1.5 bg-[#4A90E2] text-white rounded-lg text-xs font-semibold hover:bg-[#357ABD]">Publish</button>
+                                <td class="p-4 border-b border-gray-50">{{ $report->user->name ?? 'Siswa' }}</td>
+                                <td class="p-4 border-b border-gray-50 text-[#4A90E2] font-bold">{{ $report->dominant_code }}</td>
+                                <td class="p-4 border-b border-gray-50 text-sm text-gray-600">S:{{ $report->score_s }}, E:{{ $report->score_e }}, C:{{ $report->score_c }}</td>
+                                <td class="p-4 border-b border-gray-50">
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold uppercase">Review</span>
+                                </td>
+                                <td class="p-4 border-b border-gray-50 flex justify-end gap-2">
+                                    <a href="{{ route('admin.laporan.view', $report->id) }}" target="_blank" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-200 transition-all">
+                                        Lihat
+                                    </a>
+                                    
+                                    <form action="{{ route('admin.laporan.publish', $report->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1.5 bg-[#2ECC71] text-white rounded-lg text-xs font-semibold hover:bg-green-600 transition-all shadow-sm">
+                                            Publish
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-gray-400">
+                                    <i class="ph-fill ph-check-circle text-4xl mb-2 text-gray-300"></i><br>
+                                    Semua laporan sudah divalidasi dan di-publish!
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -347,6 +368,7 @@
 
     </main>
 
+    
     <div id="betaModal" class="fixed inset-0 bg-black/60 z-[100] hidden justify-center items-center backdrop-blur-sm transition-all">
         <div class="bg-white w-[95%] max-w-[700px] p-8 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
             

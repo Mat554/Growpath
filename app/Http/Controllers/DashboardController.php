@@ -10,26 +10,34 @@ use App\Models\ExamResult;
 class DashboardController extends Controller
 {
     // Halaman Dashboard Siswa
- public function index()
+ // Halaman Dashboard Siswa
+    public function index()
     {
         $user = Auth::user();
         
         // 1. Ambil daftar ujian sesuai kelas
-        $exams = Exam::where('target_class', $user->kelas)
+        $exams = \App\Models\Exam::where('target_class', $user->kelas)
                      ->orderBy('created_at', 'desc')
                      ->get();   
 
-        // 2. Ambil kumpulan ID ujian yang SUDAH dikerjakan oleh siswa ini
+        // 2. Ambil ID ujian yang SUDAH dikerjakan DAN statusnya 'published' oleh Admin
         $completedExamIds = \App\Models\ExamResult::where('user_id', $user->id)
+                                ->where('status', 'published')
                                 ->pluck('exam_id')
                                 ->toArray();
 
-        // 3. Kirim ke view (tambahkan variabel $completedExamIds)
+        // 3. Kirim ke view
         return view('dashboard', compact('exams', 'completedExamIds'));
     }
 
-    public function laporanOrtu()
+   public function laporanOrtu()
     {
+        // 1. Cek Keamanan
+        if (Auth::user()->role !== 'ortu') {
+            return redirect()->route('dashboard');
+        }
+
+        // 2. Cari Data Anak
         $anak = \App\Models\User::where('user_code', Auth::user()->child_id_code)
                                 ->where('role', 'siswa')
                                 ->first();
@@ -38,16 +46,19 @@ class DashboardController extends Controller
             return redirect()->route('dashboard.ortu')->with('error', 'Data anak tidak ditemukan.');
         }
 
-        // Ambil 1 hasil terbaru milik anak
-        $result = \App\Models\ExamResult::where('user_id', $anak->id)->latest()->first();
+        // 3. Ambil laporan anak yang SUDAH DI-PUBLISH oleh Admin
+        $result = \App\Models\ExamResult::where('user_id', $anak->id)
+                                        ->where('status', 'published')
+                                        ->latest()
+                                        ->first();
 
+        // Jika belum ada laporan yang di-publish, kembalikan ke dashboard
         if (!$result) {
-            return redirect()->route('dashboard.ortu')->with('error', 'Anak Anda belum menyelesaikan kuesioner.');
+            return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda sedang direview oleh Admin atau belum tersedia.');
         }
 
-        // Kirim nama ANAK
+        // 4. Kirim data ke tampilan
         $namaPemilik = $anak->name;
-
         return view('laporan', compact('result', 'namaPemilik'));
     }
 
@@ -89,6 +100,7 @@ class DashboardController extends Controller
             'score_e' => $scores['E'],
             'score_c' => $scores['C'],
             'dominant_code' => $request->dominant_code,
+            'status' => 'review',
         ]);
 
         return response()->json(['success' => true, 'redirect_url' => route('laporan')]);
@@ -168,14 +180,53 @@ class DashboardController extends Controller
         return view('tes');
     }
 
+    // --- 1. DASHBOARD ADMIN UTAMA ---
     public function dashboardAdmin()
     {
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('dashboard');
         }
-        return view('admin.admin-dashboard');
+        
+        $totalSiswa = \App\Models\User::where('role', 'siswa')->count();
+        $totalSoal = \App\Models\Exam::count(); 
+        $totalLaporan = \App\Models\ExamResult::count();
+
+        // 1. Ambil laporan yang masih 'review'
+        $pendingReports = \App\Models\ExamResult::with('user')->where('status', 'review')->get();
+
+        // 2. Ambil semua soal untuk fitur Beta Test Admin
+        // (Pastikan nama modelnya 'Question'. Jika nama modelmu 'ExamQuestion', sesuaikan ya)
+        $questions = \App\Models\Question::all(); 
+
+        // 3. Pastikan 'questions' masuk ke dalam compact!
+        return view('admin.admin-dashboard', compact('totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports', 'questions'));
     }
 
+    // --- 2. ADMIN MELIHAT LAPORAN SISWA ---
+    public function laporanAdmin($id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('dashboard');
+        }
+
+        $result = \App\Models\ExamResult::with('user')->findOrFail($id);
+        $namaPemilik = $result->user->name ?? 'Siswa'; 
+        
+        return view('laporan', compact('result', 'namaPemilik'));
+    }
+
+    // --- 3. ADMIN PUBLISH LAPORAN ---
+    public function publishLaporan($id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        $result = \App\Models\ExamResult::findOrFail($id);
+        $result->update(['status' => 'published']); 
+
+        return redirect()->back()->with('success', 'Laporan berhasil di-publish!');
+    }
     
     
 }
