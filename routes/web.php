@@ -40,10 +40,7 @@ Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('ot
 
 Route::middleware(['auth'])->group(function () {
     
-    // ==========================================
-    // 1. RUTE ADMIN
-    // ==========================================
-    // Menghapus duplikasi, sekarang hanya memanggil DashboardController
+    
     Route::get('/admin-dashboard', [DashboardController::class, 'dashboardAdmin'])->name('admin.dashboard');
     
     // Rute Validasi & Laporan Admin
@@ -60,9 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/monitoring', [AdminController::class, 'monitoringView'])->name('admin.monitoring');
     Route::get('/admin/api/monitoring', [AdminController::class, 'getMonitoringData'])->name('admin.api.monitoring');
 
-    // ==========================================
-    // 2. RUTE SISWA
-    // ==========================================
+    
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::get('/kuesioner', [DashboardController::class, 'kuesioner'])->name('kuesioner');
@@ -71,9 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan', [DashboardController::class, 'laporan'])->name('laporan');
     Route::get('/tes', [DashboardController::class, 'tes'])->name('tes');
 
-    // ==========================================
-    // 3. RUTE ORANG TUA
-    // ==========================================
+   
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu');
     Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
     Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
