@@ -12,8 +12,6 @@
 
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -61,183 +59,123 @@
                 </div>
             </div>
 
-            <div class="flex gap-2 border-b border-gray-200 pb-px overflow-x-auto">
-                <button class="px-5 py-2.5 text-sm font-semibold text-[#4A90E2] border-b-2 border-[#4A90E2] whitespace-nowrap">Semua Kuesioner</button>
-                <button class="px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">Belum Dikerjakan</button>
-                <button class="px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">Selesai</button>
+            <div class="flex gap-2 border-b border-gray-200 pb-px overflow-x-auto" id="filterTabs">
+                <button onclick="filterKuesioner('semua', this)" class="tab-btn active px-5 py-2.5 text-sm font-semibold text-[#4A90E2] border-b-2 border-[#4A90E2] whitespace-nowrap transition-all">Semua Kuesioner</button>
+                <button onclick="filterKuesioner('belum', this)" class="tab-btn px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap transition-all">Belum Dikerjakan</button>
+                <button onclick="filterKuesioner('selesai', this)" class="tab-btn px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap transition-all">Selesai</button>
             </div>
         </div>
 
         <div class="flex-1 p-4 md:p-8 pt-6 md:pt-6 overflow-y-auto pb-24 md:pb-8">
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4" id="kuesionerContainer">
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center hover:-translate-y-1 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-[#EBF5FF] text-[#4A90E2] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
-                        <i class="ph-fill ph-exam"></i>
-                    </div>
+                @forelse ($exams as $exam)
+                @php
+                    // Logika Status Kuesioner
+                    $result = isset($completedExams) ? $completedExams->get($exam->id) : null;
+                    $isCompleted = $result !== null;
+                    $isPublished = $isCompleted && $result->status === 'published';
+                    
+                    $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $today = \Carbon\Carbon::now()->startOfDay();
+                    $isLocked  = $today->lt($examDate);
+                    $isOverdue = $today->gt($examDate); 
+
+                    // Menentukan tag kategori untuk filter tab
+                    $kategoriFilter = $isCompleted ? 'selesai' : 'belum';
+                @endphp
+
+                <div class="kuesioner-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center hover:-translate-y-1 transition-transform duration-300 {{ ($isOverdue && !$isCompleted) ? 'opacity-75 grayscale-[20%]' : '' }}" data-kategori="{{ $kategoriFilter }}">
+                    
+                    @if($isCompleted)
+                        <div class="w-14 h-14 bg-[#E8F9F5] text-[#2ECC71] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
+                            <i class="ph-fill ph-check-circle"></i>
+                        </div>
+                    @elseif($isLocked || ($isOverdue && !$isCompleted))
+                        <div class="w-14 h-14 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center text-3xl shrink-0">
+                            <i class="ph-fill ph-lock-key"></i>
+                        </div>
+                    @else
+                        <div class="w-14 h-14 bg-[#EBF5FF] text-[#4A90E2] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
+                            <i class="ph-fill ph-exam"></i>
+                        </div>
+                    @endif
+
                     <div class="flex-1">
                         <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Tes Minat Bakat (RIASEC) Gelombang 1</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dikerjakan</span>
+                            <h3 class="text-lg font-bold text-gray-800">{{ $exam->title }}</h3>
+                            
+                            @if($isCompleted)
+                                <span class="hidden md:inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
+                            @elseif($isLocked)
+                                <span class="hidden md:inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dibuka</span>
+                            @elseif($isOverdue)
+                                <span class="hidden md:inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Ditutup</span>
+                            @else
+                                <span class="hidden md:inline-block px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dikerjakan</span>
+                            @endif
                         </div>
+                        
                         <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: 60 Menit</span>
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-calendar text-gray-400"></i> Batas: 30 Feb 2026</span>
+                            @if($isCompleted)
+                                <span class="flex items-center gap-1.5"><i class="ph-fill ph-check-square-offset text-gray-400"></i> Penilaian Tercatat</span>
+                                <span class="flex items-center gap-1.5"><i class="ph-fill ph-calendar-check text-gray-400"></i> Diselesaikan: {{ $result->created_at->format('d M Y') }}</span>
+                            @else
+                                <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: {{ $exam->duration_minutes }} Menit</span>
+                                <span class="flex items-center gap-1.5 {{ ($isOverdue && !$isCompleted) ? 'text-red-400 font-medium' : '' }}">
+                                    <i class="ph-fill {{ ($isOverdue && !$isCompleted) ? 'ph-warning-circle text-red-400' : 'ph-calendar text-gray-400' }}"></i> 
+                                    {{ ($isOverdue && !$isCompleted) ? 'Kedaluwarsa:' : 'Batas:' }} {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                                </span>
+                            @endif
                         </div>
-                        <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dikerjakan</span>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="{{ route('tes') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
-                            Mulai Kerjakan
-                        </a>
-                    </div>
-                </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center hover:-translate-y-1 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-[#EBF5FF] text-[#4A90E2] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
-                        <i class="ph-fill ph-brain"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Tes Kepribadian (MBTI) Sesi 2</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dikerjakan</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: 45 Menit</span>
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-calendar text-gray-400"></i> Batas: 15 Mar 2026</span>
-                        </div>
                         <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dikerjakan</span>
+                            @if($isCompleted)
+                                <span class="inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
+                            @elseif($isLocked)
+                                <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dibuka</span>
+                            @elseif($isOverdue)
+                                <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Ditutup</span>
+                            @else
+                                <span class="inline-block px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dikerjakan</span>
+                            @endif
                         </div>
                     </div>
+                    
                     <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="{{ route('tes') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
-                            Mulai Kerjakan
-                        </a>
+                        @if($isPublished)
+                            <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
+                                Laporan Dikirim ke Wali
+                            </button>
+                        @elseif($isCompleted)
+                            <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
+                                Telah Dikirim (Review)
+                            </button>
+                        @elseif($isLocked)
+                            <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
+                                Belum Dibuka
+                            </button>
+                        @elseif($isOverdue)
+                            <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
+                                Sesi Berakhir
+                            </button>
+                        @else
+                            <a href="{{ route('exam.take', $exam->id) }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
+                                Mulai Kerjakan
+                            </a>
+                        @endif
                     </div>
                 </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center hover:-translate-y-1 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-[#E8F9F5] text-[#2ECC71] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
-                        <i class="ph-fill ph-check-circle"></i>
+                
+                @empty
+                <div class="bg-white p-10 rounded-2xl shadow-sm border border-gray-100 border-dashed flex flex-col items-center justify-center text-center opacity-70">
+                    <div class="w-20 h-20 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center text-4xl mb-4">
+                        <i class="ph-fill ph-clipboard-text"></i>
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Evaluasi Gaya Belajar</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-check-square-offset text-gray-400"></i> Penilaian Tercatat</span>
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-calendar-check text-gray-400"></i> Diselesaikan: 15 Jan 2026</span>
-                        </div>
-                        <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="{{ route('laporan') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-white border-2 border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
-                            Lihat Laporan
-                        </a>
-                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Kuesioner</h3>
+                    <p class="text-gray-400 text-sm max-w-sm">Daftar kuesioner akan muncul di sini setelah sekolah mempublikasikan jadwal untuk Anda.</p>
                 </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center hover:-translate-y-1 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-[#E8F9F5] text-[#2ECC71] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
-                        <i class="ph-fill ph-check-circle"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Kuesioner Peminatan Jurusan Kuliah</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-check-square-offset text-gray-400"></i> Penilaian Tercatat</span>
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-calendar-check text-gray-400"></i> Diselesaikan: 12 Jan 2026</span>
-                        </div>
-                        <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <a href="{{ route('laporan') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-white border-2 border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all">
-                            Lihat Laporan
-                        </a>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center hover:-translate-y-1 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-[#E8F9F5] text-[#2ECC71] rounded-xl flex items-center justify-center text-3xl shrink-0 shadow-sm">
-                        <i class="ph-fill ph-check-circle"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Kuesioner Evaluasi Fasilitas Belajar</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-check-square-offset text-gray-400"></i> Penilaian Tercatat</span>
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-calendar-check text-gray-400"></i> Diselesaikan: 5 Jan 2026</span>
-                        </div>
-                        <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] font-bold uppercase tracking-wider">Selesai</span>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                            Telah Dikirim
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center opacity-75 grayscale-[20%] transition-all">
-                    <div class="w-14 h-14 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center text-3xl shrink-0">
-                        <i class="ph-fill ph-lock-key"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Survei Peminatan Ekskul</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Ditutup</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: 15 Menit</span>
-                            <span class="flex items-center gap-1.5 text-red-400 font-medium"><i class="ph-fill ph-warning-circle text-red-400"></i> Kedaluwarsa: 10 Jan 2026</span>
-                        </div>
-                        <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Ditutup</span>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <button disabled class="w-full md:w-auto px-8 py-3.5 text-center bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                            Sesi Berakhir
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 items-start md:items-center opacity-75 grayscale-[20%] transition-all">
-                    <div class="w-14 h-14 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center text-3xl shrink-0">
-                        <i class="ph-fill ph-lock-key"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1.5">
-                            <h3 class="text-lg font-bold text-gray-800">Kuesioner Pemetaan Hobi</h3>
-                            <span class="hidden md:inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Ditutup</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
-                            <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: 20 Menit</span>
-                            <span class="flex items-center gap-1.5 text-red-400 font-medium"><i class="ph-fill ph-warning-circle text-red-400"></i> Kedaluwarsa: 1 Des 2025</span>
-                        </div>
-                        <div class="mt-3 md:hidden">
-                            <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Ditutup</span>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        <button disabled class="w-full md:w-auto px-8 py-3.5 text-center bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                            Sesi Berakhir
-                        </button>
-                    </div>
-                </div>
+                @endforelse
 
             </div>
         </div>
@@ -258,5 +196,28 @@
         </a>
     </div>
 
+    <script>
+        function filterKuesioner(kategori, btnElement) {
+            // 1. Reset desain semua tombol tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
+                btn.classList.add('text-gray-500', 'border-transparent', 'font-medium');
+            });
+            
+            // 2. Beri warna biru pada tombol yang sedang diklik
+            btnElement.classList.add('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
+            btnElement.classList.remove('text-gray-500', 'border-transparent', 'font-medium');
+
+            // 3. Sembunyikan atau tampilkan kartu berdasarkan atribut data-kategori
+            const cards = document.querySelectorAll('.kuesioner-card');
+            cards.forEach(card => {
+                if (kategori === 'semua' || card.getAttribute('data-kategori') === kategori) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

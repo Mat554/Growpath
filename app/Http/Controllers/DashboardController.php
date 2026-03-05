@@ -35,6 +35,28 @@ class DashboardController extends Controller
         return view('dashboard', compact('exams', 'completedExamIds'));
     }
 
+    public function kuesioner()
+    {
+        if (Auth::user()->role !== 'siswa') {
+            return redirect()->route('dashboard');
+        }
+
+        $user = Auth::user();
+
+        // 1. Ambil riwayat ujian, JANGAN LUPA TITIK KOMA (;) DI AKHIR BARIS INI
+        $completedExams = \App\Models\ExamResult::where('user_id', $user->id)
+                                ->get()
+                                ->keyBy('exam_id');
+
+        // 2. Ambil semua jadwal ujian
+        $exams = \App\Models\Exam::where('target_class', $user->kelas)
+                     ->orderBy('exam_date', 'asc')
+                     ->get();
+
+        // 3. Kirim ke view
+        return view('kuesioner', compact('exams', 'completedExams'));
+    }
+
    public function laporanOrtu()
     {
         // 1. Cek Keamanan
@@ -172,13 +194,7 @@ class DashboardController extends Controller
         return view('ortu.ortu-profile');
     }
 
-    public function kuesioner()
-    {
-        if (Auth::user()->role !== 'siswa') {
-            return redirect()->route('dashboard');
-        }
-        return view('kuesioner');
-    }
+   
 
     public function tes()
     {
