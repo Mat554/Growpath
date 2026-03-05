@@ -67,12 +67,12 @@
 
                 $isCompleted = in_array($exam->id, $completedExamIds);
                 $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
-                
+            
                 
                 $isOverdue = \Carbon\Carbon::parse($exam->exam_date)->endOfDay()->isPast();
                 $today = \Carbon\Carbon::now()->startOfDay();
-                $isLocked  = $today->lt($examDate); // Hari ini SEBELUM tanggal ujian
-                $isOverdue = $today->gt($examDate); // Hari ini SESUDAH tanggal ujian
+                $isLocked  = $today->lt($examDate);
+                $isOverdue = $today->gt($examDate); 
             @endphp
             
            <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group flex flex-col">

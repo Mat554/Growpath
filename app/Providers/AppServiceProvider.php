@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
 public function boot(): void
     {
-        // Kosongkan saja, biarkan Laravel bekerja otomatis
+        // 2. TAMBAHKAN BLOK KODE INI
+        // Jika aplikasi tidak berjalan di environment 'local', paksa gunakan HTTPS
+        if (env('APP_ENV') !== 'local') {
+            URL::forceScheme('https');
+        }
     }
 }

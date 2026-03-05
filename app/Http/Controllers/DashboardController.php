@@ -14,18 +14,23 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // 1. Ambil daftar ujian sesuai kelas
-        $exams = \App\Models\Exam::where('target_class', $user->kelas)
-                     ->orderBy('created_at', 'desc')
-                     ->get();   
 
-        // 2. Ambil ID ujian yang SUDAH dikerjakan DAN statusnya 'published' oleh Admin
-        $completedExamIds = \App\Models\ExamResult::where('user_id', $user->id)
+        $today = \Carbon\Carbon::now()->startOfDay();
+
+          $completedExamIds = \App\Models\ExamResult::where('user_id', $user->id)
                                 ->where('status', 'published')
                                 ->pluck('exam_id')
                                 ->toArray();
 
+        
+        // 1. Ambil daftar ujian sesuai kelas
+        $exams = \App\Models\Exam::where('target_class', $user->kelas)
+                    ->orderBy('exam_date', 'asc') 
+                    ->take(1)
+                    ->get();
+
+
+       
         // 3. Kirim ke view
         return view('dashboard', compact('exams', 'completedExamIds'));
     }
