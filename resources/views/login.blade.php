@@ -19,7 +19,7 @@
             <div class="absolute w-[200px] h-[200px] rounded-full bg-white/10 bottom-[50px] -left-[80px] backdrop-blur-sm"></div>
 
             <div class="relative z-10 text-center">
-                <img src="{{ asset('assets/Growpath.png') }}" alt="Logo Growpath" class="max-w-[280px] h-auto mx-auto mb-8 brightness-0 invert">
+              <img src="/asset/Growpath.png" alt="Logo Growpath" class="max-w-[280px] h-auto mx-auto mb-6 object-contain">
                 
                 <p class="text-[1.05rem] text-gray-200 font-light leading-relaxed">
                     Platform SPK berbasis data untuk membantu Siswa dan Orang Tua menentukan jurusan kuliah yang tepat dan terarah.
@@ -30,7 +30,7 @@
         <div class="w-full md:w-[45%] p-10 flex flex-col justify-center bg-white">
             
             <div class="mb-8 text-center md:text-left">
-                <img src="{{ asset('asset/Growpath.png') }}" alt="Logo Growpath" class="md:hidden h-[80px] mx-auto mb-6 object-contain">
+               
                 <h2 class="text-3xl font-bold text-[#1f2937] mb-2 tracking-tight">Selamat Datang</h2>
                 <p class="text-[#6b7280] text-sm">Silakan pilih peran untuk masuk.</p>
             </div>
