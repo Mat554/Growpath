@@ -19,7 +19,7 @@
             <div class="absolute w-[200px] h-[200px] rounded-full bg-white/10 bottom-[50px] -left-[80px] backdrop-blur-sm"></div>
 
             <div class="relative z-10 text-center">
-              <img src="/asset/Growpath.png" alt="Logo Growpath" class="max-w-[280px] h-auto mx-auto mb-6 object-contain">
+              <img src="/asset/logo.png" alt="Logo Growpath" class="max-w-[280px] h-auto mx-auto mb-6 object-contain">
                 
                 <p class="text-[1.05rem] text-gray-200 font-light leading-relaxed">
                     Platform SPK berbasis data untuk membantu Siswa dan Orang Tua menentukan jurusan kuliah yang tepat dan terarah.
