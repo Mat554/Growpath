@@ -45,11 +45,30 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
                 <div class="h-[120px] bg-gradient-to-br from-[#4A90E2] to-[#56CCF2]"></div>
                 
-                <div class="text-center -mt-[60px] relative px-6">
-                    <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=4A90E2&color=fff&size=128" 
-                             alt="Avatar" class="w-full h-full rounded-full object-cover">
-                    </div>
+             <div class="text-center -mt-[60px] relative px-6">
+                    <form action="{{ route('profile.update.avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm">
+                        @csrf
+                        <div class="relative w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block group cursor-pointer" onclick="document.getElementById('avatarInput').click()">
+                            
+                            <img id="avatarPreview" 
+                                 src="{{ Auth::user()->avatar ? asset('storage/avatars/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}" 
+                                 alt="Avatar" class="w-full h-full rounded-full object-cover">
+                            
+                            <div class="absolute inset-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                                <i class="ph-fill ph-camera text-white text-2xl"></i>
+                            </div>
+                            
+                            <input type="file" id="avatarInput" name="avatar" accept="image/jpeg, image/png, image/jpg" class="hidden" onchange="previewAndValidateAvatar(event)">
+                        </div>
+
+                        <p id="avatarError" class="text-red-500 text-xs mt-2 hidden font-medium"></p>
+
+                        <div class="mt-3 hidden" id="saveAvatarBtnContainer">
+                            <button type="submit" class="px-4 py-1.5 bg-[#4A90E2] hover:bg-[#357ABD] text-white text-xs font-bold rounded-full shadow-md transition-all">
+                                Simpan Foto
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="text-center px-6 pb-8 pt-4">
@@ -190,6 +209,41 @@
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text);
             alert("Kode " + text + " berhasil disalin!");
+        }
+
+        function previewAndValidateAvatar(event) {
+            const file = event.target.files[0];
+            const errorMsg = document.getElementById('avatarError');
+            const saveBtn = document.getElementById('saveAvatarBtnContainer');
+            const preview = document.getElementById('avatarPreview');
+
+            // Reset pesan error
+            errorMsg.classList.add('hidden');
+            errorMsg.innerText = '';
+
+            if (file) {
+                // Validasi Ukuran File (Maksimal 2MB = 2 * 1024 * 1024 bytes)
+                const maxSize = 2 * 1024 * 1024; 
+                
+                if (file.size > maxSize) {
+                    // Jika melebihi 2MB, tolak file dan tampilkan error
+                    errorMsg.innerText = 'Ukuran file terlalu besar! Maksimal 2MB.';
+                    errorMsg.classList.remove('hidden');
+                    event.target.value = ''; // Reset input
+                    saveBtn.classList.add('hidden'); // Sembunyikan tombol simpan
+                    return;
+                }
+
+                // Jika valid, buat preview gambar
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+
+                // Tampilkan tombol simpan
+                saveBtn.classList.remove('hidden');
+            }
         }
     </script>
 </body>

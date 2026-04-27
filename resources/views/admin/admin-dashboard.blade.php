@@ -189,13 +189,6 @@
                         </button>
                     </div>
                 </form>
-
-                    <div class="mt-8 text-right">
-                        <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 flex items-center gap-2 ml-auto">
-                            <i class="ph-fill ph-floppy-disk text-lg"></i> Simpan RIASEC
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
 

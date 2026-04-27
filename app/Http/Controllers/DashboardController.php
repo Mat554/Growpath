@@ -6,11 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Exam;
 use App\Models\ExamResult;
+use Illuminate\Support\Facades\Http; // <-- PENTING: Tambahkan ini untuk memanggil API
 
 class DashboardController extends Controller
 {
     // Halaman Dashboard Siswa
- // Halaman Dashboard Siswa
     public function index()
     {
         $user = Auth::user();
@@ -22,15 +22,12 @@ class DashboardController extends Controller
                                 ->pluck('exam_id')
                                 ->toArray();
 
-        
         // 1. Ambil daftar ujian sesuai kelas
         $exams = \App\Models\Exam::where('target_class', $user->kelas)
                     ->orderBy('exam_date', 'asc') 
                     ->take(1)
                     ->get();
 
-
-       
         // 3. Kirim ke view
         return view('dashboard', compact('exams', 'completedExamIds'));
     }
@@ -79,26 +76,27 @@ class DashboardController extends Controller
                                         ->latest()
                                         ->first();
 
-        // Jika belum ada laporan yang di-publish, kembalikan ke dashboard
         if (!$result) {
             return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda sedang direview oleh Admin atau belum tersedia.');
         }
 
-        // 4. Kirim data ke tampilan
+        // 4. Panggil Gemini AI
+        $aiData = $this->generateGeminiAnalysis($result->dominant_code);
+
+        // 5. Kirim data ke tampilan
         $namaPemilik = $anak->name;
-        return view('laporan', compact('result', 'namaPemilik'));
+        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
     }
 
     // 1. Menampilkan Soal ke Siswa
     public function takeExam($id)
     {
-        // CEK KEAMANAN: Apakah siswa ini sudah pernah mengerjakan ujian ini?
+        // CEK KEAMANAN
         $alreadyTaken = ExamResult::where('user_id', Auth::id())
                             ->where('exam_id', $id)
                             ->exists();
                             
         if ($alreadyTaken) {
-            // Jika sudah, lempar dia kembali ke halaman laporan
             return redirect()->route('laporan')->with('error', 'Anda sudah menyelesaikan kuesioner ini.');
         }
 
@@ -133,22 +131,46 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'redirect_url' => route('laporan')]);
     }
 
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048', // max:2048 memastikan batas 2MB dari sisi server
+        ]);
 
-    
-    // 3. Menampilkan Halaman Laporan
+        $user = Auth::user();
+
+        if ($request->hasFile('avatar')) {
+            // Hapus avatar lama jika ada
+            if ($user->avatar && \Storage::disk('public')->exists('avatars/' . $user->avatar)) {
+                \Storage::disk('public')->delete('avatars/' . $user->avatar);
+            }
+
+            // Simpan avatar baru
+            $fileName = time() . '.' . $request->avatar->extension();  
+            $request->avatar->storeAs('avatars', $fileName, 'public');
+
+            // Update database (Pastikan Anda sudah menambahkan kolom 'avatar' di tabel users)
+            $user->update(['avatar' => $fileName]);
+        }
+
+        return back()->with('success', 'Foto profil berhasil diperbarui!');
+    }
+
+    // 3. Menampilkan Halaman Laporan (SISWA)
     public function laporan()
     {
-        // Ambil 1 hasil terbaru
         $result = ExamResult::where('user_id', Auth::id())->latest()->first();
         
         if (!$result) {
             return redirect()->route('dashboard')->with('error', 'Selesaikan kuesioner terlebih dahulu!');
         }
         
-        // Kirim nama siswa yang login
+        // Panggil Gemini AI
+        $aiData = $this->generateGeminiAnalysis($result->dominant_code);
+
         $namaPemilik = Auth::user()->name;
 
-        return view('laporan', compact('result', 'namaPemilik'));
+        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
     }
 
 
@@ -165,24 +187,17 @@ class DashboardController extends Controller
         $hasilTesAnak = collect(); 
 
         if ($anak) {
-            // INI KUNCI UTAMANYA: Mengambil skor langsung dari database
             $hasilTesAnak = \App\Models\ExamResult::where('user_id', $anak->id)->get();
         }
 
         return view('ortu.ortu-dashboard', compact('anak', 'hasilTesAnak')); 
     }
 
-        
-
-       
-    // Tambahkan fungsi ini di bawah fungsi index() yang sudah ada
     public function profile()
     {
-        // Pastikan hanya user yang login yang bisa akses
         if (!Auth::check()) {
             return redirect()->route('login');
         }
-
         return view('profile');
     }
 
@@ -193,8 +208,6 @@ class DashboardController extends Controller
         }
         return view('ortu.ortu-profile');
     }
-
-   
 
     public function tes()
     {
@@ -212,14 +225,9 @@ class DashboardController extends Controller
         $totalSoal = \App\Models\Exam::count(); 
         $totalLaporan = \App\Models\ExamResult::count();
 
-        // 1. Ambil laporan yang masih 'review'
         $pendingReports = \App\Models\ExamResult::with('user')->where('status', 'review')->get();
-
-        // 2. Ambil semua soal untuk fitur Beta Test Admin
-        // (Pastikan nama modelnya 'Question'. Jika nama modelmu 'ExamQuestion', sesuaikan ya)
         $questions = \App\Models\Question::all(); 
 
-        // 3. Pastikan 'questions' masuk ke dalam compact!
         return view('admin.admin-dashboard', compact('totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports', 'questions'));
     }
 
@@ -233,7 +241,10 @@ class DashboardController extends Controller
         $result = \App\Models\ExamResult::with('user')->findOrFail($id);
         $namaPemilik = $result->user->name ?? 'Siswa'; 
         
-        return view('laporan', compact('result', 'namaPemilik'));
+        // Panggil Gemini AI
+        $aiData = $this->generateGeminiAnalysis($result->dominant_code);
+        
+        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
     }
 
     // --- 3. ADMIN PUBLISH LAPORAN ---
@@ -249,5 +260,41 @@ class DashboardController extends Controller
         return redirect()->back()->with('success', 'Laporan berhasil di-publish!');
     }
     
-    
+   // =========================================================================
+    // FUNGSI ASISTEN PRIBADI UNTUK MEMANGGIL GEMINI AI (VERSI DETEKTIF)
+    // =========================================================================
+    // =========================================================================
+    // FUNGSI ASISTEN PRIBADI UNTUK MEMANGGIL GEMINI AI (FINAL VERSION)
+    // =========================================================================
+    private function generateGeminiAnalysis($kodeDominan)
+    {
+        $prompt = "Kamu adalah pakar karir. Analisis kode dominan RIASEC: '{$kodeDominan}'. 
+                   Balas HANYA dengan format JSON persis seperti ini tanpa format markdown atau teks lain: 
+                   {
+                       \"judul\": \"Nama Kepribadian (contoh: The Organizers)\", 
+                       \"deskripsi\": \"Penjelasan singkat 2 kalimat tentang karakter ini.\", 
+                       \"jurusan\": [\"Jurusan 1\", \"Jurusan 2\", \"Jurusan 3\", \"Jurusan 4\", \"Jurusan 5\"]
+                   }";
+
+        try {
+            // Memanggil model 'gemini-2.5-flash' yang resmi tersedia untuk API Key kamu
+            $response = Http::withoutVerifying()->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . env('GEMINI_API_KEY'), [
+                'contents' => [
+                    ['parts' => [['text' => $prompt]]]
+                ]
+            ]);
+
+            if ($response->successful()) {
+                $geminiText = $response->json('candidates.0.content.parts.0.text');
+                
+                // Pembersihan karakter ekstra agar JSON tidak rusak
+                $geminiText = str_replace(['```json', '```', "\n", "\r"], '', $geminiText); 
+                
+                return json_decode(trim($geminiText), true);
+            }
+        } catch (\Exception $e) {
+        }
+
+        return null;
+    }
 }

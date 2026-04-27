@@ -54,7 +54,7 @@
                 </div>
                 
                 <div class="w-full md:w-auto relative">
-                    <input type="text" placeholder="Cari kuesioner..." class="w-full md:w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all">
+                    <input type="text" id="searchInput" onkeyup="searchKuesioner()" placeholder="Cari kuesioner..." class="w-full md:w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all">
                     <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
                 </div>
             </div>
@@ -197,21 +197,46 @@
     </div>
 
     <script>
+        // Variabel untuk mengingat tab mana yang sedang diklik
+        let currentKategori = 'semua';
+
+        // --- FUNGSI 1: FILTER TAB ---
         function filterKuesioner(kategori, btnElement) {
-            // 1. Reset desain semua tombol tab
+            currentKategori = kategori; // Simpan status tab saat ini
+            
+            // Reset desain semua tombol tab
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
                 btn.classList.add('text-gray-500', 'border-transparent', 'font-medium');
             });
             
-            // 2. Beri warna biru pada tombol yang sedang diklik
+            // Beri warna biru pada tombol yang diklik
             btnElement.classList.add('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
             btnElement.classList.remove('text-gray-500', 'border-transparent', 'font-medium');
 
-            // 3. Sembunyikan atau tampilkan kartu berdasarkan atribut data-kategori
-            const cards = document.querySelectorAll('.kuesioner-card');
+            // Panggil fungsi pencarian setiap kali tab ditekan agar selaras
+            searchKuesioner();
+        }
+
+        // --- FUNGSI 2: PENCARIAN (CASE-INSENSITIVE) ---
+        function searchKuesioner() {
+            // 1. toLowerCase() inilah yang membuatnya kebal huruf besar/kecil!
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.kuesioner-card');
+
             cards.forEach(card => {
-                if (kategori === 'semua' || card.getAttribute('data-kategori') === kategori) {
+                // 2. Judul kuesioner juga diubah ke huruf kecil untuk dicocokkan
+                let title = card.querySelector('h3').innerText.toLowerCase();
+                let cardKategori = card.getAttribute('data-kategori');
+                
+                // 3. Evaluasi: Apakah cocok dengan teks?
+                let isMatchSearch = title.includes(input);
+                
+                // 4. Evaluasi: Apakah cocok dengan tab yang sedang aktif?
+                let isMatchTab = (currentKategori === 'semua' || cardKategori === currentKategori);
+
+                // 5. Tampilkan HANYA jika lolos kedua syarat di atas
+                if (isMatchSearch && isMatchTab) {
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';

@@ -34,6 +34,23 @@ Route::post('/otp-resend', [AuthController::class, 'resendOtp'])->name('otp.rese
 Route::get('/otp-verification', [AuthController::class, 'showOtpForm'])->name('otp.verify');
 Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('otp.check');
 
+// --- ALUR LUPA PASSWORD ---
+Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetOtp'])->name('password.email');
+
+Route::get('/forgot-password/otp', [App\Http\Controllers\AuthController::class, 'showResetOtpForm'])->name('password.otp');
+Route::post('/forgot-password/otp', [App\Http\Controllers\AuthController::class, 'verifyResetOtp'])->name('password.otp.verify');
+
+Route::get('/reset-password', [App\Http\Controllers\AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'updatePassword'])->name('password.update');// --- ALUR LUPA PASSWORD ---
+Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'sendResetOtp'])->name('password.email');
+
+Route::get('/forgot-password/otp', [App\Http\Controllers\AuthController::class, 'showResetOtpForm'])->name('password.otp');
+Route::post('/forgot-password/otp', [App\Http\Controllers\AuthController::class, 'verifyResetOtp'])->name('password.otp.verify');
+
+Route::get('/reset-password', [App\Http\Controllers\AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'updatePassword'])->name('password.update');
 
 
 
@@ -65,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');
     Route::get('/laporan', [DashboardController::class, 'laporan'])->name('laporan');
     Route::get('/tes', [DashboardController::class, 'tes'])->name('tes');
-
+    Route::post('/profile/avatar', [DashboardController::class, 'updateAvatar'])->name('profile.update.avatar');
    
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu');
     Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');

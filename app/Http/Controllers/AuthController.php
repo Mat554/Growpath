@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cookie;
 use App\Models\User;
 use App\Mail\OTPMail;
 use Carbon\Carbon;
@@ -20,13 +21,13 @@ class AuthController extends Controller
 
 
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
         // A. Validasi Input
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'role' => ['required', 'in:siswa,ortu,admin'], // Pastikan admin ada di sini
+            'role' => ['required', 'in:siswa,ortu,admin'], 
         ]);
 
         // B. Cari User
@@ -45,16 +46,34 @@ class AuthController extends Controller
             ]);
         }
 
+        // --- LOGIN ADMIN (Tanpa OTP) ---
         if ($user->role === 'admin') {
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect()->intended('/admin-dashboard');
+        }
+
+        // =========================================================
+        // TAMBAHAN BARU: CEK KARCIS BEBAS OTP (Untuk Siswa & Ortu)
+        // =========================================================
+        if ($request->hasCookie('tiket_bebas_otp')) {
             // Langsung login resmi
             Auth::login($user);
             $request->session()->regenerate();
 
-            // Langsung arahkan ke dashboard admin
-            return redirect()->intended('/admin-dashboard');
-        }
+            // Perpanjang karcis 5 menit lagi
+            $karcisBebasOtp = cookie('tiket_bebas_otp', 'terverifikasi', 5);
 
-        // --- MULAI LOGIKA OTP (Hanya untuk Siswa & Ortu) ---
+            // Redirect sesuai role dengan membawa karcis baru
+            if ($user->role === 'siswa') {
+                return redirect()->intended('/dashboard')->withCookie($karcisBebasOtp);
+            } else {
+                return redirect()->intended('/dashboard-ortu')->withCookie($karcisBebasOtp);
+            }
+        }
+        // =========================================================
+
+        // --- MULAI LOGIKA OTP (Jika tidak punya karcis / karcis hangus) ---
 
         // E. Generate OTP
         $otp = rand(100000, 999999);
@@ -62,23 +81,23 @@ class AuthController extends Controller
         // F. Simpan OTP ke Database
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addSeconds(60)
+            'otp_expires_at' => \Carbon\Carbon::now()->addSeconds(60) // Catatan: Ini expired dalam 1 menit
         ]);
 
-        // G. Kirim Email (Gunakan Try-Catch agar tidak error jika internet putus)
+        // G. Kirim Email
         try {
             Mail::to($user->email)->send(new \App\Mail\OTPMail($otp));
         } catch (\Exception $e) {
             return back()->withErrors(['email' => 'Gagal mengirim email OTP. Cek koneksi SMTP.']);
         }
 
-        // H. Simpan ID sementara di session (Bukan Login permanen)
+        // H. Simpan ID sementara di session
         session(['temp_user_id' => $user->id]);
 
         // I. Arahkan ke Halaman Input OTP
         return redirect()->route('otp.verify');
     }
-
+    
     // --- 3. HALAMAN INPUT OTP (Method yang tadi hilang) ---
    public function showOtpForm()
     {
@@ -146,7 +165,7 @@ class AuthController extends Controller
         }
 
         // Cek 2: Apakah sudah kadaluarsa?
-        if (Carbon::now()->greaterThan($user->otp_expires_at)) {
+        if (\Carbon\Carbon::now()->greaterThan($user->otp_expires_at)) {
             return back()->withErrors(['otp_code' => 'Kode OTP sudah kadaluarsa. Silakan login ulang.']);
         }
 
@@ -160,15 +179,20 @@ class AuthController extends Controller
         session()->forget('temp_user_id');
         $request->session()->regenerate();
 
-        // 3. Redirect ke Dashboard sesuai Role
+        // === TAMBAHAN BARU: CETAK KARCIS BEBAS OTP ===
+        // Membuat cookie 'tiket_bebas_otp' yang berlaku selama 5 menit
+        $karcisBebasOtp = cookie('tiket_bebas_otp', 'terverifikasi', 5);
+        // =============================================
+
+        // 3. Redirect ke Dashboard sesuai Role Sambil Membawa Karcis
         if ($user->role === 'siswa') {
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/dashboard')->withCookie($karcisBebasOtp);
         } else {
-            return redirect()->intended('/dashboard-ortu');
+            return redirect()->intended('/dashboard-ortu')->withCookie($karcisBebasOtp);
         }
     }
 
-    // --- 5. HALAMAN REGISTER ---
+    
     public function showRegisterForm()
     {
         return view('register');
@@ -223,5 +247,124 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/login');
+    }
+
+    // ==========================================
+    // ALUR LUPA PASSWORD (RESET PASSWORD)
+    // ==========================================
+
+    // 1. Tampilkan halaman input email
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forget-password');
+    }
+
+    // 2. Kirim OTP ke email tersebut
+    public function sendResetOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.exists' => 'Email tidak ditemukan di sistem kami.'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        $otp = rand(100000, 999999);
+
+        $user->update([
+            'otp' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinutes(5) 
+        ]);
+
+        try {
+            Mail::to($user->email)->send(new \App\Mail\OTPMail($otp));
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Coba lagi nanti.']);
+        }
+
+        session(['reset_email' => $user->email]);
+
+        return redirect()->route('password.otp');
+    }
+
+    public function showResetOtpForm()
+    {
+        if (!session()->has('reset_email')) {
+            return redirect()->route('password.request');
+        }
+        return view('auth.reset-otp', ['email' => session('reset_email')]);
+    }
+
+    public function verifyResetOtp(Request $request)
+    {
+        $request->validate(['otp_code' => 'required|numeric']);
+
+        $email = session('reset_email');
+        if (!$email) return redirect()->route('password.request');
+
+        $user = User::where('email', $email)->first();
+
+        if ($user->otp !== $request->otp_code) {
+            return back()->withErrors(['otp_code' => 'Kode OTP salah.']);
+        }
+
+        if (Carbon::now()->greaterThan($user->otp_expires_at)) {
+            return back()->withErrors(['otp_code' => 'Kode OTP sudah kadaluarsa. Silakan minta ulang.']);
+        }
+
+        // OTP Benar! Beri izin untuk reset password
+        session(['reset_authorized' => true]);
+        
+        // Hapus OTP agar tidak bisa dipakai 2x
+        $user->update(['otp' => null, 'otp_expires_at' => null]);
+
+        return redirect()->route('password.reset');
+    }
+
+    // 5. Tampilkan halaman pembuatan password baru
+    public function showResetPasswordForm()
+    {
+        // Hanya boleh diakses jika sudah lolos OTP
+        if (!session()->has('reset_authorized') || !session()->has('reset_email')) {
+            return redirect()->route('password.request');
+        }
+        return view('auth.reset-password');
+    }
+
+    // 6. Simpan password baru
+    // 6. Simpan password baru
+    public function updatePassword(Request $request)
+    {
+        if (!session()->has('reset_authorized') || !session()->has('reset_email')) {
+            return redirect()->route('password.request');
+        }
+
+        $request->validate([
+            'password' => [
+                'required',
+                'min:8',             // Harus minimal 8 karakter
+                'regex:/[A-Z]/',     // Harus ada minimal 1 huruf besar (A-Z)
+                'regex:/[0-9]/',     // Harus ada minimal 1 angka (0-9)
+                'confirmed'          // Input konfirmasi harus sama
+            ]
+        ], [
+            // Pesan Error Custom (agar user tidak bingung kalau gagal)
+            'password.min' => 'Password terlalu pendek, minimal 8 karakter.',
+            'password.regex' => 'Password harus mengandung minimal 1 huruf besar dan 1 angka.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.'
+        ]);
+
+        $user = User::where('email', session('reset_email'))->first();
+        
+        // === PERUBAHAN DI SINI ===
+        // Gunakan cara manual (bypass Mass Assignment) agar 100% tersimpan
+        $user->password = Hash::make($request->password);
+        $user->save(); 
+        // =========================
+
+        // Bersihkan session
+        session()->forget(['reset_email', 'reset_authorized']);
+
+        return redirect()->route('login')->with('success', 'Password berhasil diubah! Silakan login dengan password baru.');
     }
 }

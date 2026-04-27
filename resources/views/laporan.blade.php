@@ -63,12 +63,12 @@
                         <div id="domCode" class="text-4xl md:text-5xl font-extrabold text-[#4A90E2] tracking-widest">---</div>
                     </div>
 
-                    <div class="flex-1 text-center md:text-left border-t md:border-t-0 md:border-l border-blue-100 pt-4 md:pt-0 md:pl-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2" id="domTitle">Menganalisis...</h3>
-                        <p class="text-gray-600 text-sm leading-relaxed" id="domDesc">
-                            Sistem sedang menghitung skor jawaban Anda untuk menentukan kepribadian karir yang paling cocok.
-                        </p>
-                    </div>
+                   <div class="flex-1 text-center md:text-left border-t md:border-t-0 md:border-l border-blue-100 pt-4 md:pt-0 md:pl-6">
+    <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $aiData['judul'] ?? 'Menunggu Hasil...' }}</h3>
+    <p class="text-gray-600 text-sm leading-relaxed">
+        {{ $aiData['deskripsi'] ?? 'Sistem sedang memproses hasil kepribadian Anda.' }}
+    </p>
+</div>
                 </div>
             </div>
 
@@ -145,17 +145,30 @@
                     <i class="ph-fill ph-student text-[#4A90E2]"></i> Rekomendasi Jurusan
                 </h3>
                 <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
-                    <ul class="list-disc list-inside text-gray-700 text-sm space-y-2" id="rekomendasiList">
-                        <li>Memuat rekomendasi...</li>
-                    </ul>
-                </div>
-            </div>
+    <ul class="list-disc list-inside text-gray-700 text-sm space-y-2">
+        @if(isset($aiData['jurusan']))
+            @foreach($aiData['jurusan'] as $jurusan)
+                <li>{{ $jurusan }}</li>
+            @endforeach
+        @else
+            <li>Gagal memuat rekomendasi dari AI.</li>
+        @endif
+    </ul>
+</div>
 
-            <div class="mt-10 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-4 justify-center no-print animate-fade-in" style="animation-delay: 0.8s;">
+          <div class="mt-10 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-4 justify-center no-print animate-fade-in" style="animation-delay: 0.8s;">
                 
                 @php
-                    // Mengecek role user untuk menentukan arah tombol kembali
-                    $ruteKembali = Auth::user()->role === 'ortu' ? route('dashboard.ortu') : route('dashboard');
+                    // Mengecek role user dengan lebih detail untuk 3 peran
+                    $role = Auth::user()->role;
+                    if ($role === 'admin') {
+                        $ruteKembali = route('admin.dashboard');
+                    } elseif ($role === 'ortu') {
+                        $ruteKembali = route('dashboard.ortu');
+                    } else {
+                        // Default untuk siswa
+                        $ruteKembali = route('dashboard'); 
+                    }
                 @endphp
 
                 <button onclick="window.location.href='{{ $ruteKembali }}'" class="px-6 py-3 border border-gray-300 text-gray-600 hover:border-[#4A90E2] hover:text-[#4A90E2] hover:bg-blue-50 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
@@ -171,105 +184,59 @@
     </div>
 
     <script>
-        // Simulasi Data Hasil Tes (Mockup Frontend)
-        // Di aplikasi nyata, data ini diambil dari API backend berdasarkan ID User
-     // MENGAMBIL DATA ASLI DARI DATABASE (Dikirim oleh Controller)
-        const mockResult = {
-            created_at: "{{ $result->created_at }}",
-            scores: { 
-                R: {{ $result->score_r }}, 
-                I: {{ $result->score_i }}, 
-                A: {{ $result->score_a }}, 
-                S: {{ $result->score_s }}, 
-                E: {{ $result->score_e }}, 
-                C: {{ $result->score_c }} 
-            }, 
-            dominant_code: "{{ $result->dominant_code }}"
-        };
+    // Data dari Controller
+    const mockResult = {
+        created_at: "{{ $result->created_at }}",
+        scores: { 
+            R: {{ $result->score_r }}, 
+            I: {{ $result->score_i }}, 
+            A: {{ $result->score_a }}, 
+            S: {{ $result->score_s }}, 
+            E: {{ $result->score_e }}, 
+            C: {{ $result->score_c }} 
+        }, 
+        dominant_code: "{{ $result->dominant_code }}"
+    };
+
+    function renderReport() {
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+
+            // Format Tanggal
+            const dateObj = new Date(mockResult.created_at);
+            document.getElementById('testDate').innerText = dateObj.toLocaleDateString('id-ID', { 
+                day: 'numeric', month: 'long', year: 'numeric' 
+            });
+
+            // Tampilkan Kode Dominan
+            document.getElementById('domCode').innerText = mockResult.dominant_code;
+
+            // Update Grafik Bar (Skor Maksimal 15)
+            const maxDisplayScore = 15; 
+            updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
+            updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
+            updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
+            updateBar('barS', 'scoreS', mockResult.scores.S, maxDisplayScore);
+            updateBar('barE', 'scoreE', mockResult.scores.E, maxDisplayScore);
+            updateBar('barC', 'scoreC', mockResult.scores.C, maxDisplayScore);
+
+        }, 500); // Loading dipercepat karena data sudah ready dari Controller
+    }
+
+    function updateBar(barId, textId, score, max) {
+        let percentage = (score / max) * 100;
+        if(percentage > 100) percentage = 100;
         
-        // Database Deskripsi Sederhana
-        const descriptions = {
-            'R': { title: "Realistic (The Doers)", desc: "Anda praktis, mandiri, dan suka bekerja dengan alat atau mesin. Anda lebih suka aktivitas fisik dan bekerja di luar ruangan." },
-            'I': { title: "Investigative (The Thinkers)", desc: "Anda analitis, intelektual, dan suka memecahkan masalah. Anda menikmati belajar, meneliti, dan bekerja dengan ide-ide kompleks." },
-            'A': { title: "Artistic (The Creators)", desc: "Anda kreatif, ekspresif, dan orisinal. Anda menyukai kebebasan untuk mengekspresikan diri melalui seni, musik, atau tulisan." },
-            'S': { title: "Social (The Helpers)", desc: "Anda ramah, penyabar, dan suka membantu orang lain. Anda menikmati mengajar, merawat, dan berinteraksi sosial." },
-            'E': { title: "Enterprising (The Persuaders)", desc: "Anda ambisius, energik, dan suka memimpin. Anda pandai berbicara dan suka mempengaruhi orang lain." },
-            'C': { title: "Conventional (The Organizers)", desc: "Anda teratur, teliti, dan suka bekerja dengan data. Anda menghargai struktur dan aturan yang jelas." }
-        };
+        const bar = document.getElementById(barId);
+        const text = document.getElementById(textId);
+        
+        text.innerText = `${score} Poin`;
+        setTimeout(() => {
+            bar.style.width = percentage + "%";
+        }, 100);
+    }
 
-        // Database Rekomendasi Jurusan (Berdasarkan Huruf Pertama)
-        const recommendations = {
-            'R': ["Teknik Mesin", "Teknik Sipil", "Arsitektur", "Pertanian", "Otomotif"],
-            'I': ["Kedokteran", "Farmasi", "Ilmu Komputer", "Psikologi", "Biologi"],
-            'A': ["Desain Komunikasi Visual", "Sastra", "Seni Musik", "Jurnalisme", "Arsitektur"],
-            'S': ["Pendidikan/Keguruan", "Keperawatan", "Hubungan Internasional", "Komunikasi", "Psikologi"],
-            'E': ["Manajemen Bisnis", "Hukum", "Ilmu Politik", "Pemasaran", "Perhotelan"],
-            'C': ["Akuntansi", "Administrasi Negara", "Perpustakaan", "Statistika", "Manajemen Informatika"]
-        };
-
-        function renderReport() {
-            // Simulasi Loading 1 Detik
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-
-                // 1. Tanggal
-                const dateObj = new Date(mockResult.created_at);
-                document.getElementById('testDate').innerText = dateObj.toLocaleDateString('id-ID', { 
-                    day: 'numeric', month: 'long', year: 'numeric' 
-                });
-
-                // 2. Kode Dominan
-                const code = mockResult.dominant_code;
-                const primaryType = code.charAt(0); // Huruf pertama (paling dominan)
-
-                document.getElementById('domCode').innerText = code;
-                document.getElementById('domTitle').innerText = descriptions[primaryType].title;
-                document.getElementById('domDesc').innerText = descriptions[primaryType].desc;
-
-                // 3. Update Grafik
-                // Asumsi skor maksimal untuk display bar adalah 15 (sesuaikan dengan jumlah soal)
-                const maxDisplayScore = 15; 
-                updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
-                updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
-                updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
-                updateBar('barS', 'scoreS', mockResult.scores.S, maxDisplayScore);
-                updateBar('barE', 'scoreE', mockResult.scores.E, maxDisplayScore);
-                updateBar('barC', 'scoreC', mockResult.scores.C, maxDisplayScore);
-
-                // 4. Rekomendasi Jurusan
-                const list = document.getElementById('rekomendasiList');
-                list.innerHTML = "";
-                // Gabungkan rekomendasi dari 2 huruf teratas
-                const recs1 = recommendations[code.charAt(0)] || [];
-                const recs2 = recommendations[code.charAt(1)] || [];
-                // Ambil unik dan slice 5 teratas
-                const combinedRecs = [...new Set([...recs1, ...recs2])].slice(0, 6);
-                
-                combinedRecs.forEach(jurusan => {
-                    const li = document.createElement('li');
-                    li.innerText = jurusan;
-                    list.appendChild(li);
-                });
-
-            }, 1000);
-        }
-
-        function updateBar(barId, textId, score, max) {
-            let percentage = (score / max) * 100;
-            if(percentage > 100) percentage = 100;
-            
-            const bar = document.getElementById(barId);
-            const text = document.getElementById(textId);
-            
-            text.innerText = `${score} Poin`;
-            // Trigger animasi CSS
-            setTimeout(() => {
-                bar.style.width = percentage + "%";
-            }, 100);
-        }
-
-        // Jalankan render
-        renderReport();
-    </script>
+    renderReport();
+</script>
 </body>
 </html>
