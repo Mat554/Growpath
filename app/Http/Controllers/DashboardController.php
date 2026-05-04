@@ -6,30 +6,42 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Exam;
 use App\Models\ExamResult;
-use Illuminate\Support\Facades\Http; // <-- PENTING: Tambahkan ini untuk memanggil API
+use App\Models\User; // Tambahkan ini
+use App\Models\Question; // Tambahkan ini
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage; // Tambahkan ini untuk fitur Hapus Avatar
+use Carbon\Carbon; // Tambahkan ini untuk waktu
 
 class DashboardController extends Controller
 {
-    // Halaman Dashboard Siswa
+    // =========================================================
+    // 1. DASHBOARD & KUESIONER SISWA
+    // =========================================================
+    
     public function index()
     {
         $user = Auth::user();
 
-        $today = \Carbon\Carbon::now()->startOfDay();
-
-          $completedExamIds = \App\Models\ExamResult::where('user_id', $user->id)
-                                ->where('status', 'published')
+        // 1. Ambil daftar ID ujian yang SUDAH dikerjakan siswa ini
+        $completedExamIds = ExamResult::where('user_id', $user->id)
                                 ->pluck('exam_id')
                                 ->toArray();
 
-        // 1. Ambil daftar ujian sesuai kelas
-        $exams = \App\Models\Exam::where('target_class', $user->kelas)
-                    ->orderBy('exam_date', 'asc') 
-                    ->take(1)
-                    ->get();
+        // 2. Cari 1 ujian terdekat yang BELUM dikerjakan
+        $nextExam = Exam::where('target_class', $user->kelas)
+                    ->whereNotIn('id', $completedExamIds) // Kecualikan yang sudah selesai
+                    ->orderBy('exam_date', 'asc')         // Urutkan dari jadwal yang paling dekat
+                    ->first();                            // Hanya ambil 1 tugas teratas
 
-        // 3. Kirim ke view
-        return view('dashboard', compact('exams', 'completedExamIds'));
+        // 3. Bungkus hasilnya ke dalam koleksi agar file Blade (@forelse) tetap bisa membacanya
+        $exams = $nextExam ? collect([$nextExam]) : collect();
+
+        // 4. Kita tetap butuh data ujian yang selesai untuk membuka gembok kartu "Laporan Hasil"
+        $completedExams = ExamResult::where('user_id', $user->id)
+                                ->get()
+                                ->keyBy('exam_id');
+
+        return view('dashboard', compact('exams', 'completedExams', 'completedExamIds'));
     }
 
     public function kuesioner()
@@ -40,64 +52,30 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        // 1. Ambil riwayat ujian, JANGAN LUPA TITIK KOMA (;) DI AKHIR BARIS INI
-        $completedExams = \App\Models\ExamResult::where('user_id', $user->id)
+        $completedExams = ExamResult::where('user_id', $user->id)
                                 ->get()
                                 ->keyBy('exam_id');
 
-        // 2. Ambil semua jadwal ujian
-        $exams = \App\Models\Exam::where('target_class', $user->kelas)
+        $exams = Exam::where('target_class', $user->kelas)
                      ->orderBy('exam_date', 'asc')
                      ->get();
 
-        // 3. Kirim ke view
         return view('kuesioner', compact('exams', 'completedExams'));
     }
 
-   public function laporanOrtu()
-    {
-        // 1. Cek Keamanan
-        if (Auth::user()->role !== 'ortu') {
-            return redirect()->route('dashboard');
-        }
 
-        // 2. Cari Data Anak
-        $anak = \App\Models\User::where('user_code', Auth::user()->child_id_code)
-                                ->where('role', 'siswa')
-                                ->first();
+    // =========================================================
+    // 2. ALUR PENGERJAAN TES (SISWA)
+    // =========================================================
 
-        if (!$anak) {
-            return redirect()->route('dashboard.ortu')->with('error', 'Data anak tidak ditemukan.');
-        }
-
-        // 3. Ambil laporan anak yang SUDAH DI-PUBLISH oleh Admin
-        $result = \App\Models\ExamResult::where('user_id', $anak->id)
-                                        ->where('status', 'published')
-                                        ->latest()
-                                        ->first();
-
-        if (!$result) {
-            return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda sedang direview oleh Admin atau belum tersedia.');
-        }
-
-        // 4. Panggil Gemini AI
-        $aiData = $this->generateGeminiAnalysis($result->dominant_code);
-
-        // 5. Kirim data ke tampilan
-        $namaPemilik = $anak->name;
-        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
-    }
-
-    // 1. Menampilkan Soal ke Siswa
     public function takeExam($id)
     {
-        // CEK KEAMANAN
         $alreadyTaken = ExamResult::where('user_id', Auth::id())
                             ->where('exam_id', $id)
                             ->exists();
                             
         if ($alreadyTaken) {
-            return redirect()->route('laporan')->with('error', 'Anda sudah menyelesaikan kuesioner ini.');
+            return redirect()->route('dashboard')->with('error', 'Anda sudah menyelesaikan kuesioner ini.');
         }
 
         $exam = Exam::with('questions')->findOrFail($id);
@@ -110,7 +88,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    // 2. Menerima Jawaban dari Javascript dan Simpan ke DB
     public function submitExam(Request $request, $id)
     {
         $scores = $request->scores;
@@ -125,80 +102,118 @@ class DashboardController extends Controller
             'score_e' => $scores['E'],
             'score_c' => $scores['C'],
             'dominant_code' => $request->dominant_code,
-            'status' => 'review',
+            'status' => 'review', // Menunggu persetujuan admin
         ]);
 
-        return response()->json(['success' => true, 'redirect_url' => route('laporan')]);
+        return response()->json(['success' => true, 'redirect_url' => route('dashboard')]);
+    }
+
+    // =========================================================
+    // 3. LAPORAN (SISWA & ORTU)
+    // =========================================================
+
+    public function laporan()
+    {
+        // Siswa hanya boleh melihat laporannya JIKA sudah di-publish oleh Admin
+        $result = ExamResult::where('user_id', Auth::id())
+                            ->where('status', 'published')
+                            ->latest()
+                            ->first();
+        
+        if (!$result) {
+            return redirect()->route('dashboard')->with('error', 'Laporan Anda belum tersedia atau sedang dievaluasi oleh Admin.');
+        }
+        
+        $aiData = $this->generateOllamaAnalysis($result->dominant_code);
+        $namaPemilik = Auth::user()->name;
+
+        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
+    }
+
+    public function laporanOrtu()
+    {
+        if (Auth::user()->role !== 'ortu') {
+            return redirect()->route('dashboard');
+        }
+
+        $anak = User::where('user_code', Auth::user()->child_id_code)
+                    ->where('role', 'siswa')
+                    ->first();
+
+        if (!$anak) {
+            return redirect()->route('dashboard.ortu')->with('error', 'Data anak tidak ditemukan.');
+        }
+
+        $result = ExamResult::where('user_id', $anak->id)
+                            ->where('status', 'published')
+                            ->latest()
+                            ->first();
+
+        if (!$result) {
+            return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda sedang direview oleh Admin atau belum tersedia.');
+        }
+
+        $aiData = $this->generateOllamaAnalysis($result->dominant_code);
+        $namaPemilik = $anak->name;
+        
+        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
+    }
+
+    // =========================================================
+    // 4. PROFIL & PENGATURAN
+    // =========================================================
+
+    public function profile()
+    {
+        return view('profile');
     }
 
     public function updateAvatar(Request $request)
     {
         $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048', // max:2048 memastikan batas 2MB dari sisi server
+            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $user = Auth::user();
 
         if ($request->hasFile('avatar')) {
-            // Hapus avatar lama jika ada
-            if ($user->avatar && \Storage::disk('public')->exists('avatars/' . $user->avatar)) {
-                \Storage::disk('public')->delete('avatars/' . $user->avatar);
+            if ($user->avatar && Storage::disk('public')->exists('avatars/' . $user->avatar)) {
+                Storage::disk('public')->delete('avatars/' . $user->avatar);
             }
 
-            // Simpan avatar baru
             $fileName = time() . '.' . $request->avatar->extension();  
             $request->avatar->storeAs('avatars', $fileName, 'public');
 
-            // Update database (Pastikan Anda sudah menambahkan kolom 'avatar' di tabel users)
             $user->update(['avatar' => $fileName]);
         }
 
         return back()->with('success', 'Foto profil berhasil diperbarui!');
     }
 
-    // 3. Menampilkan Halaman Laporan (SISWA)
-    public function laporan()
-    {
-        $result = ExamResult::where('user_id', Auth::id())->latest()->first();
-        
-        if (!$result) {
-            return redirect()->route('dashboard')->with('error', 'Selesaikan kuesioner terlebih dahulu!');
-        }
-        
-        // Panggil Gemini AI
-        $aiData = $this->generateGeminiAnalysis($result->dominant_code);
+    // =========================================================
+    // 5. DASHBOARD ORTU UTAMA
+    // =========================================================
 
-        $namaPemilik = Auth::user()->name;
-
-        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
-    }
-
-
-   public function ortu()
+    public function ortu()
     {
         if (Auth::user()->role !== 'ortu') {
             return redirect()->route('dashboard');
         }
 
-        $anak = \App\Models\User::where('user_code', Auth::user()->child_id_code)
-                                ->where('role', 'siswa')
-                                ->first();
+        $anak = User::where('user_code', Auth::user()->child_id_code)
+                    ->where('role', 'siswa')
+                    ->first();
 
         $hasilTesAnak = collect(); 
 
         if ($anak) {
-            $hasilTesAnak = \App\Models\ExamResult::where('user_id', $anak->id)->get();
+            // Ortu hanya melihat laporan yang sudah di publish
+            $hasilTesAnak = ExamResult::where('user_id', $anak->id)
+                                      ->where('status', 'published')
+                                      ->get();
         }
 
         return view('ortu.ortu-dashboard', compact('anak', 'hasilTesAnak')); 
-    }
-
-    public function profile()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-        return view('profile');
     }
 
     public function profileOrtu()
@@ -209,67 +224,56 @@ class DashboardController extends Controller
         return view('ortu.ortu-profile');
     }
 
-    public function tes()
-    {
-        return view('tes');
-    }
+    // =========================================================
+    // 6. DASHBOARD ADMIN
+    // =========================================================
 
-    // --- 1. DASHBOARD ADMIN UTAMA ---
     public function dashboardAdmin()
     {
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('dashboard');
         }
         
-        $totalSiswa = \App\Models\User::where('role', 'siswa')->count();
-        $totalSoal = \App\Models\Exam::count(); 
-        $totalLaporan = \App\Models\ExamResult::count();
+        $totalSiswa = User::where('role', 'siswa')->count();
+        $totalSoal = Exam::count(); 
+        $totalLaporan = ExamResult::count();
 
-        $pendingReports = \App\Models\ExamResult::with('user')->where('status', 'review')->get();
-        $questions = \App\Models\Question::all(); 
+        $pendingReports = ExamResult::with('user')->where('status', 'review')->get();
+        $questions = Question::all(); 
 
         return view('admin.admin-dashboard', compact('totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports', 'questions'));
     }
 
-    // --- 2. ADMIN MELIHAT LAPORAN SISWA ---
     public function laporanAdmin($id)
     {
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('dashboard');
         }
 
-        $result = \App\Models\ExamResult::with('user')->findOrFail($id);
+        $result = ExamResult::with('user')->findOrFail($id);
         $namaPemilik = $result->user->name ?? 'Siswa'; 
         
-        // Panggil Gemini AI
         $aiData = $this->generateGeminiAnalysis($result->dominant_code);
         
         return view('laporan', compact('result', 'namaPemilik', 'aiData'));
     }
 
-    // --- 3. ADMIN PUBLISH LAPORAN ---
     public function publishLaporan($id)
     {
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        $result = \App\Models\ExamResult::findOrFail($id);
+        $result = ExamResult::findOrFail($id);
         $result->update(['status' => 'published']); 
 
         return redirect()->back()->with('success', 'Laporan berhasil di-publish!');
     }
-    
-   // =========================================================================
-    // FUNGSI ASISTEN PRIBADI UNTUK MEMANGGIL GEMINI AI (VERSI DETEKTIF)
-    // =========================================================================
-    // =========================================================================
-    // FUNGSI ASISTEN PRIBADI UNTUK MEMANGGIL GEMINI AI (FINAL VERSION)
-    // =========================================================================
-    private function generateGeminiAnalysis($kodeDominan)
+
+    private function generateOllamaAnalysis($kodeDominan)
     {
         $prompt = "Kamu adalah pakar karir. Analisis kode dominan RIASEC: '{$kodeDominan}'. 
-                   Balas HANYA dengan format JSON persis seperti ini tanpa format markdown atau teks lain: 
+                   Balas HANYA dengan format JSON persis seperti ini tanpa teks pengantar apa pun: 
                    {
                        \"judul\": \"Nama Kepribadian (contoh: The Organizers)\", 
                        \"deskripsi\": \"Penjelasan singkat 2 kalimat tentang karakter ini.\", 
@@ -277,24 +281,55 @@ class DashboardController extends Controller
                    }";
 
         try {
-            // Memanggil model 'gemini-2.5-flash' yang resmi tersedia untuk API Key kamu
-            $response = Http::withoutVerifying()->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . env('GEMINI_API_KEY'), [
-                'contents' => [
-                    ['parts' => [['text' => $prompt]]]
-                ]
+            // URL default Ollama di komputermu
+            $ollamaUrl = env('OLLAMA_URL', 'http://127.0.0.1:11434/api/generate');
+            $ollamaModel = env('OLLAMA_MODEL', 'llama3'); // Pastikan kamu sudah pull model ini di terminal
+
+            // Tembak ke API lokal Ollama
+            $response = Http::timeout(60)->post($ollamaUrl, [
+                'model' => $ollamaModel,
+                'prompt' => $prompt,
+                'stream' => false,
+                'format' => 'json' // Ini fitur ajaib Ollama: Memaksa balasan jadi JSON murni!
             ]);
 
-            if ($response->successful()) {
-                $geminiText = $response->json('candidates.0.content.parts.0.text');
-                
-                // Pembersihan karakter ekstra agar JSON tidak rusak
-                $geminiText = str_replace(['```json', '```', "\n", "\r"], '', $geminiText); 
-                
-                return json_decode(trim($geminiText), true);
+            // Jika gagal mendapatkan balasan yang sukses dari Ollama
+            if (!$response->successful()) {
+                return [
+                    "judul" => "The Thinker (MOCK DATA - OLLAMA ERROR)",
+                    "deskripsi" => "Sistem gagal membaca balasan dari Ollama. Pastikan model yang diminta tersedia.",
+                    "jurusan" => ["Sistem Informasi", "Teknik Informatika", "Ilmu Komputer"]
+                ];
             }
-        } catch (\Exception $e) {
-        }
 
-        return null;
+            // Ambil teks balasan Ollama
+            $ollamaText = $response->json('response');
+            
+            // Karena kita pakai format JSON, kita bisa langsung decode. 
+            // Tapi pakai regex ini untuk perlindungan ekstra.
+            if (preg_match('/\{.*\}/s', $ollamaText, $matches)) {
+                $cleanJson = $matches[0];
+                $decodedData = json_decode($cleanJson, true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    return $decodedData;
+                }
+            }
+
+            // Jika formatnya tetap meleset
+            return [
+                "judul" => "Format Tidak Dikenali",
+                "deskripsi" => "Ollama membalas, tetapi format JSON rusak atau tidak sesuai standar.",
+                "jurusan" => ["-", "-", "-"]
+            ];
+
+        } catch (\Exception $e) {
+            // Jika Ollama belum dinyalakan di terminal komputermu
+            return [
+                "judul" => "Ollama Offline (MOCK DATA)",
+                "deskripsi" => "Koneksi ke Ollama gagal. Cek apakah Ollama sudah berjalan di Mac kamu. Error: " . $e->getMessage(),
+                "jurusan" => ["Buka Terminal", "Ketik: ollama serve", "Lalu refresh halaman ini"]
+            ];
+        }
     }
 }

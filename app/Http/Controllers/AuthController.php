@@ -97,7 +97,7 @@ class AuthController extends Controller
         // I. Arahkan ke Halaman Input OTP
         return redirect()->route('otp.verify');
     }
-    
+
     // --- 3. HALAMAN INPUT OTP (Method yang tadi hilang) ---
    public function showOtpForm()
     {
@@ -181,7 +181,7 @@ class AuthController extends Controller
 
         // === TAMBAHAN BARU: CETAK KARCIS BEBAS OTP ===
         // Membuat cookie 'tiket_bebas_otp' yang berlaku selama 5 menit
-        $karcisBebasOtp = cookie('tiket_bebas_otp', 'terverifikasi', 5);
+        $karcisBebasOtp = cookie('tiket_bebas_otp', 'terverifikasi', 120);
         // =============================================
 
         // 3. Redirect ke Dashboard sesuai Role Sambil Membawa Karcis
