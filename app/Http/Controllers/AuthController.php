@@ -31,7 +31,8 @@ class AuthController extends Controller
         ]);
 
         // B. Cari User
-        $user = User::where('email', $request->email)->first();
+        $user = \App\Models\User::where('email', $request->email)->first();
+        dd('SUPABASE RESPONSE:', $user);
 
         // C. Cek Password
         if (!$user || !Hash::check($request->password, $user->password)) {
