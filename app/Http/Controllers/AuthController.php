@@ -334,38 +334,54 @@ class AuthController extends Controller
 
     // 6. Simpan password baru
     // 6. Simpan password baru
-    public function updatePassword(Request $request)
+   public function updatePassword(Request $request)
     {
-        if (!session()->has('reset_authorized') || !session()->has('reset_email')) {
-            return redirect()->route('password.request');
-        }
-
+        // 1. Validasi Ketat: Min 8 Karakter, 1 Huruf Besar, 1 Angka, dan Cocok
         $request->validate([
             'password' => [
                 'required',
-                'min:8',             // Harus minimal 8 karakter
-                'regex:/[A-Z]/',     // Harus ada minimal 1 huruf besar (A-Z)
-                'regex:/[0-9]/',     // Harus ada minimal 1 angka (0-9)
-                'confirmed'          // Input konfirmasi harus sama
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'confirmed'
             ]
         ], [
-            // Pesan Error Custom (agar user tidak bingung kalau gagal)
             'password.min' => 'Password terlalu pendek, minimal 8 karakter.',
             'password.regex' => 'Password harus mengandung minimal 1 huruf besar dan 1 angka.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.'
         ]);
 
-        $user = User::where('email', session('reset_email'))->first();
-        
-        // === PERUBAHAN DI SINI ===
-        // Gunakan cara manual (bypass Mass Assignment) agar 100% tersimpan
-        $user->password = Hash::make($request->password);
-        $user->save(); 
-        // =========================
+        // 2. CEK STATUS: Apakah User Sedang Login?
+        $user = null;
+        $isLoggedIn = Auth::check();
 
-        // Bersihkan session
-        session()->forget(['reset_email', 'reset_authorized']);
+        if ($isLoggedIn) {
+            // SKENARIO A: User datang dari menu Profil (Sudah Login)
+            $user = Auth::user();
+        } else {
+            // SKENARIO B: User datang dari Lupa Password (Belum Login)
+            // (Pastikan 'temp_user_id' sesuai dengan nama session yang kamu buat saat verifikasi OTP lupa password)
+            $userId = session('temp_user_id'); 
+            
+            if (!$userId) {
+                return redirect()->route('login')->withErrors(['email' => 'Sesi tidak valid, silakan ulangi proses.']);
+            }
+            $user = \App\Models\User::find($userId);
+        }
 
-        return redirect()->route('login')->with('success', 'Password berhasil diubah! Silakan login dengan password baru.');
+        // 3. Simpan Password Baru ke Database
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password)
+        ]);
+
+        // 4. POLISI LALU LINTAS: Arahkan ke halaman yang tepat
+        if ($isLoggedIn) {
+            // Jika sudah login, kembalikan ke Dashboard
+            return redirect()->route('dashboard')->with('success', 'Password berhasil diperbarui!');
+        } else {
+            // Jika belum login, hapus session sementara dan lempar ke Login
+            session()->forget('temp_user_id');
+            return redirect()->route('login')->with('success', 'Password berhasil diubah! Silakan login dengan password baru.');
+        }
     }
 }

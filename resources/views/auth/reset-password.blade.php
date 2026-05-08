@@ -17,8 +17,12 @@
                 <i class="ph-fill ph-shield-check"></i>
             </div>
             <h2 class="text-2xl font-bold text-[#1f2937] mb-2 tracking-tight">Buat Password Baru</h2>
-            <p class="text-[#6b7280] text-sm leading-relaxed">
-                OTP berhasil diverifikasi! Silakan buat password baru untuk akun Anda.
+           <p class="text-[#6b7280] text-sm leading-relaxed">
+                @if(Auth::check())
+                    Silakan buat password baru untuk mengamankan akun Anda.
+                @else
+                    OTP berhasil diverifikasi! Silakan buat password baru untuk akun Anda.
+                @endif
             </p>
         </div>
 
@@ -62,7 +66,17 @@
                 Update Password
             </button>
         </form>
-
+    <div class="mt-6 text-center">
+            @if(Auth::check())
+                <a href="{{ route('profile') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#4A90E2] transition-colors">
+                    <i class="ph ph-arrow-left text-lg"></i> Kembali ke Profil
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#4A90E2] transition-colors">
+                    <i class="ph ph-arrow-left text-lg"></i> Kembali ke Halaman Login
+                </a>
+            @endif
+        </div>
     </div>
 
     <script>

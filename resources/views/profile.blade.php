@@ -120,11 +120,16 @@
                 <form action="#" method="POST"> @csrf 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
                         <div>
+                            <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                             <div class="relative">
-                                <input type="text" value="{{ Auth::user()->name }}" class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-gray-800">
+                                <input type="text" 
+                                    value="{{ Auth::user()->name }}" 
+                                    readonly 
+                                    class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none transition-all">
                                 <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
                             </div>
+                        </div>
                         </div>
                         
                         <div>
@@ -172,34 +177,22 @@
 
                 <hr class="border-gray-100 my-8">
 
-                <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                <hr class="border-gray-100 my-8">
+
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i class="ph-fill ph-lock-key"></i> Keamanan Akun
                 </h3>
                 
-                <form>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
-                            <div class="relative">
-                                <input type="password" placeholder="Min. 6 karakter" class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-gray-800">
-                                <i class="ph ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
-                            <div class="relative">
-                                <input type="password" placeholder="Ulangi password" class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-gray-800">
-                                <i class="ph ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                            </div>
-                        </div>
+                <div class="bg-gray-50 border border-gray-100 p-5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Ubah Kata Sandi</p>
+                        <p class="text-xs text-gray-500 mt-1">Kami sarankan untuk memperbarui kata sandi Anda secara berkala agar akun tetap aman.</p>
                     </div>
                     
-                    <div class="flex justify-end">
-                        <button type="button" class="px-6 py-3 bg-[#2c3e50] hover:bg-[#1a252f] text-white rounded-xl font-semibold text-sm transition-all shadow-lg hover:shadow-xl">
-                            Update Password
-                        </button>
-                    </div>
-                </form>
+                   <a href="{{ route('profile.ubah-password') }}" class="whitespace-nowrap px-6 py-2.5 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all shadow-sm">
+                        Ubah Password
+                    </a>
+                </div>
 
             </div>
         </div>
@@ -210,41 +203,7 @@
             navigator.clipboard.writeText(text);
             alert("Kode " + text + " berhasil disalin!");
         }
-
-        function previewAndValidateAvatar(event) {
-            const file = event.target.files[0];
-            const errorMsg = document.getElementById('avatarError');
-            const saveBtn = document.getElementById('saveAvatarBtnContainer');
-            const preview = document.getElementById('avatarPreview');
-
-            // Reset pesan error
-            errorMsg.classList.add('hidden');
-            errorMsg.innerText = '';
-
-            if (file) {
-                // Validasi Ukuran File (Maksimal 2MB = 2 * 1024 * 1024 bytes)
-                const maxSize = 2 * 1024 * 1024; 
-                
-                if (file.size > maxSize) {
-                    // Jika melebihi 2MB, tolak file dan tampilkan error
-                    errorMsg.innerText = 'Ukuran file terlalu besar! Maksimal 2MB.';
-                    errorMsg.classList.remove('hidden');
-                    event.target.value = ''; // Reset input
-                    saveBtn.classList.add('hidden'); // Sembunyikan tombol simpan
-                    return;
-                }
-
-                // Jika valid, buat preview gambar
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                }
-                reader.readAsDataURL(file);
-
-                // Tampilkan tombol simpan
-                saveBtn.classList.remove('hidden');
-            }
-        }
+        
     </script>
 </body>
 </html>

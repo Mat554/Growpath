@@ -87,5 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu');
     Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
     Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
-
+    Route::get('/profil/ubah-password', function () {
+    return view('auth.reset-password'); 
+    }   )->name('profile.ubah-password')->middleware('auth');
 });
