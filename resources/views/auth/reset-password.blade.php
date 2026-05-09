@@ -26,8 +26,10 @@
             </p>
         </div>
 
-        <form method="POST" action="{{ route('password.update') }}" id="newPasswordForm">
+      <form method="POST" action="{{ route('password.update') }}" id="newPasswordForm">
             @csrf
+
+            <input type="hidden" name="user_id" value="{{ $userId }}">
 
             @if ($errors->any())
                 <div class="mb-4 p-3 bg-red-50 text-red-500 text-sm rounded-xl border border-red-100 flex items-start gap-2">

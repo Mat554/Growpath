@@ -46,7 +46,7 @@
                 </button>
             </div>
 
-            <form method="POST" action="{{ route('login') }}" id="loginForm">
+            <form method="POST" action="{{ Auth::check() ? route('profile.password.update') : route('password.update') }}" id="newPasswordForm">
                 @csrf
                 
                 <input type="hidden" name="role" id="roleInput" value="siswa">

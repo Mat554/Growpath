@@ -296,25 +296,26 @@ class AuthController extends Controller
         return view('auth.reset-otp', ['email' => session('reset_email')]);
     }
 
-    public function verifyResetOtp(Request $request)
+   public function verifyResetOtp(Request $request)
     {
         $request->validate(['otp_code' => 'required|numeric']);
 
         $email = session('reset_email');
         if (!$email) return redirect()->route('password.request');
 
-        $user = User::where('email', $email)->first();
+        $user = \App\Models\User::where('email', $email)->first();
 
         if ($user->otp !== $request->otp_code) {
             return back()->withErrors(['otp_code' => 'Kode OTP salah.']);
         }
 
-        if (Carbon::now()->greaterThan($user->otp_expires_at)) {
+        if (\Carbon\Carbon::now()->greaterThan($user->otp_expires_at)) {
             return back()->withErrors(['otp_code' => 'Kode OTP sudah kadaluarsa. Silakan minta ulang.']);
         }
 
-        // OTP Benar! Beri izin untuk reset password
-        session(['reset_authorized' => true]);
+        // --- KUNCI PERBAIKANNYA DI SINI ---
+        // OTP Benar! Simpan ID user ke session (bukan sekadar status 'true')
+        session(['temp_user_id' => $user->id]);
         
         // Hapus OTP agar tidak bisa dipakai 2x
         $user->update(['otp' => null, 'otp_expires_at' => null]);
@@ -323,27 +324,53 @@ class AuthController extends Controller
     }
 
     // 5. Tampilkan halaman pembuatan password baru
-    public function showResetPasswordForm()
+    public function showResetPasswordForm(Request $request)
     {
-        // Hanya boleh diakses jika sudah lolos OTP
-        if (!session()->has('reset_authorized') || !session()->has('reset_email')) {
-            return redirect()->route('password.request');
+        $userId = session('temp_user_id'); 
+
+        // Jika tidak ada session, kembalikan ke login
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['email' => 'Sesi OTP tidak valid atau kedaluwarsa.']);
         }
-        return view('auth.reset-password');
+
+        // Lempar variabel userId ke halaman Blade
+        return view('auth.reset-password', compact('userId'));
     }
 
-    // 6. Simpan password baru
-    // 6. Simpan password baru
    public function updatePassword(Request $request)
     {
-        // 1. Validasi Ketat: Min 8 Karakter, 1 Huruf Besar, 1 Angka, dan Cocok
+        $request->validate([
+            'password' => ['required', 'min:8', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'confirmed'],
+            'user_id' => ['required'] // Pastikan user_id dari form tersembunyi terbawa
+        ], [
+            // ... (pesan error tetap sama)
+        ]);
+
+        // AMBIL DATA DARI INPUT TERSEMBUNYI (BUKAN DARI SESSION)
+        $userId = $request->user_id; 
+            
+        $user = \App\Models\User::find($userId);
+
+        if (!$user) {
+            return redirect()->route('login')->withErrors(['email' => 'Pengguna tidak ditemukan.']);
+        }
+
+        // Simpan paksa Password Baru ke Database
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        // Bersihkan session yang tersisa (opsional)
+        session()->forget('temp_user_id');
+
+        return redirect()->route('login')->with('success', 'Password berhasil diubah! Silakan login.');
+    }
+
+    // FUNGSI KHUSUS UBAH PASSWORD DARI PROFIL
+    public function updateProfilePassword(Request $request)
+    {
         $request->validate([
             'password' => [
-                'required',
-                'min:8',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'confirmed'
+                'required', 'min:8', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'confirmed'
             ]
         ], [
             'password.min' => 'Password terlalu pendek, minimal 8 karakter.',
@@ -351,37 +378,18 @@ class AuthController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.'
         ]);
 
-        // 2. CEK STATUS: Apakah User Sedang Login?
-        $user = null;
-        $isLoggedIn = Auth::check();
+        // Ambil data user secara paksa dari database
+        $user = \App\Models\User::find(Auth::id());
 
-        if ($isLoggedIn) {
-            // SKENARIO A: User datang dari menu Profil (Sudah Login)
-            $user = Auth::user();
-        } else {
-            // SKENARIO B: User datang dari Lupa Password (Belum Login)
-            // (Pastikan 'temp_user_id' sesuai dengan nama session yang kamu buat saat verifikasi OTP lupa password)
-            $userId = session('temp_user_id'); 
-            
-            if (!$userId) {
-                return redirect()->route('login')->withErrors(['email' => 'Sesi tidak valid, silakan ulangi proses.']);
-            }
-            $user = \App\Models\User::find($userId);
+        // Jika koneksi putus
+        if (!$user) {
+            return redirect()->route('login')->withErrors(['email' => 'Sesi terputus saat menyimpan. Silakan login kembali.']);
         }
 
-        // 3. Simpan Password Baru ke Database
-        $user->update([
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password)
-        ]);
+        // Simpan paksa ke Supabase
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
 
-        // 4. POLISI LALU LINTAS: Arahkan ke halaman yang tepat
-        if ($isLoggedIn) {
-            // Jika sudah login, kembalikan ke Dashboard
-            return redirect()->route('dashboard')->with('success', 'Password berhasil diperbarui!');
-        } else {
-            // Jika belum login, hapus session sementara dan lempar ke Login
-            session()->forget('temp_user_id');
-            return redirect()->route('login')->with('success', 'Password berhasil diubah! Silakan login dengan password baru.');
-        }
+        return redirect()->route('profile')->with('success', 'Password berhasil diperbarui!');
     }
 }
