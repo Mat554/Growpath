@@ -288,13 +288,20 @@ class AuthController extends Controller
         return redirect()->route('password.otp');
     }
 
-    public function showResetOtpForm()
-    {
-        if (!session()->has('reset_email')) {
-            return redirect()->route('password.request');
-        }
-        return view('auth.reset-otp', ['email' => session('reset_email')]);
+    public function showResetForm(Request $request)
+{
+    // Cek apakah user sedang login atau dari sesi OTP
+    if (Auth::check()) {
+        $userId = Auth::id(); // Ambil ID user yang sedang login
+    } else {
+        // Ambil ID dari session (biasanya disimpan saat verifikasi OTP berhasil)
+        // Sesuaikan 'reset_user_id' dengan nama session yang kamu pakai
+        $userId = session('reset_user_id'); 
     }
+
+    // Kirim variabel ke view
+    return view('auth.reset-password', compact('userId'));
+}
 
    public function verifyResetOtp(Request $request)
     {
