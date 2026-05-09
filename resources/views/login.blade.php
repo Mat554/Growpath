@@ -46,7 +46,7 @@
                 </button>
             </div>
 
-            <form method="POST" action="{{ Auth::check() ? route('profile.password.update') : route('password.update') }}" id="newPasswordForm">
+            <form method="POST" action="{{ route('login') }}" id="loginForm">
                 @csrf
                 
                 <input type="hidden" name="role" id="roleInput" value="siswa">
@@ -99,7 +99,6 @@
             <div class="text-center mt-6 text-[0.9rem] text-[#6b7280]">
                 Belum punya akun? <a href="{{ route('register') }}" class="text-[#4A90E2] font-semibold hover:underline transition">Daftar sekarang</a>
             </div>
-            
         </div>
     </div>
 
