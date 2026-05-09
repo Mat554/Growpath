@@ -1,6 +1,10 @@
 <?php
 
-echo "<h1>HALO MATIUS! MESIN VERCEL HIDUP!</h1>";
-exit; // Menghentikan kode agar tidak memanggil Laravel dulu
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require __DIR__ . '/../public/index.php';
 
 require __DIR__ . '/../public/index.php';
