@@ -177,18 +177,15 @@ public function updateAvatar(Request $request)
     $user = Auth::user();
 
     if ($request->hasFile('avatar')) {
-        // Hapus avatar lama jika ada (dan bukan null)
-        if ($user->avatar && Storage::disk('public')->exists('avatars/' . $user->avatar)) {
-            Storage::disk('public')->delete('avatars/' . $user->avatar);
-        }
+    $user = Auth::user();
+    $fileName = time() . '_' . $user->id . '.' . $request->avatar->extension();
+    
+    // Simpan file langsung ke Supabase Storage
+    $request->file('avatar')->storeAs('', $fileName, 's3');
 
-        // Simpan avatar baru
-        $fileName = time() . '_' . $user->id . '.' . $request->avatar->extension();
-        $request->file('avatar')->storeAs('avatars', $fileName, 'public');
-
-        // Update database
-        $user->avatar = $fileName;
-        $user->save();
+    // Simpan nama file ke database
+    $user->avatar = $fileName;
+    $user->save();
     }
 
     return back()->with('success', 'Foto profil berhasil diperbarui!');
