@@ -168,27 +168,31 @@ class DashboardController extends Controller
         return view('profile');
     }
 
-    public function updateAvatar(Request $request)
-    {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+public function updateAvatar(Request $request)
+{
+    $request->validate([
+        'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar && Storage::disk('public')->exists('avatars/' . $user->avatar)) {
-                Storage::disk('public')->delete('avatars/' . $user->avatar);
-            }
-
-            $fileName = time() . '.' . $request->avatar->extension();  
-            $request->avatar->storeAs('avatars', $fileName, 'public');
-
-            $user->update(['avatar' => $fileName]);
+    if ($request->hasFile('avatar')) {
+        // Hapus avatar lama jika ada (dan bukan null)
+        if ($user->avatar && Storage::disk('public')->exists('avatars/' . $user->avatar)) {
+            Storage::disk('public')->delete('avatars/' . $user->avatar);
         }
 
-        return back()->with('success', 'Foto profil berhasil diperbarui!');
+        // Simpan avatar baru
+        $fileName = time() . '_' . $user->id . '.' . $request->avatar->extension();
+        $request->file('avatar')->storeAs('avatars', $fileName, 'public');
+
+        // Update database
+        $user->avatar = $fileName;
+        $user->save();
     }
+
+    return back()->with('success', 'Foto profil berhasil diperbarui!');
+}
 
     // =========================================================
     // 5. DASHBOARD ORTU UTAMA

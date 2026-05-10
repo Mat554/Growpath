@@ -199,6 +199,38 @@
     </main>
 
     <script>
+        function previewAndValidateAvatar(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('avatarPreview');
+    const errorText = document.getElementById('avatarError');
+    const saveBtnContainer = document.getElementById('saveAvatarBtnContainer');
+
+    // Jika user memilih file
+    if (file) {
+        // Validasi ukuran (contoh: maksimal 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            errorText.innerText = "Ukuran gambar maksimal 2MB!";
+            errorText.classList.remove('hidden');
+            saveBtnContainer.classList.add('hidden');
+            
+            // Reset input
+            event.target.value = '';
+            return;
+        }
+
+        // Sembunyikan error jika aman
+        errorText.classList.add('hidden');
+
+        // Baca file dan tampilkan ke tag <img>
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            // Munculkan tombol "Simpan Foto"
+            saveBtnContainer.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+    }
+}
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text);
             alert("Kode " + text + " berhasil disalin!");
