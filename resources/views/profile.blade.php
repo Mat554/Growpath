@@ -51,7 +51,7 @@
                         <div class="relative w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block group cursor-pointer" onclick="document.getElementById('avatarInput').click()">
                             
                             <img id="avatarPreview" 
-                            src="{{ Auth::user()->avatar ? 'https://ivmjoolrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}" 
+                            src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}" 
                             alt="Avatar" class="w-full h-full rounded-full object-cover">
                             
                             <div class="absolute inset-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
