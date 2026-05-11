@@ -90,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
     Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
     Route::post('/koneksi/revoke-ortu', [DashboardController::class, 'revokeKoneksiOrtu'])->name('koneksi.revoke.ortu');
+    Route::post('/koneksi/connect-ortu', [DashboardController::class, 'connectKoneksiOrtu'])->name('koneksi.connect.ortu');
 
     // -----------------------------------------------------
     // D. KEAMANAN & PENGATURAN AKUN (Sudah Login)

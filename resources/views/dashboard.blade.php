@@ -39,7 +39,7 @@
                 <i class="ph ph-user text-lg"></i> Profil Saya
             </a>
             <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
-                <i class="ph ph-clipboard-text text-lg"></i> Kuesioner
+                <i class="ph ph-clipboard-text text-lg"></i> Test
             </a>
         </nav>
 

@@ -32,7 +32,7 @@
                 <i class="ph ph-user text-lg"></i> Profil Saya
             </a>
             <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
-                <i class="ph ph-clipboard-text text-lg"></i> Kuesioner
+                <i class="ph ph-clipboard-text text-lg"></i> Test
             </a>
         </nav>
         
@@ -49,7 +49,7 @@
         <div class="p-4 md:p-8 pb-0 md:pb-0 shrink-0">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-800">Daftar Kuesioner</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800">Daftar Test</h2>
                     <p class="text-gray-500 text-sm mt-1">Selesaikan tes minat bakat yang telah ditugaskan kepada Anda.</p>
                 </div>
                 
@@ -172,8 +172,8 @@
                     <div class="w-20 h-20 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center text-4xl mb-4">
                         <i class="ph-fill ph-clipboard-text"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Kuesioner</h3>
-                    <p class="text-gray-400 text-sm max-w-sm">Daftar kuesioner akan muncul di sini setelah sekolah mempublikasikan jadwal untuk Anda.</p>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Test</h3>
+                    <p class="text-gray-400 text-sm max-w-sm">Daftar Test akan muncul di sini setelah sekolah mempublikasikan jadwal untuk Anda.</p>
                 </div>
                 @endforelse
 

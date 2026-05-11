@@ -336,20 +336,42 @@ public function updateAvatar(Request $request)
     }
 
     // Untuk Siswa melepaskan Orang Tua
-public function revokeKoneksi($parentId)
-{
+    public function revokeKoneksi($parentId)
+    {   
     $parent = User::findOrFail($parentId);
     // Jika user yang login adalah siswa dari ortu tersebut, hapus kodenya
     if ($parent->child_id_code == Auth::user()->user_code) {
         $parent->update(['child_id_code' => null]);
-    }
+        }
     return back()->with('success', 'Koneksi dilepaskan.');
-}
+    }
 
 // Untuk Orang Tua melepaskan Anak
-public function revokeKoneksiOrtu()
-{
+        public function revokeKoneksiOrtu()
+        {
     Auth::user()->update(['child_id_code' => null]);
     return back()->with('success', 'Koneksi dengan anak dilepaskan.');
-}
+        }
+
+        public function connectKoneksiOrtu(Request $request)
+    {
+        $request->validate([
+            'child_code' => 'required|string',
+        ]);
+
+        // Cari siswa berdasarkan user_code yang diinput
+        $siswa = User::where('user_code', $request->child_code)->first();
+
+        // Jika siswa tidak ditemukan
+        if (!$siswa) {
+            return back()->with('error', 'User ID Siswa tidak ditemukan. Pastikan ID diketik dengan benar.');
+        }
+
+        // Jika ditemukan, simpan ke akun ortu
+        Auth::user()->update([
+            'child_id_code' => $siswa->user_code
+        ]);
+
+        return back()->with('success', 'Berhasil terhubung dengan akun ' . $siswa->name);
+    }
 }

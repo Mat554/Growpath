@@ -101,72 +101,78 @@
 
                 <hr class="border-gray-100 my-8">
 
-                <h3 class="text-lg font-semibold text-[#4A90E2] mb-2 flex items-center gap-2">
+               <h3 class="text-lg font-semibold text-[#4A90E2] mb-2 flex items-center gap-2">
                     <i class="ph-fill ph-plugs-connected"></i> Hubungkan Akun Anak
                 </h3>
                 <p class="text-sm text-gray-500 mb-5">
                     Masukkan <strong>User ID</strong> akun siswa anak Anda untuk melihat hasil tes dan laporan perkembangan.
                 </p>
 
-                <form id="connectForm">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">User ID Anak (Siswa)</label>
-                        
+                @if(session('success'))
+                    <div class="mb-4 p-3 bg-[#E8F9F5] border border-[#2ECC71] text-[#27ae60] rounded-xl text-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-500 rounded-xl text-sm">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">User ID Anak (Siswa)</label>
+                    
+                    @if(!Auth::user()->child)
+                        <form action="{{ route('koneksi.connect.ortu') }}" method="POST">
+                            @csrf
+                            <div class="relative group">
+                                <input type="text" 
+                                    name="child_code"
+                                    placeholder="Masukkan User ID (Contoh: SIS-10-12345)" 
+                                    required
+                                    class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition-all focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 text-gray-800">
+                                
+                                <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-lg text-gray-400"></i>
+                            </div>
+                            <small class="text-gray-400 mt-2 block">
+                                *Pastikan ID yang dimasukkan sesuai dengan yang ada di profil siswa.
+                            </small>
+
+                            <div class="flex justify-end mt-6">
+                                <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
+                                    Hubungkan Akun
+                                </button>
+                            </div>
+                        </form>
+                    @endif
+
+                    @if(Auth::user()->child)
                         <div class="relative group">
                             <input type="text" 
-                                value="{{ Auth::user()->child ? Auth::user()->child->user_code : '' }}" 
-                                placeholder="Masukkan User ID (Contoh: SISWA-1234)" 
-                                {{ Auth::user()->child ? 'readonly' : '' }}
-                                class="w-full pl-11 pr-4 py-3 border rounded-xl text-sm focus:outline-none transition-all
-                                {{ Auth::user()->child 
-                                    ? 'border-[#2ECC71] bg-[#E8F9F5] text-[#27ae60] font-semibold cursor-default' 
-                                    : 'border-gray-200 focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 text-gray-800' 
-                                }}">
+                                value="{{ Auth::user()->child->user_code }}" 
+                                readonly
+                                class="w-full pl-11 pr-4 py-3 border border-[#2ECC71] rounded-xl text-sm bg-[#E8F9F5] text-[#27ae60] font-semibold cursor-default focus:outline-none transition-all">
                             
-                            <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-lg {{ Auth::user()->child ? 'text-[#2ECC71]' : 'text-gray-400' }}"></i>
-
-                            @if(Auth::user()->child)
+                            <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-lg text-[#2ECC71]"></i>
+                            
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs font-bold text-[#2ECC71]">
                                 <i class="ph-fill ph-check-circle text-base"></i> Terverifikasi
                             </div>
-                            @endif
                         </div>
 
-                        @if(Auth::user()->child)
-                            <small class="text-[#27ae60] mt-2 block flex items-center gap-1">
-                                ✅ Akun berhasil terhubung dengan {{ Auth::user()->child->name }} (Kelas {{ Auth::user()->child->kelas }}).
-                            </small>
-                        @else
-                            <small class="text-gray-400 mt-2 block">
-                                *Pastikan ID yang dimasukkan benar.
-                            </small>
-                        @endif
-                    </div>
+                        <small class="text-[#27ae60] mt-2 block flex items-center gap-1">
+                            ✅ Akun berhasil terhubung dengan {{ Auth::user()->child->name }} (Kelas {{ Auth::user()->child->kelas }}).
+                        </small>
 
-                    <div class="flex justify-end gap-3 mt-6">
-                        @if(Auth::user()->child)
-                            <button type="button" onclick="alert('Untuk keamanan, pemutusan hubungan akun hanya dapat dilakukan oleh Admin Sekolah.')" class="px-5 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold text-sm transition-all">
+                        <div class="flex justify-end mt-6">
+                            <button type="button" onclick="openRevokeModal()" class="px-5 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold text-sm transition-all cursor-pointer">
                                 Lepas Koneksi
                             </button>
-                            <button type="button" disabled class="px-5 py-2.5 bg-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                                Simpan Koneksi
-                            </button>
-                        @else
-                            <button type="button" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30">
-                                Hubungkan Akun
-                            </button>
-                        @endif
-                    </div>
-                </form>
-
-                <hr class="border-gray-100 my-8">
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
-                    <i class="ph-fill ph-lock-key"></i> Keamanan Akun
-                </h3>
-                
-                <form>
-                   <div class="bg-gray-50 border border-gray-100 p-5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        </div>
+                            </form>
+                        </div>
+                    @endif
+                    <div class="bg-gray-50 border border-gray-100 p-5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                         <p class="text-sm font-medium text-gray-800">Ubah Kata Sandi</p>
                         <p class="text-xs text-gray-500 mt-1">Kami sarankan untuk memperbarui kata sandi Anda secara berkala agar akun tetap aman.</p>
@@ -176,11 +182,89 @@
                         Ubah Password
                     </a>
                 </div>
+                </div>
+
+              
                 
 
             </div>
         </div>
+
+        @if(Auth::user()->child)
+    <div id="revokeModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity cursor-pointer" onclick="closeRevokeModal()"></div>
+        
+        <div class="bg-white rounded-2xl shadow-xl w-[90%] max-w-md relative z-10 transform scale-95 opacity-0 transition-all duration-200" id="revokeModalContent">
+            <div class="p-6">
+                <div class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                    <i class="ph-fill ph-warning-circle"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Konfirmasi Lepas Koneksi</h3>
+                <p class="text-center text-sm text-gray-500 mb-6">
+                    Apakah Anda yakin ingin memutuskan hubungan dengan akun siswa di bawah ini? Anda tidak akan bisa memantau laporan Testnya lagi.
+                </p>
+
+                <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-center gap-4 mb-8">
+                    <img src="{{ Auth::user()->child->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->child->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->child->name).'&background=4A90E2&color=fff' }}" 
+                         alt="Siswa" class="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm">
+                    
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">{{ Auth::user()->child->name }}</h4>
+                        <div class="text-xs text-gray-500 mt-1 flex flex-col gap-0.5">
+                            <span class="flex items-center gap-1"><i class="ph-fill ph-identification-card"></i> ID: {{ Auth::user()->child->user_code }}</span>
+                            <span class="flex items-center gap-1"><i class="ph-fill ph-student"></i> Kelas: {{ Auth::user()->child->kelas ?? 'Belum diatur' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeRevokeModal()" class="flex-1 py-3 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl font-semibold text-sm transition-all cursor-pointer">
+                        Batal
+                    </button>
+                    <form action="{{ route('koneksi.revoke.ortu') }}" method="POST" class="flex-1">
+                        @csrf
+                        <button type="submit" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-red-500/30 cursor-pointer">
+                            Ya, Lepas Koneksi
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
     </main>
 
 </body>
+
+<script>
+
+    function openRevokeModal() {
+            const modal = document.getElementById('revokeModal');
+            const content = document.getElementById('revokeModalContent');
+            
+            // Tampilkan modal
+            modal.classList.remove('hidden');
+            
+            // Beri sedikit delay agar animasi masuk (muncul membesar) terlihat mulus
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeRevokeModal() {
+            const modal = document.getElementById('revokeModal');
+            const content = document.getElementById('revokeModalContent');
+            
+            // Jalankan animasi keluar (mengecil & pudar)
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            // Sembunyikan sepenuhnya setelah animasi selesai
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+</script>
 </html>
