@@ -9,7 +9,20 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @keyframes ring {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-15deg); }
+        }
+        .animate-ring {
+            animation: ring 0.5s ease-in-out infinite;
+        }
+    </style>
 </head>
+
+
 <body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden">
 
     <!-- SIDEBAR (Desktop) -->
@@ -51,11 +64,48 @@
             </div>
             
             <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="alert('Belum ada notifikasi baru.')" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border-none">
-                    <i class="ph-fill ph-bell text-xl"></i>
-                    <span class="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                </button>
+                <div class="relative" id="notificationDropdown">
+    <button onclick="toggleNotifications()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border-none focus:outline-none">
+        
+        <i class="ph-fill ph-bell text-xl {{ count($connectedParents ?? []) > 0 ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
+        
+        @if(count($connectedParents ?? []) > 0)
+            <span class="absolute top-2.5 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+        @endif
+    </button>
 
+    <div id="notificationMenu" class="hidden absolute right-0 mt-3 w-[320px] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-gray-100 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
+        <div class="p-4 border-b border-gray-100 bg-[#F8FAFC]">
+            <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
+                <i class="ph-fill ph-bell-ringing text-[#4A90E2]"></i> Notifikasi
+            </h3>
+        </div>
+        
+        <div class="max-h-[300px] overflow-y-auto">
+            @forelse($connectedParents ?? [] as $parent)
+                <div class="p-4 border-b border-gray-50 hover:bg-[#EBF5FF]/50 transition-colors flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#4A90E2] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="ph-fill ph-check-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-800 leading-snug">
+                            Akun Anda telah terhubung dengan Orang Tua/Wali: <strong class="text-[#4A90E2]">{{ $parent->name }}</strong>.
+                        </p>
+                        <span class="text-xs text-gray-400 mt-1.5 block">
+                            {{ $parent->updated_at ? $parent->updated_at->diffForHumans() : 'Baru saja' }}
+                        </span>
+                    </div>
+                </div>
+            @empty
+                <div class="p-8 text-center flex flex-col items-center justify-center">
+                    <i class="ph ph-bell-slash text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-gray-500 text-sm">Belum ada notifikasi baru.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+</div>
+                  
                 <div class="bg-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-2.5 text-sm font-semibold text-[#4A90E2]">
                     <i class="ph-fill ph-student text-lg"></i>
                     <span>{{ Auth::user()->kelas ?? 'Siswa' }}</span>
@@ -215,4 +265,36 @@
     </div>
 
 </body>
+
+<script>
+    function toggleNotifications() {
+        const menu = document.getElementById('notificationMenu');
+        
+        if (menu.classList.contains('hidden')) {
+            // Tampilkan menu
+            menu.classList.remove('hidden');
+            setTimeout(() => {
+                menu.classList.remove('opacity-0', 'scale-95');
+                menu.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        } else {
+            // Sembunyikan menu
+            menu.classList.remove('opacity-100', 'scale-100');
+            menu.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                menu.classList.add('hidden');
+            }, 200); // Tunggu animasi selesai baru disembunyikan
+        }
+    }
+
+    // Tutup notifikasi jika user mengklik area luar kotak
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('notificationDropdown');
+        const menu = document.getElementById('notificationMenu');
+        
+        if (!dropdown.contains(event.target) && !menu.classList.contains('hidden')) {
+            toggleNotifications();
+        }
+    });
+</script>
 </html>

@@ -58,4 +58,13 @@ class User extends Authenticatable
         // Mencocokkan 'child_id_code' milik Ortu dengan 'user_code' milik Siswa
         return $this->belongsTo(User::class, 'child_id_code', 'user_code');
     }
+
+    /**
+     * Relasi untuk Siswa mengambil data Orang Tuanya
+     */
+    public function parents()
+    {
+        // Mencari User (Ortu) yang punya 'child_id_code' sama dengan 'user_code' Siswa ini
+        return $this->hasMany(User::class, 'child_id_code', 'user_code');
+    }
 }

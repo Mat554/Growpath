@@ -37,11 +37,12 @@ class DashboardController extends Controller
         $exams = $nextExam ? collect([$nextExam]) : collect();
 
         // 4. Kita tetap butuh data ujian yang selesai untuk membuka gembok kartu "Laporan Hasil"
-        $completedExams = ExamResult::where('user_id', $user->id)
-                                ->get()
-                                ->keyBy('exam_id');
+       $completedExams = ExamResult::where('user_id', Auth::id())->get();
 
-        return view('dashboard', compact('exams', 'completedExams', 'completedExamIds'));
+         $connectedParents = Auth::user()->parents()->get(); // Sesuaikan dengan nama relasi di Model kamu
+
+        return view('dashboard', compact('exams', 'completedExams', 'completedExamIds', 'connectedParents'));
+
     }
 
     public function kuesioner()
