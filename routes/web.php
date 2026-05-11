@@ -31,7 +31,7 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-
+    
     // Login Admin
     Route::get('/admin', function () {
         return view('admin.admin-login'); 
@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::get('/kuesioner', [DashboardController::class, 'kuesioner'])->name('kuesioner');
+    Route::post('/koneksi/revoke/{id}', [DashboardController::class, 'revokeKoneksi'])->name('koneksi.revoke');
     
     Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
     Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');
@@ -88,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-ortu', [DashboardController::class, 'ortu'])->name('dashboard.ortu');
     Route::get('/profile-ortu', [DashboardController::class, 'profileOrtu'])->name('profile.ortu');
     Route::get('/ortu/laporan', [DashboardController::class, 'laporanOrtu'])->name('laporan.ortu');
+    Route::post('/koneksi/revoke-ortu', [DashboardController::class, 'revokeKoneksiOrtu'])->name('koneksi.revoke.ortu');
 
     // -----------------------------------------------------
     // D. KEAMANAN & PENGATURAN AKUN (Sudah Login)

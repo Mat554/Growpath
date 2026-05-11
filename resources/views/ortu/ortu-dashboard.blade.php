@@ -10,6 +10,20 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
+<style>
+        @keyframes ring {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-15deg); }
+        }
+        .animate-ring {
+            animation: ring 0.5s ease-in-out infinite;
+        }
+    </style>
+
+
 <body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden text-[#333]">
 
     <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-100 p-6 hidden md:flex transition-all z-20 shadow-[0_0_20px_rgba(0,0,0,0.03)]">
@@ -37,6 +51,7 @@
     <main class="flex-1 p-8 overflow-y-auto">
         
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            
             <div>
                 <h2 class="text-2xl font-semibold text-gray-800">
                     Halo, {{ Auth::user()->name }}! 👋
@@ -44,20 +59,55 @@
                 <p class="text-gray-500 text-sm mt-1">Selamat datang di portal pemantauan minat bakat.</p>
             </div>
             
-            <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                <button onclick="readNotif()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border border-gray-100">
-                    <i class="ph-fill ph-bell text-xl"></i>
-                    <span id="notifDot" class="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                </button>
+            <div class="flex items-center justify-end gap-4 ml-auto">
+                
+                <div class="relative" id="notificationDropdown">
+                    <button onclick="toggleNotifications()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border border-gray-100 focus:outline-none">
+                        
+                        <i id="bellIcon" class="ph-fill ph-bell text-xl {{ isset($anak) && $anak ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
+                        
+                        @if(isset($anak) && $anak)
+                            <span id="notifBadge" class="absolute top-2.5 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        @endif
+                    </button>
+
+                    <div id="notificationMenu" class="hidden absolute right-0 mt-3 w-[320px] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-gray-100 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
+                        <div class="p-4 border-b border-gray-100 bg-[#F8FAFC]">
+                            <h3 class="font-bold text-gray-800 text-sm">Notifikasi</h3>
+                        </div>
+                        
+                        <div class="max-h-[300px] overflow-y-auto">
+                            @if(isset($anak) && $anak)
+                                <div class="p-4 border-b border-gray-50 flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#4A90E2] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="ph-fill ph-student text-xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-800 leading-snug">
+                                            Terhubung dengan: <strong class="text-[#4A90E2]">{{ $anak->name }}</strong>.
+                                        </p>
+                                        <form action="{{ route('koneksi.revoke.ortu') }}" method="POST" onsubmit="return confirm('Berhenti memantau akun anak ini?')">
+                                            @csrf
+                                            <button type="submit" class="text-[11px] text-red-500 font-semibold hover:underline mt-2 bg-transparent border-none p-0 cursor-pointer">
+                                                Lepas Koneksi
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="p-8 text-center text-gray-400 text-sm">Tidak ada notifikasi</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
 
                 <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2.5 text-sm font-semibold text-[#4A90E2]">
                     <i class="ph-fill ph-users text-lg"></i>
                     <span>Wali Murid</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div> 
+            
+        </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             @php
                 // Mengecek apakah ada minimal 1 skor di database
@@ -127,11 +177,39 @@
     </div>
 
     <script>
-        function readNotif() {
-            const dot = document.getElementById('notifDot');
-            if (dot) dot.classList.add('hidden');
-            alert("🔔 Info Sekolah:\n\nPertemuan wali murid akan diadakan minggu depan.");
-        }
+       function toggleNotifications() {
+    const menu = document.getElementById('notificationMenu');
+    const bell = document.getElementById('bellIcon');
+    const badge = document.getElementById('notifBadge');
+    
+    if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        // Matikan animasi dan hilangkan titik merah saat dibuka
+        if(bell) bell.classList.remove('animate-ring');
+        if(badge) badge.classList.add('hidden');
+
+        setTimeout(() => {
+            menu.classList.remove('opacity-0', 'scale-95');
+            menu.classList.add('opacity-100', 'scale-100');
+        }, 10);
+    } else {
+        menu.classList.remove('opacity-100', 'scale-100');
+        menu.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            menu.classList.add('hidden');
+        }, 200);
+    }
+}
+
+        // Tutup saat klik di luar
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const menu = document.getElementById('notificationMenu');
+            
+            if (!dropdown.contains(event.target) && !menu.classList.contains('hidden')) {
+                toggleNotifications();
+            }
+        });
     </script>
 
 </body>

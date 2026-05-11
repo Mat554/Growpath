@@ -334,4 +334,22 @@ public function updateAvatar(Request $request)
             ];
         }
     }
+
+    // Untuk Siswa melepaskan Orang Tua
+public function revokeKoneksi($parentId)
+{
+    $parent = User::findOrFail($parentId);
+    // Jika user yang login adalah siswa dari ortu tersebut, hapus kodenya
+    if ($parent->child_id_code == Auth::user()->user_code) {
+        $parent->update(['child_id_code' => null]);
+    }
+    return back()->with('success', 'Koneksi dilepaskan.');
+}
+
+// Untuk Orang Tua melepaskan Anak
+public function revokeKoneksiOrtu()
+{
+    Auth::user()->update(['child_id_code' => null]);
+    return back()->with('success', 'Koneksi dengan anak dilepaskan.');
+}
 }
