@@ -75,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::get('/kuesioner', [DashboardController::class, 'kuesioner'])->name('kuesioner');
     Route::post('/koneksi/revoke/{id}', [DashboardController::class, 'revokeKoneksi'])->name('koneksi.revoke');
+    Route::post('/koneksi/approve/{id}', [DashboardController::class, 'approveKoneksi'])->name('koneksi.approve');
+    Route::post('/koneksi/reject/{id}', [DashboardController::class, 'rejectKoneksi'])->name('koneksi.reject');
     
     Route::get('/exam/{id}', [DashboardController::class, 'takeExam'])->name('exam.take');
     Route::post('/exam/{id}/submit', [DashboardController::class, 'submitExam'])->name('exam.submit');

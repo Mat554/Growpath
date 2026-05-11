@@ -39,9 +39,14 @@ class DashboardController extends Controller
         // 4. Kita tetap butuh data ujian yang selesai untuk membuka gembok kartu "Laporan Hasil"
        $completedExams = ExamResult::where('user_id', Auth::id())->get();
 
-         $connectedParents = Auth::user()->parents()->get(); // Sesuaikan dengan nama relasi di Model kamu
+        // Yang masih menunggu persetujuan
+        $pendingParents = Auth::user()->parents()->where('child_connection_status', 'pending')->get();
+        
+        // Yang sudah disetujui
+        $connectedParents = Auth::user()->parents()->where('child_connection_status', 'approved')->get();
 
-        return view('dashboard', compact('exams', 'completedExams', 'completedExamIds', 'connectedParents'));
+        // Jangan lupa kirim kedua variabel ini ke view (tambahkan $pendingParents di compact)
+        return view('dashboard', compact('exams', 'completedExams', 'completedExamIds', 'connectedParents', 'pendingParents'));
 
     }
 
@@ -368,10 +373,33 @@ public function updateAvatar(Request $request)
         }
 
         // Jika ditemukan, simpan ke akun ortu
+       // Jika ditemukan, simpan ke akun ortu dengan status PENDING
         Auth::user()->update([
-            'child_id_code' => $siswa->user_code
+            'child_id_code' => $siswa->user_code,
+            'child_connection_status' => 'pending' // <--- Tambahkan baris ini
         ]);
 
-        return back()->with('success', 'Berhasil terhubung dengan akun ' . $siswa->name);
+        return back()->with('success', 'Permintaan koneksi telah dikirim ke akun ' . $siswa->name . '. Menunggu persetujuan.');
+    }
+
+    public function approveKoneksi($parentId)
+    {
+        $parent = User::findOrFail($parentId);
+        if ($parent->child_id_code == Auth::user()->user_code) {
+            $parent->update(['child_connection_status' => 'approved']);
+        }
+        return back();
+    }
+
+    public function rejectKoneksi($parentId)
+    {
+        $parent = User::findOrFail($parentId);
+        if ($parent->child_id_code == Auth::user()->user_code) {
+            $parent->update([
+                'child_id_code' => null, 
+                'child_connection_status' => null
+            ]);
+        }
+        return back();
     }
 }

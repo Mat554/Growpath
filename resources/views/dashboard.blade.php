@@ -64,44 +64,84 @@
             </div>
             
             <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                <div class="relative" id="notificationDropdown">
+                
+            <div class="relative" id="notificationDropdown">
     <button onclick="toggleNotifications()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border-none focus:outline-none">
         
-        <i class="ph-fill ph-bell text-xl {{ count($connectedParents ?? []) > 0 ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
+        <i id="bellIcon" class="ph-fill ph-bell text-xl {{ count($pendingParents ?? []) > 0 ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
         
-        @if(count($connectedParents ?? []) > 0)
-            <span class="absolute top-2.5 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+        @if(count($pendingParents ?? []) > 0)
+            <span id="notifBadge" class="absolute top-2.5 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         @endif
     </button>
 
-    <div id="notificationMenu" class="hidden absolute right-0 mt-3 w-[320px] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-gray-100 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
+    <div id="notificationMenu" class="hidden absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-gray-100 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
         <div class="p-4 border-b border-gray-100 bg-[#F8FAFC]">
             <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
                 <i class="ph-fill ph-bell-ringing text-[#4A90E2]"></i> Notifikasi
             </h3>
         </div>
         
-        <div class="max-h-[300px] overflow-y-auto">
-            @forelse($connectedParents ?? [] as $parent)
-                <div class="p-4 border-b border-gray-50 hover:bg-[#EBF5FF]/50 transition-colors flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#4A90E2] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i class="ph-fill ph-check-circle text-xl"></i>
+        <div class="max-h-[350px] overflow-y-auto">
+            
+            @foreach($pendingParents ?? [] as $pending)
+                <div class="p-4 border-b border-orange-100 bg-[#FFF4E5]/30 flex flex-col gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[#FFF4E5] text-[#FF9F43] flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="ph-fill ph-user-plus text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-800 leading-snug">
+                                <strong class="text-[#FF9F43]">{{ $pending->name }}</strong> meminta izin untuk memantau laporan kuesioner Anda sebagai Wali.
+                            </p>
+                            <span class="text-xs text-gray-400 mt-1 block">
+                                {{ $pending->updated_at ? $pending->updated_at->diffForHumans() : 'Baru saja' }}
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-800 leading-snug">
-                            Akun Anda telah terhubung dengan Orang Tua/Wali: <strong class="text-[#4A90E2]">{{ $parent->name }}</strong>.
-                        </p>
-                        <span class="text-xs text-gray-400 mt-1.5 block">
-                            {{ $parent->updated_at ? $parent->updated_at->diffForHumans() : 'Baru saja' }}
-                        </span>
+                    <div class="flex gap-2 ml-13">
+                        <form action="{{ route('koneksi.approve', $pending->id) }}" method="POST" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full py-1.5 bg-[#2ECC71] hover:bg-[#27ae60] text-white rounded-lg font-semibold text-xs transition-all cursor-pointer">
+                                Terima
+                            </button>
+                        </form>
+                        <form action="{{ route('koneksi.reject', $pending->id) }}" method="POST" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 rounded-lg font-semibold text-xs transition-all cursor-pointer">
+                                Tolak
+                            </button>
+                        </form>
                     </div>
                 </div>
-            @empty
+            @endforeach
+
+            @foreach($connectedParents ?? [] as $parent)
+                <div class="p-4 border-b border-gray-50 flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#4A90E2] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="ph-fill ph-users text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800 leading-snug">
+                            Terhubung dengan Wali: <strong class="text-[#4A90E2]">{{ $parent->name }}</strong>.
+                        </p>
+                        <form action="{{ route('koneksi.revoke', $parent->id) }}" method="POST" onsubmit="return confirm('Lepas koneksi dengan orang tua ini?')">
+                            @csrf
+                            <button type="submit" class="text-[11px] text-red-500 font-semibold hover:underline mt-2 bg-transparent border-none p-0 cursor-pointer">
+                                Lepas Koneksi
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+
+            @if(count($pendingParents ?? []) == 0 && count($connectedParents ?? []) == 0)
                 <div class="p-8 text-center flex flex-col items-center justify-center">
                     <i class="ph ph-bell-slash text-4xl text-gray-300 mb-2"></i>
                     <p class="text-gray-500 text-sm">Belum ada notifikasi baru.</p>
                 </div>
-            @endforelse
+            @endif
+
         </div>
     </div>
 </div>

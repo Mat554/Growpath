@@ -27,7 +27,8 @@ class User extends Authenticatable
     'otp',              // Add this
     'otp_expires_at',
     'user_code',
-    'avatar',   // Add this
+    'avatar',
+    'child_connection_status',   // Add this
 ];
 
     /**
