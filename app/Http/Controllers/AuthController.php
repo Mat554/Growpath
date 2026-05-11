@@ -261,7 +261,7 @@ class AuthController extends Controller
     }
 
     // 2. Kirim OTP ke email tersebut
-    public function sendResetOtp(Request $request)
+    public function sendResetOtpForm(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email'
