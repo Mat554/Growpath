@@ -261,7 +261,7 @@ class AuthController extends Controller
     }
 
     // 2. Kirim OTP ke email tersebut
-    public function sendResetOtpForm(Request $request)
+    public function sendResetOtp(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email'
@@ -299,9 +299,24 @@ class AuthController extends Controller
         $userId = session('reset_user_id'); 
     }
 
+
+    
     // Kirim variabel ke view
     return view('auth.reset-password', compact('userId'));
 }
+
+/**
+     * Menampilkan halaman input OTP untuk reset password
+     */
+    public function showResetOtpForm(Request $request)
+    {
+        // Mengambil email dari URL parameter (jika ada) untuk mempermudah user
+        $email = $request->query('email');
+
+        // Pastikan kamu punya file resources/views/auth/reset-otp.blade.php
+        // Ubah 'auth.reset-otp' di bawah ini sesuai dengan nama folder/file blade kamu!
+        return view('auth.reset-otp', compact('email'));
+    }
 
    public function verifyResetOtp(Request $request)
     {
