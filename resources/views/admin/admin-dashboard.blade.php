@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin-dashboard.js'])
 
     <style>
@@ -37,9 +39,9 @@
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
             </button>
             
-            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Kuesioner</div>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Tes</div>
             <button onclick="showSection('create')" id="nav-create" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
-                <i class="ph ph-plus-circle text-lg"></i> Buat Kuesioner
+                <i class="ph ph-plus-circle text-lg"></i> Buat Tes
             </button>
             <button onclick="showSection('publish')" id="nav-publish" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-list-checks text-lg"></i> Kelola Soal
@@ -52,8 +54,8 @@
 
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Laporan</div>
             <a href="{{ route('admin.monitoring') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
-     <i class="ph ph-monitor-play text-lg"></i> Monitoring
-</a>
+                <i class="ph ph-monitor-play text-lg"></i> Monitoring
+            </a>
             <button onclick="showSection('report')" id="nav-report" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-file-text text-lg"></i> Publish Laporan
             </button>
@@ -87,7 +89,7 @@
                         <i class="ph-fill ph-users"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statUsers">{{ $totalSiswa }}</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statUsers">{{ $totalSiswa ?? 0 }}</h3>
                         <p class="text-gray-500 text-sm">Total Siswa</p>
                     </div>
                 </div>
@@ -97,7 +99,7 @@
                         <i class="ph-fill ph-question"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statQuestions">{{ $totalSoal }}</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statQuestions">{{ $totalSoal ?? 0 }}</h3>
                         <p class="text-gray-500 text-sm">Bank Soal</p>
                     </div>
                 </div>
@@ -107,10 +109,94 @@
                         <i class="ph-fill ph-file-dashed"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statReports">{{ $totalLaporan }}</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statReports">{{ $totalLaporan ?? 0 }}</h3>
                         <p class="text-gray-500 text-sm">Laporan Masuk</p>
                     </div>
                 </div>
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; width: 100%; flex-wrap: nowrap; ">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col" style="flex: 2; min-width: 400px;">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 tracking-tight">User Activity</h3>
+                        <p class="text-sm text-gray-500 mt-1">Number of Users who have completed their assignments</p>
+                    </div>
+                    <div class="w-full flex-1 relative min-h-[300px]">
+                        <canvas id="userActivityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-between" style="flex: 1; min-width: 250px;">
+                    <div class="text-center w-full mb-2">
+                        <h3 class="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-100 pb-3">
+                            Progres Tes Aktif
+                        </h3>
+                    </div>
+
+                    <div class="relative w-[140px] h-[140px] my-4">
+                        <canvas id="completionChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl font-bold text-[#4A90E2]">8%</span>
+                            <span class="text-[9px] text-gray-400 text-center leading-tight mt-1">Siswa<br>Selesai</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full text-xs border-t border-gray-100 pt-3">
+                        <div class="flex justify-between py-2 border-b border-gray-50">
+                            <span class="text-gray-400 uppercase font-semibold">Nama Tes</span>
+                            <span class="font-bold text-gray-700 text-right max-w-[90px] truncate">Minat Bakat V1</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-50">
+                            <span class="text-gray-400 uppercase font-semibold">Status</span>
+                            <span class="font-bold text-[#2ECC71]">Deployed</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-50">
+                            <span class="text-gray-400 uppercase font-semibold">Batas</span>
+                            <span class="font-bold text-[#357ABD]">29/05/26</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-gray-400 uppercase font-semibold">Target</span>
+                            <span class="font-bold text-[#357ABD]">{{ $totalSiswa ?? 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-between" style="flex: 1; min-width: 250px;">
+                    <div class="text-center w-full mb-2">
+                        <h3 class="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-100 pb-3">
+                            Status Total Tes
+                        </h3>
+                    </div>
+
+                    <div class="relative w-[140px] h-[140px] my-4">
+                        <canvas id="activeTestChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl font-bold text-[#FF9F43]">3</span>
+                            <span class="text-[9px] text-gray-400 text-center leading-tight mt-1">Tes<br>Berjalan</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full text-xs border-t border-gray-100 pt-3">
+                        <div class="flex justify-between py-2 border-b border-gray-50">
+                            <span class="text-gray-400 uppercase font-semibold">Total Dibuat</span>
+                            <span class="font-bold text-gray-700 text-right">10 Paket</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-50">
+                            <span class="text-gray-400 uppercase font-semibold">Berjalan</span>
+                            <span class="font-bold text-[#FF9F43]">3 Paket</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-50">
+                            <span class="text-gray-400 uppercase font-semibold">Selesai</span>
+                            <span class="font-bold text-[#2ECC71]">5 Paket</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-gray-400 uppercase font-semibold">Draft</span>
+                            <span class="font-bold text-gray-400">2 Paket</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             
             <div class="bg-white p-8 rounded-2xl shadow-sm">
@@ -269,8 +355,8 @@
                             </button>
                             
                           <button onclick="window.compileCard(event)" class="py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all flex justify-center items-center gap-2">
-    <i class="ph-fill ph-rocket-launch"></i> Publish
-</button>
+                                <i class="ph-fill ph-rocket-launch"></i> Publish
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -324,7 +410,7 @@
                         </thead>
                         
                         <tbody>
-                            @forelse($pendingReports as $report)
+                            @forelse($pendingReports ?? [] as $report)
                             <tr>
                                 <td class="p-4 border-b border-gray-50">{{ $report->user->name ?? 'Siswa' }}</td>
                                 <td class="p-4 border-b border-gray-50 text-[#4A90E2] font-bold">{{ $report->dominant_code }}</td>
@@ -425,15 +511,104 @@
 
   <script>
         // 1. Kirim data soal ke Javascript
-        window.globalQuestionsData = @json($questions);
+        window.globalQuestionsData = @json($questions ?? []);
         
         // 2. Kirim data session tab (jika baru saja menyimpan soal)
         window.activeTabSession = "{{ session('tab') ?? '' }}";
         
         // 3. Kirim Token CSRF untuk form Javascript (opsional jika butuh fetch)
         window.csrfToken = "{{ csrf_token() }}";
+
+        // ==========================================
+        // INISIALISASI TIGA GRAFIK CHART.JS
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // 1. Grafik Garis (Kiri): User Activity
+            const ctxActivity = document.getElementById('userActivityChart');
+            if (ctxActivity) {
+                new Chart(ctxActivity.getContext('2d'), {
+                    type: 'line', 
+                    data: {
+                        labels: ['8 May', '9 May', '10 May', '11 May', '12 May', '13 May', '14 May', '15 May'],
+                        datasets: [{
+                            label: 'Users completed',
+                            data: [480, 550, 600, 1000, 1050, 1100, 1180, 1200], 
+                            borderColor: '#4A90E2', 
+                            backgroundColor: '#4A90E2',
+                            pointBackgroundColor: '#4A90E2',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            borderWidth: 2,
+                            tension: 0.4 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 1250, 
+                                ticks: { stepSize: 250 },
+                                border: { display: false },
+                                grid: { color: '#f0f0f0' }
+                            },
+                            x: {
+                                border: { display: false },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Grafik Lingkaran (Tengah): Progress Tes Aktif (Siswa Selesai)
+            const ctxCompletion = document.getElementById('completionChart');
+            if (ctxCompletion) {
+                new Chart(ctxCompletion.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'Remaining'],
+                        datasets: [{
+                            data: [8, 92], // 8% Selesai, 92% Belum
+                            backgroundColor: ['#4A90E2', '#F3F4F6'],
+                            borderWidth: 0,
+                            cutout: '75%' 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    }
+                });
+            }
+
+            // 3. Grafik Lingkaran (Kanan): Status Total Tes (Berjalan vs Lainnya)
+            const ctxActiveTest = document.getElementById('activeTestChart');
+            if (ctxActiveTest) {
+                new Chart(ctxActiveTest.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Berjalan', 'Lainnya'],
+                        datasets: [{
+                            data: [3, 7], // 3 Berjalan, 7 Selesai/Draft
+                            backgroundColor: ['#FF9F43', '#F3F4F6'], // Warna Oranye untuk "Berjalan"
+                            borderWidth: 0,
+                            cutout: '75%' 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    }
+                });
+            }
+        });
     </script>
-</body>
-</html>
 </body>
 </html>
