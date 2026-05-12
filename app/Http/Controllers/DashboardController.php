@@ -277,8 +277,9 @@ public function updateAvatar(Request $request)
         return redirect()->back()->with('success', 'Laporan berhasil di-publish!');
     }
 
-    private function generateOllamaAnalysis($kodeDominan)
+   private function generateOllamaAnalysis($kodeDominan)
     {
+        // Prompt tetap sama persis!
         $prompt = "Kamu adalah pakar karir. Analisis kode dominan RIASEC: '{$kodeDominan}'. 
                    Balas HANYA dengan format JSON persis seperti ini tanpa teks pengantar apa pun: 
                    {
@@ -288,35 +289,36 @@ public function updateAvatar(Request $request)
                    }";
 
         try {
-            // URL default Ollama di komputermu
-            $ollamaUrl = env('OLLAMA_URL', 'http://127.0.0.1:11434/api/generate');
-            $ollamaModel = env('OLLAMA_MODEL', 'llama3'); // Pastikan kamu sudah pull model ini di terminal
+            // Kita arahkan tembakan ke server Groq Cloud
+            $groqUrl = 'https://api.groq.com/openai/v1/chat/completions';
+            $apiKey = env('GROQ_API_KEY'); 
 
-         // Tembak ke API lokal Ollama dengan kunci rahasia Ngrok
-            $response = Http::withHeaders([
-                'ngrok-skip-browser-warning' => 'true' // Ini kunci ajaibnya!
-            ])->timeout(300)->post($ollamaUrl, [
-                'model' => $ollamaModel,
-                'prompt' => $prompt,
-                'stream' => false,
-                'format' => 'json'
+            // Eksekusi tembakan
+            $response = Http::withToken($apiKey)->timeout(30)->post($groqUrl, [
+                // Menggunakan Llama 3 versi 8B yang super cepat
+                'model' => 'llama-3.1-8b-instant',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                // Paksa AI membalas dalam format JSON
+                'response_format' => ['type' => 'json_object'],
+                'temperature' => 0.7
             ]);
 
-            // Jika gagal mendapatkan balasan yang sukses dari Ollama
+            // Jika Gagal
             if (!$response->successful()) {
                 return [
                     "judul" => "ERROR HTTP " . $response->status(),
-                    "deskripsi" => "Detail dari server: " . $response->body(),
+                    "deskripsi" => "Gagal menghubungi Groq: " . $response->body(),
                     "jurusan" => ["-", "-", "-"]
                 ];
             }
 
-            // Ambil teks balasan Ollama
-            $ollamaText = $response->json('response');
+            // Ambil teks balasan (Format Groq/OpenAI sedikit berbeda cara panggilnya)
+            $aiText = $response->json('choices.0.message.content');
             
-            // Karena kita pakai format JSON, kita bisa langsung decode. 
-            // Tapi pakai regex ini untuk perlindungan ekstra.
-            if (preg_match('/\{.*\}/s', $ollamaText, $matches)) {
+            // Bersihkan dan ubah JSON ke Array PHP
+            if (preg_match('/\{.*\}/s', $aiText, $matches)) {
                 $cleanJson = $matches[0];
                 $decodedData = json_decode($cleanJson, true);
 
@@ -325,18 +327,16 @@ public function updateAvatar(Request $request)
                 }
             }
 
-            // Jika formatnya tetap meleset
             return [
                 "judul" => "Format Tidak Dikenali",
-                "deskripsi" => "Ollama membalas, tetapi format JSON rusak atau tidak sesuai standar.",
+                "deskripsi" => "AI membalas, tetapi format JSON rusak.",
                 "jurusan" => ["-", "-", "-"]
             ];
 
         } catch (\Exception $e) {
-            // Jika koneksi putus total sebelum sampai
             return [
                 "judul" => "KONEKSI TERPUTUS",
-                "deskripsi" => "Pesan asli dari Laravel: " . $e->getMessage(),
+                "deskripsi" => "Pesan error: " . $e->getMessage(),
                 "jurusan" => ["-", "-", "-"]
             ];
         }
