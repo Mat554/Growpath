@@ -8,8 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin-dashboard.js'])
 
     <style>
@@ -18,11 +16,11 @@
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Custom Scrollbar untuk List Soal */
+        /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden text-[#333]">
@@ -83,8 +81,7 @@
 
         <div id="overview" class="section active">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
                     <div class="w-16 h-16 bg-[#EBF5FF] text-[#4A90E2] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-users"></i>
                     </div>
@@ -93,9 +90,8 @@
                         <p class="text-gray-500 text-sm">Total Siswa</p>
                     </div>
                 </div>
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
-                    <div class="w-16 h-16 bg-[#E8F9F5] text-[#2ECC71] rounded-2xl flex items-center justify-center text-3xl">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
+                    <div class="w-16 h-16 bg-[#E8F9F5] text-[#16A34A] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-question"></i>
                     </div>
                     <div>
@@ -103,8 +99,7 @@
                         <p class="text-gray-500 text-sm">Bank Soal</p>
                     </div>
                 </div>
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
                     <div class="w-16 h-16 bg-[#FFF4E5] text-[#FF9F43] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-file-dashed"></i>
                     </div>
@@ -115,104 +110,171 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; width: 100%; flex-wrap: nowrap; ">
+            <div class="bg-white p-6 shadow-sm mb-6 border border-gray-100" style="border-radius: 20px;">
+                <h3 class="text-lg font-bold mb-6 flex items-center gap-2" style="color: #4A90E2;">
+                    Rata-rata Skor RIASEC (%)
+                </h3>
                 
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col" style="flex: 2; min-width: 400px;">
-                    <div class="text-center mb-6">
-                        <h3 class="text-xl font-bold text-gray-800 tracking-tight">User Activity</h3>
-                        <p class="text-sm text-gray-500 mt-1">Number of Users who have completed their assignments</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-32">Realistic (R)</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: #EF4444; width: 16.4%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.4%</span>
                     </div>
-                    <div class="w-full flex-1 relative min-h-[300px]">
-                        <canvas id="userActivityChart"></canvas>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-32">Investigative (I)</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: #3B82F6; width: 16.3%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.3%</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-32">Artistic (A)</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: #FACC15; width: 15.6%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">15.6%</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-32">Social (S)</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: #22C55E; width: 17.5%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">17.5%</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-32">Enterprising (E)</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: #A855F7; width: 16.6%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.6%</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-32">Conventional (C)</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: #06B6D4; width: 17.6%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">17.6%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: stretch; flex-wrap: nowrap; overflow-x: auto;">
+                
+                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; height: 340px;">
+                    <h3 class="text-lg font-bold mb-4" style="color: #4A90E2;">Distribusi Kode Hasil</h3>
+                    
+                    <div class="flex-1 overflow-y-auto custom-scroll pr-2 border border-gray-100" style="border-radius: 8px;">
+                        <table class="w-full text-left border-collapse">
+                            <thead style="background-color: #EBF5FF; position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th class="p-3 font-bold text-sm" style="color: #333;">Kode RIASEC</th>
+                                    <th class="p-3 font-bold text-sm text-right" style="color: #333;">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SCR</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">245</td>
+                                </tr>
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SEC</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">242</td>
+                                </tr>
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RIA</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">173</td>
+                                </tr>
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RSC</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">160</td>
+                                </tr>
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SCE</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">152</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RIS</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">146</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-between" style="flex: 1; min-width: 250px;">
-                    <div class="text-center w-full mb-2">
-                        <h3 class="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-100 pb-3">
-                            Progres Tes Aktif
-                        </h3>
-                    </div>
+                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; height: 340px;">
+                    <h3 class="text-lg font-bold mb-6" style="color: #4A90E2;">Distribusi Kelas</h3>
+                    
+                    <div class="flex flex-col gap-8 flex-1 justify-center pb-2">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 10</span>
+                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 85%"></div>
+                            </div>
+                            <span class="text-sm font-bold text-gray-800 w-12 text-right">3426</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 11</span>
+                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 40%"></div>
+                            </div>
+                            <span class="text-sm font-bold text-gray-800 w-12 text-right">1518</span>
+                        </div>
 
-                    <div class="relative w-[140px] h-[140px] my-4">
-                        <canvas id="completionChart"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="text-2xl font-bold text-[#4A90E2]">8%</span>
-                            <span class="text-[9px] text-gray-400 text-center leading-tight mt-1">Siswa<br>Selesai</span>
-                        </div>
-                    </div>
-
-                    <div class="w-full text-xs border-t border-gray-100 pt-3">
-                        <div class="flex justify-between py-2 border-b border-gray-50">
-                            <span class="text-gray-400 uppercase font-semibold">Nama Tes</span>
-                            <span class="font-bold text-gray-700 text-right max-w-[90px] truncate">Minat Bakat V1</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-gray-50">
-                            <span class="text-gray-400 uppercase font-semibold">Status</span>
-                            <span class="font-bold text-[#2ECC71]">Deployed</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-gray-50">
-                            <span class="text-gray-400 uppercase font-semibold">Batas</span>
-                            <span class="font-bold text-[#357ABD]">29/05/26</span>
-                        </div>
-                        <div class="flex justify-between py-2">
-                            <span class="text-gray-400 uppercase font-semibold">Target</span>
-                            <span class="font-bold text-[#357ABD]">{{ $totalSiswa ?? 0 }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-between" style="flex: 1; min-width: 250px;">
-                    <div class="text-center w-full mb-2">
-                        <h3 class="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-100 pb-3">
-                            Status Total Tes
-                        </h3>
-                    </div>
-
-                    <div class="relative w-[140px] h-[140px] my-4">
-                        <canvas id="activeTestChart"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="text-2xl font-bold text-[#FF9F43]">3</span>
-                            <span class="text-[9px] text-gray-400 text-center leading-tight mt-1">Tes<br>Berjalan</span>
-                        </div>
-                    </div>
-
-                    <div class="w-full text-xs border-t border-gray-100 pt-3">
-                        <div class="flex justify-between py-2 border-b border-gray-50">
-                            <span class="text-gray-400 uppercase font-semibold">Total Dibuat</span>
-                            <span class="font-bold text-gray-700 text-right">10 Paket</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-gray-50">
-                            <span class="text-gray-400 uppercase font-semibold">Berjalan</span>
-                            <span class="font-bold text-[#FF9F43]">3 Paket</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-gray-50">
-                            <span class="text-gray-400 uppercase font-semibold">Selesai</span>
-                            <span class="font-bold text-[#2ECC71]">5 Paket</span>
-                        </div>
-                        <div class="flex justify-between py-2">
-                            <span class="text-gray-400 uppercase font-semibold">Draft</span>
-                            <span class="font-bold text-gray-400">2 Paket</span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 12</span>
+                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 55%"></div>
+                            </div>
+                            <span class="text-sm font-bold text-gray-800 w-12 text-right">2098</span>
                         </div>
                     </div>
                 </div>
 
             </div>
             
-            <div class="bg-white p-8 rounded-2xl shadow-sm">
+          <div class="bg-white p-8 shadow-sm border border-gray-100" style="border-radius: 20px;">
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-info text-[#4A90E2]"></i> Panduan Admin
                 </div>
-                <div class="flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
-                    <i class="ph-fill ph-number-circle-one text-3xl text-[#4A90E2]"></i>
-                    <div class="text-sm text-gray-600"><strong>Buat Soal RIASEC:</strong> Input 6 opsi jawaban mewakili (Realistic, Investigative, Artistic, Social, Enterprising, Conventional).</div>
-                </div>
-                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
-                    <i class="ph-fill ph-number-circle-two text-3xl text-[#4A90E2]"></i>
-                    <div class="text-sm text-gray-600"><strong>Beta Test & Publish:</strong> Simulasi ujian akan menghitung dominasi 3 kode teratas (misal: "SEC").</div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-one text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">1. Buat Soal RIASEC</strong>
+                            Input teks pertanyaan beserta 6 opsi jawaban yang mewakili masing-masing kategori (Realistic, Investigative, Artistic, Social, Enterprising, Conventional).
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-two text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">2. Beta Test & Publish</strong>
+                            Konfigurasi kartu ujian dan lakukan simulasi (Beta Test) untuk memastikan perhitungan 3 kode dominan berjalan lancar sebelum di-Publish.
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-three text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">3. Monitoring Pengerjaan</strong>
+                            Pantau status siswa yang sedang mengerjakan ujian secara real-time pada menu Monitoring untuk melihat progres penyelesaian soal.
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-four text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">4. Validasi & Publish Laporan</strong>
+                            Review detail skor dan kode kepribadian final siswa. Klik Publish agar laporan dan rekomendasi jurusan dapat diakses oleh siswa dan orang tua.
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
         <div id="create" class="section">
             <div class="bg-white p-8 rounded-2xl shadow-sm">
@@ -513,10 +575,10 @@
         // 1. Kirim data soal ke Javascript
         window.globalQuestionsData = @json($questions ?? []);
         
-        // 2. Kirim data session tab (jika baru saja menyimpan soal)
+        // 2. Kirim data session tab
         window.activeTabSession = "{{ session('tab') ?? '' }}";
         
-        // 3. Kirim Token CSRF untuk form Javascript (opsional jika butuh fetch)
+        // 3. Kirim Token CSRF
         window.csrfToken = "{{ csrf_token() }}";
 
         // ==========================================

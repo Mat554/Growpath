@@ -52,19 +52,31 @@
                 <div class="h-[120px] bg-gradient-to-br from-[#FF9F43] to-[#FFC107]"></div>
                 
                 <div class="text-center -mt-[60px] relative px-6">
-                    <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block relative group">
+                    <form action="{{ route('profile.ortu.update-avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm" class="flex flex-col items-center">
+                        @csrf
                         
-                        <img src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=FF9F43&color=fff&size=128' }}" 
-                             alt="Avatar" class="w-full h-full rounded-full object-cover">
-                        
-                        <form action="{{ route('profile.ortu.update-avatar') }}" method="POST" enctype="multipart/form-data" class="absolute inset-1.5 rounded-full overflow-hidden bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-sm" onclick="document.getElementById('avatarUpload').click()">
-                            @csrf
-                            <i class="ph-fill ph-camera-plus text-white text-3xl mb-1"></i>
-                            <span class="text-white text-[10px] font-medium">Ubah Foto</span>
+                        <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md relative group">
                             
-                            <input type="file" name="avatar" id="avatarUpload" class="hidden" accept="image/jpeg,image/png,image/jpg" onchange="this.form.submit()">
-                        </form>
-                    </div>
+                            <img id="avatarPreview" src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=FF9F43&color=fff&size=128' }}" 
+                                 alt="Avatar" class="w-full h-full rounded-full object-cover">
+                            
+                            <label for="avatarUpload" class="absolute inset-1.5 rounded-full overflow-hidden bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-sm">
+                                <i class="ph-fill ph-camera-plus text-white text-3xl mb-1"></i>
+                                <span class="text-white text-[10px] font-medium">Pilih Foto</span>
+                            </label>
+                            
+                            <input type="file" name="avatar" id="avatarUpload" class="hidden" accept="image/jpeg,image/png,image/jpg" onchange="previewImage(event)">
+                        </div>
+
+                        <div id="saveButtonContainer" class="hidden mt-4 flex-col items-center gap-2">
+                            <button type="submit" class="px-5 py-2 bg-[#2ECC71] hover:bg-[#27ae60] text-white rounded-full font-semibold text-xs transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph-bold ph-floppy-disk text-sm"></i> Simpan Foto
+                            </button>
+                            <button type="button" onclick="cancelUpload()" class="text-xs text-red-400 hover:text-red-600 font-medium transition-all">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="text-center px-6 pb-8 pt-4">
@@ -309,6 +321,33 @@
         setTimeout(() => {
             modal.classList.add('hidden');
         }, 200);
+    }
+
+    let originalSrc = document.getElementById('avatarPreview').src;
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Membaca file yang dipilih untuk ditampilkan sementara
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+                // Munculkan tombol simpan dan batal
+                document.getElementById('saveButtonContainer').classList.remove('hidden');
+                document.getElementById('saveButtonContainer').classList.add('flex');
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function cancelUpload() {
+        // Kosongkan input file
+        document.getElementById('avatarUpload').value = ""; 
+        // Kembalikan ke foto asli
+        document.getElementById('avatarPreview').src = originalSrc; 
+        // Sembunyikan kembali tombol
+        document.getElementById('saveButtonContainer').classList.add('hidden');
+        document.getElementById('saveButtonContainer').classList.remove('flex');
     }
 </script>
 </html>

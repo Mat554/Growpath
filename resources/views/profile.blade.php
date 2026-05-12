@@ -45,27 +45,29 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
                 <div class="h-[120px] bg-gradient-to-br from-[#4A90E2] to-[#56CCF2]"></div>
                 
-             <div class="text-center -mt-[60px] relative px-6">
-                    <form action="{{ route('profile.update.avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm">
+            <div class="text-center -mt-[60px] relative px-6">
+                    <form action="{{ route('profile.update.avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm" class="flex flex-col items-center">
                         @csrf
-                        <div class="relative w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block group cursor-pointer" onclick="document.getElementById('avatarInput').click()">
+                        
+                        <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md relative group">
                             
-                            <img id="avatarPreview" 
-                            src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}" 
-                            alt="Avatar" class="w-full h-full rounded-full object-cover">
+                            <img id="avatarPreview" src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}" 
+                                 alt="Avatar" class="w-full h-full rounded-full object-cover">
                             
-                            <div class="absolute inset-1.5 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                                <i class="ph-fill ph-camera text-white text-2xl"></i>
-                            </div>
+                            <label for="avatarUpload" class="absolute inset-1.5 rounded-full overflow-hidden bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-sm">
+                                <i class="ph-fill ph-camera-plus text-white text-3xl mb-1"></i>
+                                <span class="text-white text-[10px] font-medium">Pilih Foto</span>
+                            </label>
                             
-                            <input type="file" id="avatarInput" name="avatar" accept="image/jpeg, image/png, image/jpg" class="hidden" onchange="previewAndValidateAvatar(event)">
+                            <input type="file" name="avatar" id="avatarUpload" class="hidden" accept="image/jpeg,image/png,image/jpg" onchange="previewImage(event)">
                         </div>
 
-                        <p id="avatarError" class="text-red-500 text-xs mt-2 hidden font-medium"></p>
-
-                        <div class="mt-3 hidden" id="saveAvatarBtnContainer">
-                            <button type="submit" class="px-4 py-1.5 bg-[#4A90E2] hover:bg-[#357ABD] text-white text-xs font-bold rounded-full shadow-md transition-all">
-                                Simpan Foto
+                        <div id="saveButtonContainer" class="hidden mt-4 flex-col items-center gap-2">
+                            <button type="submit" class="px-5 py-2 bg-[#4A90E2] hover:bg-[#4A90E2] text-white rounded-full font-semibold text-xs transition-all shadow-sm flex items-center gap-2">
+                                <i class="ph-bold ph-floppy-disk text-sm"></i> Simpan Foto
+                            </button>
+                            <button type="button" onclick="cancelUpload()" class="text-xs text-red-400 hover:text-red-600 font-medium transition-all">
+                                Batal
                             </button>
                         </div>
                     </form>
@@ -199,44 +201,27 @@
     </main>
 
     <script>
-        function previewAndValidateAvatar(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById('avatarPreview');
-    const errorText = document.getElementById('avatarError');
-    const saveBtnContainer = document.getElementById('saveAvatarBtnContainer');
+    let originalSrc = document.getElementById('avatarPreview').src;
 
-    // Jika user memilih file
-    if (file) {
-        // Validasi ukuran (contoh: maksimal 2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            errorText.innerText = "Ukuran gambar maksimal 2MB!";
-            errorText.classList.remove('hidden');
-            saveBtnContainer.classList.add('hidden');
-            
-            // Reset input
-            event.target.value = '';
-            return;
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+                document.getElementById('saveButtonContainer').classList.remove('hidden');
+                document.getElementById('saveButtonContainer').classList.add('flex');
+            }
+            reader.readAsDataURL(file);
         }
-
-        // Sembunyikan error jika aman
-        errorText.classList.add('hidden');
-
-        // Baca file dan tampilkan ke tag <img>
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            // Munculkan tombol "Simpan Foto"
-            saveBtnContainer.classList.remove('hidden');
-        }
-        reader.readAsDataURL(file);
     }
-}
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            alert("Kode " + text + " berhasil disalin!");
-        }
-        
-    </script>
+    function cancelUpload() {
+        document.getElementById('avatarUpload').value = ""; 
+        document.getElementById('avatarPreview').src = originalSrc; 
+        document.getElementById('saveButtonContainer').classList.add('hidden');
+        document.getElementById('saveButtonContainer').classList.remove('flex');
+    }
+</script>
 </body>
 </html>

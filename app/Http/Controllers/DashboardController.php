@@ -9,6 +9,7 @@ use App\Models\ExamResult;
 use App\Models\User; // Tambahkan ini
 use App\Models\Question; // Tambahkan ini
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage; // Tambahkan ini untuk fitur Hapus Avatar
 use Carbon\Carbon; // Tambahkan ini untuk waktu
 
@@ -174,28 +175,37 @@ class DashboardController extends Controller
         return view('profile');
     }
 
-public function updateAvatar(Request $request)
-{
-    $request->validate([
-        'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-    ]);
+    public function updateAvatar(Request $request)
+    {
+     // 1. Validasi
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
 
-    $user = Auth::user();
+        // 2. MENGAMBIL DATA USER YANG SEDANG LOGIN (BARIS INI WAJIB ADA)
+        $user = Auth::user(); 
 
-    if ($request->hasFile('avatar')) {
-    $user = Auth::user();
-    $fileName = time() . '_' . $user->id . '.' . $request->avatar->extension();
-    
-    // Simpan file langsung ke Supabase Storage
-    $request->file('avatar')->storeAs('', $fileName, 's3');
+        $file = $request->file('avatar');
+        
+        // 3. Buat nama file super unik
+        $filename = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-    // Simpan nama file ke database
-    $user->avatar = $fileName;
-    $user->save();
+        // 4. Hapus foto lama
+        if ($user->avatar && Storage::disk('s3')->exists($user->avatar)) {
+            Storage::disk('s3')->delete($user->avatar);
+        }
+
+        // 5. Upload foto baru ke Supabase
+        Storage::disk('s3')->putFileAs('/', $file, $filename, 'public');
+
+        // 6. Update database
+        $user->update([
+            'avatar' => $filename
+        ]);
+
+        return back()->with('status', 'Foto profil berhasil diperbarui!');
     }
 
-    return back()->with('success', 'Foto profil berhasil diperbarui!');
-}
 
 
 
@@ -235,38 +245,35 @@ public function updateAvatar(Request $request)
 
     public function updateAvatarOrtu(Request $request)
     {
-        // 1. Validasi file (Wajib gambar, max 2MB)
+        // 1. Validasi
         $request->validate([
             'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $user = Auth::user();
+        // 2. MENGAMBIL DATA USER YANG SEDANG LOGIN (BARIS INI WAJIB ADA)
+        $user = Auth::user(); 
 
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            
-            // 2. Buat nama file unik (Contoh: 1715502000_5.jpg)
-            $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+        $file = $request->file('avatar');
+        
+        // 3. Buat nama file super unik
+        $filename = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-            // 3. Hapus foto lama di Supabase jika ada (Opsional agar storage tidak penuh)
-            if ($user->avatar) {
-                Storage::disk('s3')->delete('avatars/' . $user->avatar);
-            }
-
-            // 4. Upload foto baru ke Supabase
-            // Pastikan disk 's3' kamu sudah terhubung ke Supabase di konfigurasi filesystems.php
-            Storage::disk('s3')->putFileAs('avatars', $file, $filename, 'public');
-
-            // 5. Update nama file di database user
-            $user->update([
-                'avatar' => $filename
-            ]);
-
-            return back()->with('status', 'Foto profil berhasil diperbarui!');
+        // 4. Hapus foto lama
+        if ($user->avatar && Storage::disk('s3')->exists($user->avatar)) {
+            Storage::disk('s3')->delete($user->avatar);
         }
 
-        return back()->with('error', 'Gagal mengunggah foto.');
+        // 5. Upload foto baru ke Supabase
+        Storage::disk('s3')->putFileAs('/', $file, $filename, 'public');
+
+        // 6. Update database
+        $user->update([
+            'avatar' => $filename
+        ]);
+
+        return back()->with('status', 'Foto profil berhasil diperbarui!');
     }
+
     // =========================================================
     // 6. DASHBOARD ADMIN
     // =========================================================
