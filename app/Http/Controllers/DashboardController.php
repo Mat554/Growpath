@@ -292,12 +292,14 @@ public function updateAvatar(Request $request)
             $ollamaUrl = env('OLLAMA_URL', 'http://127.0.0.1:11434/api/generate');
             $ollamaModel = env('OLLAMA_MODEL', 'llama3'); // Pastikan kamu sudah pull model ini di terminal
 
-            // Tembak ke API lokal Ollama
-            $response = Http::timeout(300)->post($ollamaUrl, [
+         // Tembak ke API lokal Ollama dengan kunci rahasia Ngrok
+            $response = Http::withHeaders([
+                'ngrok-skip-browser-warning' => 'true' // Ini kunci ajaibnya!
+            ])->timeout(300)->post($ollamaUrl, [
                 'model' => $ollamaModel,
                 'prompt' => $prompt,
                 'stream' => false,
-                'format' => 'json' // Ini fitur ajaib Ollama: Memaksa balasan jadi JSON murni!
+                'format' => 'json'
             ]);
 
             // Jika gagal mendapatkan balasan yang sukses dari Ollama
