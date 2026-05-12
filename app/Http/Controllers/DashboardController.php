@@ -28,13 +28,25 @@ class DashboardController extends Controller
                                 ->pluck('exam_id')
                                 ->toArray();
 
-        // 2. Cari 1 ujian terdekat yang BELUM dikerjakan
-        $nextExam = Exam::where('target_class', $user->kelas)
-                    ->whereNotIn('id', $completedExamIds) // Kecualikan yang sudah selesai
-                    ->orderBy('exam_date', 'asc')         // Urutkan dari jadwal yang paling dekat
-                    ->first();                            // Hanya ambil 1 tugas teratas
+       // 2. Ambil SEMUA ujian yang belum dikerjakan untuk kelas ini
+        $pendingExams = Exam::where('target_class', $user->kelas)
+                    ->whereNotIn('id', $completedExamIds)
+                    ->get();
+        
+        // 3. Kita beri "Skor Prioritas" agar yang Aktif menyingkirkan yang Overdue
+        $sortedPending = $pendingExams->sortByDesc(function($exam) {
+            $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+            $today = \Carbon\Carbon::now()->startOfDay();
+            
+            if ($today->gt($examDate)) return 0; // Overdue (Prioritas Terendah)
+            if ($today->lt($examDate)) return 2; // Mendatang (Prioritas Menengah)
+            return 3;                            // Aktif Hari Ini (Prioritas Tertinggi)
+        });
 
-        // 3. Bungkus hasilnya ke dalam koleksi agar file Blade (@forelse) tetap bisa membacanya
+        // 4. Ambil 1 kuesioner pemenang dengan prioritas tertinggi
+        $nextExam = $sortedPending->first();
+
+        // 5. Bungkus hasilnya ke dalam koleksi agar file Blade (@forelse) tetap bisa membacanya
         $exams = $nextExam ? collect([$nextExam]) : collect();
 
         // 4. Kita tetap butuh data ujian yang selesai untuk membuka gembok kartu "Laporan Hasil"

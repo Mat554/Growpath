@@ -156,12 +156,24 @@
         <!-- GRID UTAMA -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <!-- KARTU KUESIONER (DINAMIS) -->
-            @forelse ($exams as $exam)
-                @php
-                    // Mencari apakah kuesioner ini sudah pernah dikerjakan (Fix status Overdue)
-                    $result = isset($completedExams) ? $completedExams->firstWhere('exam_id', $exam->id) : null;
+            @php
+                // Urutkan kuesioner berdasarkan prioritas: Aktif -> Terkunci -> Selesai -> Overdue
+                $sortedExams = collect($exams)->sortByDesc(function($exam) use ($completedExams) {
+                    $result = isset($completedExams) ? collect($completedExams)->firstWhere('exam_id', $exam->id) : null;
+                    $isCompleted = $result !== null;
+                    $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $today = \Carbon\Carbon::now()->startOfDay();
                     
+                    if ($isCompleted) return 1; // Prioritas 1: Selesai
+                    if ($today->gt($examDate)) return 0; // Prioritas 0: Overdue (Paling Bawah)
+                    if ($today->lt($examDate)) return 2; // Prioritas 2: Jadwal Mendatang
+                    return 3; // Prioritas 3: Aktif Hari Ini (Paling Atas)
+                });
+            @endphp
+
+            @forelse ($sortedExams as $exam)
+                @php
+                    $result = isset($completedExams) ? collect($completedExams)->firstWhere('exam_id', $exam->id) : null;
                     $isCompleted = $result !== null;
                     $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
                     $today = \Carbon\Carbon::now()->startOfDay();
