@@ -35,8 +35,16 @@
 
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         <div class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800">Profil Orang Tua</h2>
+            <h2 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+                <i class="ph-fill ph-identification-badge text-[#4A90E2]"></i> Profil Orang Tua
+            </h2>
         </div>
+
+        @if(session('status'))
+            <div class="mb-6 p-4 bg-[#E8F9F5] border border-[#2ECC71] text-[#27ae60] rounded-xl text-sm flex items-center gap-2">
+                <i class="ph-fill ph-check-circle text-lg"></i> {{ session('status') }}
+            </div>
+        @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 items-start">
             
@@ -44,9 +52,18 @@
                 <div class="h-[120px] bg-gradient-to-br from-[#FF9F43] to-[#FFC107]"></div>
                 
                 <div class="text-center -mt-[60px] relative px-6">
-                    <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=FF9F43&color=fff&size=128" 
+                    <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md inline-block relative group">
+                        
+                        <img src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=FF9F43&color=fff&size=128' }}" 
                              alt="Avatar" class="w-full h-full rounded-full object-cover">
+                        
+                        <form action="{{ route('profile.ortu.update-avatar') }}" method="POST" enctype="multipart/form-data" class="absolute inset-1.5 rounded-full overflow-hidden bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-sm" onclick="document.getElementById('avatarUpload').click()">
+                            @csrf
+                            <i class="ph-fill ph-camera-plus text-white text-3xl mb-1"></i>
+                            <span class="text-white text-[10px] font-medium">Ubah Foto</span>
+                            
+                            <input type="file" name="avatar" id="avatarUpload" class="hidden" accept="image/jpeg,image/png,image/jpg" onchange="this.form.submit()">
+                        </form>
                     </div>
                 </div>
 
@@ -59,15 +76,15 @@
                     <div class="bg-[#E8F9F5] border border-dashed border-[#2ECC71] p-4 rounded-xl flex items-center gap-4 text-left">
                         <i class="ph-fill ph-link-simple text-2xl text-[#2ECC71]"></i>
                         <div>
-                            <span class="text-xs text-gray-500 block">Akun Terhubung:</span>
+                            <span class="text-xs text-gray-500 block mb-0.5">Akun Terhubung:</span>
                             @if(Auth::user()->child && Auth::user()->child_connection_status == 'approved') 
-                                <strong class="text-[#27ae60] text-sm">{{ Auth::user()->child->name }}</strong>
-                                <span class="text-[10px] text-gray-400 block tracking-wider">ID: {{ Auth::user()->child->user_code }}</span>
+                                <strong class="text-[#27ae60] text-sm flex items-center gap-1"><i class="ph-fill ph-student"></i> {{ Auth::user()->child->name }}</strong>
+                                <span class="text-[10px] text-gray-400 block tracking-wider mt-0.5">ID: {{ Auth::user()->child->user_code }}</span>
                             @elseif(Auth::user()->child && Auth::user()->child_connection_status == 'pending')
-                                <strong class="text-[#FF9F43] text-sm">Menunggu Persetujuan</strong>
-                                <span class="text-[10px] text-gray-400 block tracking-wider">{{ Auth::user()->child->name }}</span>
+                                <strong class="text-[#FF9F43] text-sm flex items-center gap-1"><i class="ph-fill ph-clock"></i> Menunggu...</strong>
+                                <span class="text-[10px] text-gray-400 block tracking-wider mt-0.5">{{ Auth::user()->child->name }}</span>
                             @else
-                                <strong class="text-gray-400 text-sm">Belum Terhubung</strong>
+                                <strong class="text-gray-400 text-sm flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Belum Terhubung</strong>
                             @endif
                         </div>
                     </div>
@@ -112,13 +129,13 @@
                 </p>
 
                 @if(session('success'))
-                    <div class="mb-4 p-3 bg-[#E8F9F5] border border-[#2ECC71] text-[#27ae60] rounded-xl text-sm">
-                        {{ session('success') }}
+                    <div class="mb-4 p-3 bg-[#E8F9F5] border border-[#2ECC71] text-[#27ae60] rounded-xl text-sm flex items-center gap-2">
+                        <i class="ph-fill ph-check-circle"></i> {{ session('success') }}
                     </div>
                 @endif
                 @if(session('error'))
-                    <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-500 rounded-xl text-sm">
-                        {{ session('error') }}
+                    <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-500 rounded-xl text-sm flex items-center gap-2">
+                        <i class="ph-fill ph-warning-circle"></i> {{ session('error') }}
                     </div>
                 @endif
 
@@ -142,8 +159,8 @@
                             </small>
 
                             <div class="flex justify-end mt-6">
-                                <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 cursor-pointer">
-                                    Hubungkan Akun
+                                <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 cursor-pointer flex items-center gap-2">
+                                    <i class="ph-bold ph-link"></i> Hubungkan Akun
                                 </button>
                             </div>
                         </form>
@@ -170,8 +187,8 @@
                         <div class="flex justify-end mt-6">
                             <form action="{{ route('koneksi.revoke.ortu') }}" method="POST" onsubmit="return confirm('Batalkan permintaan koneksi ini?')">
                                 @csrf
-                                <button type="submit" class="px-5 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold text-sm transition-all cursor-pointer">
-                                    Batalkan Permintaan
+                                <button type="submit" class="px-5 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold text-sm transition-all cursor-pointer flex items-center gap-2">
+                                    <i class="ph-bold ph-x"></i> Batalkan Permintaan
                                 </button>
                             </form>
                         </div>
@@ -191,12 +208,12 @@
                         </div>
 
                         <small class="text-[#27ae60] mt-2 block flex items-center gap-1">
-                            ✅ Akun berhasil terhubung dengan {{ Auth::user()->child->name }} (Kelas {{ Auth::user()->child->kelas }}).
+                            <i class="ph-fill ph-shield-check"></i> Akun berhasil terhubung dengan {{ Auth::user()->child->name }} (Kelas {{ Auth::user()->child->kelas }}).
                         </small>
 
                         <div class="flex justify-end mt-6">
-                            <button type="button" onclick="openRevokeModal()" class="px-5 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold text-sm transition-all cursor-pointer">
-                                Lepas Koneksi
+                            <button type="button" onclick="openRevokeModal()" class="px-5 py-2.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold text-sm transition-all cursor-pointer flex items-center gap-2">
+                                <i class="ph-bold ph-plugs"></i> Lepas Koneksi
                             </button>
                         </div>
                     @endif
@@ -214,8 +231,8 @@
                         <p class="text-xs text-gray-500 mt-1">Kami sarankan untuk memperbarui kata sandi Anda secara berkala agar akun tetap aman.</p>
                     </div>
                     
-                    <a href="{{ route('profile.ubah-password') }}" class="whitespace-nowrap px-6 py-2.5 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all shadow-sm">
-                        Ubah Password
+                    <a href="{{ route('profile.ubah-password') }}" class="whitespace-nowrap px-6 py-2.5 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2">
+                        <i class="ph-bold ph-key"></i> Ubah Password
                     </a>
                 </div>
 
@@ -257,8 +274,8 @@
                     </button>
                     <form action="{{ route('koneksi.revoke.ortu') }}" method="POST" class="flex-1">
                         @csrf
-                        <button type="submit" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-red-500/30 cursor-pointer">
-                            Ya, Lepas Koneksi
+                        <button type="submit" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-red-500/30 cursor-pointer flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-trash"></i> Ya, Lepas Koneksi
                         </button>
                     </form>
                 </div>
