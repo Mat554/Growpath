@@ -197,6 +197,8 @@ public function updateAvatar(Request $request)
     return back()->with('success', 'Foto profil berhasil diperbarui!');
 }
 
+
+
     // =========================================================
     // 5. DASHBOARD ORTU UTAMA
     // =========================================================
@@ -231,6 +233,40 @@ public function updateAvatar(Request $request)
         return view('ortu.ortu-profile');
     }
 
+    public function updateAvatarOrtu(Request $request)
+    {
+        // 1. Validasi file (Wajib gambar, max 2MB)
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            
+            // 2. Buat nama file unik (Contoh: 1715502000_5.jpg)
+            $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+
+            // 3. Hapus foto lama di Supabase jika ada (Opsional agar storage tidak penuh)
+            if ($user->avatar) {
+                Storage::disk('s3')->delete('avatars/' . $user->avatar);
+            }
+
+            // 4. Upload foto baru ke Supabase
+            // Pastikan disk 's3' kamu sudah terhubung ke Supabase di konfigurasi filesystems.php
+            Storage::disk('s3')->putFileAs('avatars', $file, $filename, 'public');
+
+            // 5. Update nama file di database user
+            $user->update([
+                'avatar' => $filename
+            ]);
+
+            return back()->with('status', 'Foto profil berhasil diperbarui!');
+        }
+
+        return back()->with('error', 'Gagal mengunggah foto.');
+    }
     // =========================================================
     // 6. DASHBOARD ADMIN
     // =========================================================
