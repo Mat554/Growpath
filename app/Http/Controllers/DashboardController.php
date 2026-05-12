@@ -305,9 +305,9 @@ public function updateAvatar(Request $request)
             // Jika gagal mendapatkan balasan yang sukses dari Ollama
             if (!$response->successful()) {
                 return [
-                    "judul" => "The Thinker (MOCK DATA - OLLAMA ERROR)",
-                    "deskripsi" => "Sistem gagal membaca balasan dari Ollama. Pastikan model yang diminta tersedia.",
-                    "jurusan" => ["Sistem Informasi", "Teknik Informatika", "Ilmu Komputer"]
+                    "judul" => "ERROR HTTP " . $response->status(),
+                    "deskripsi" => "Detail dari server: " . $response->body(),
+                    "jurusan" => ["-", "-", "-"]
                 ];
             }
 
@@ -333,11 +333,11 @@ public function updateAvatar(Request $request)
             ];
 
         } catch (\Exception $e) {
-            // Jika Ollama belum dinyalakan di terminal komputermu
+            // Jika koneksi putus total sebelum sampai
             return [
-                "judul" => "Ollama Offline (MOCK DATA)",
-                "deskripsi" => "Koneksi ke Ollama gagal. Cek apakah Ollama sudah berjalan di Mac kamu. Error: " . $e->getMessage(),
-                "jurusan" => ["Buka Terminal", "Ketik: ollama serve", "Lalu refresh halaman ini"]
+                "judul" => "KONEKSI TERPUTUS",
+                "deskripsi" => "Pesan asli dari Laravel: " . $e->getMessage(),
+                "jurusan" => ["-", "-", "-"]
             ];
         }
     }
