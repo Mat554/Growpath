@@ -260,7 +260,7 @@ public function updateAvatar(Request $request)
         $result = ExamResult::with('user')->findOrFail($id);
         $namaPemilik = $result->user->name ?? 'Siswa'; 
         
-        $aiData = $this->generateGeminiAnalysis($result->dominant_code);
+        $aiData = $this->generateOllamaAnalysis($result->dominant_code);
         
         return view('laporan', compact('result', 'namaPemilik', 'aiData'));
     }
@@ -293,7 +293,7 @@ public function updateAvatar(Request $request)
             $ollamaModel = env('OLLAMA_MODEL', 'llama3'); // Pastikan kamu sudah pull model ini di terminal
 
             // Tembak ke API lokal Ollama
-            $response = Http::timeout(60)->post($ollamaUrl, [
+            $response = Http::timeout(300)->post($ollamaUrl, [
                 'model' => $ollamaModel,
                 'prompt' => $prompt,
                 'stream' => false,
