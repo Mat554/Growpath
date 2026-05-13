@@ -404,7 +404,7 @@ class AuthController extends Controller
     }
 
     // FUNGSI KHUSUS UBAH PASSWORD DARI PROFIL
-    public function updateProfilePassword(Request $request)
+   public function updateProfilePassword(Request $request)
     {
         $request->validate([
             'password' => [
@@ -428,6 +428,13 @@ class AuthController extends Controller
         $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
         $user->save();
 
+        // --- VALIDASI ROUTING BERDASARKAN ROLE ---
+        if ($user->role === 'ortu') {
+            // Jika yang ganti password adalah Orang Tua, kembalikan ke profil ortu
+            return redirect()->route('profile.ortu')->with('success', 'Password berhasil diperbarui!');
+            
+        } 
+        // Default kembalian (Siswa) ke profil siswa
         return redirect()->route('profile')->with('success', 'Password berhasil diperbarui!');
     }
 }

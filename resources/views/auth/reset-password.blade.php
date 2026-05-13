@@ -68,9 +68,20 @@
                 Update Password
             </button>
         </form>
-    <div class="mt-6 text-center">
+   <div class="mt-6 text-center">
             @if(Auth::check())
-                <a href="{{ route('profile') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#4A90E2] transition-colors">
+                @php
+                    // Cek role user untuk menentukan rute kembali yang benar
+                    $role = Auth::user()->role;
+                    if ($role === 'ortu') {
+                        $ruteProfil = route('profile.ortu');
+                    } elseif ($role === 'admin') {
+                        $ruteProfil = route('admin.dashboard'); // Kembalikan admin ke dashboard
+                    } else {
+                        $ruteProfil = route('profile'); // Default untuk siswa
+                    }
+                @endphp
+                <a href="{{ $ruteProfil }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#4A90E2] transition-colors">
                     <i class="ph ph-arrow-left text-lg"></i> Kembali ke Profil
                 </a>
             @else
@@ -79,7 +90,6 @@
                 </a>
             @endif
         </div>
-    </div>
 
     <script>
         function togglePassword(inputId, iconId) {
