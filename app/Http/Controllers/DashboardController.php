@@ -82,6 +82,10 @@ class DashboardController extends Controller
         return view('kuesioner', compact('exams', 'completedExams'));
     }
 
+    public function tipsbelajar(){
+        return view ('tipsbelajar');
+    }
+
 
     // =========================================================
     // 2. ALUR PENGERJAAN TES (SISWA)

@@ -259,9 +259,12 @@
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
                     Dapatkan rekomendasi metode belajar yang efektif sesuai dengan hasil tes gaya berpikir Anda.
                 </p>
-                <button onclick="alert('Selesaikan tes terlebih dahulu!')" class="mt-auto w-full py-3 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all cursor-pointer">
-                    Lihat Tips
-                </button>
+                <form action="{{ route('tips') }}" method="POST" class="mt-auto w-full">
+    @csrf
+    <button type="submit" class="w-full py-3 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all cursor-pointer">
+        Lihat Tips
+    </button>
+</form>
             </div>
 
             <!-- KARTU LAPORAN HASIL (Fix Logic & UI) -->

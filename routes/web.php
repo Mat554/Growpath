@@ -14,6 +14,7 @@ Route::get('/', function () {
 
 // Proses Logout (Bisa diakses dari mana saja asal login)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/tips', [DashboardController::class, 'tipsbelajar'])->name('tips');
 
 // Verifikasi OTP (Biasanya berada di area abu-abu antara login dan guest)
 Route::post('/otp-resend', [AuthController::class, 'resendOtp'])->name('otp.resend');
