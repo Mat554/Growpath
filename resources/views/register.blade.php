@@ -70,15 +70,23 @@
 
                 <div id="sectionOrtu" class="hidden animate-fade-in">
                     <div class="mb-5">
-                        <label class="block text-sm font-medium text-[#333] mb-2">User ID Anak</label>
+                        <label class="block text-sm font-medium text-[#333] mb-2 flex items-center justify-between">
+                            <span>User ID Anak</span>
+                            <span class="text-xs text-[#888] font-normal bg-gray-100 px-2 py-0.5 rounded-md">Opsional</span>
+                        </label>
                         <div class="relative group">
-                            <input type="text" name="child_id_code" id="childID" placeholder="Masukkan User ID Anak (Cth: SISWA-XA12)" 
+                            <input type="text" name="child_id_code" id="childID" placeholder="Masukkan User ID Anak (Jika Ada)" 
                                 class="w-full pl-12 pr-4 py-3.5 border border-[#e1e1e1] rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-[#333] bg-[#FCFCFC] focus:bg-white peer @error('child_id_code') border-red-500 ring-4 ring-red-500/10 @enderror"
                                 value="{{ old('child_id_code') }}">
                             <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa] text-xl peer-focus:text-[#4A90E2] transition-colors @error('child_id_code') text-red-500 @enderror"></i>
                         </div>
                         
-                        <span class="text-xs text-[#888] mt-1.5 block ml-1">*Wajib diisi agar akun terhubung.</span>
+                        <div class="bg-blue-50/50 border border-blue-100 rounded-lg p-3 mt-3 flex items-start gap-2">
+                            <i class="ph-fill ph-info text-[#4A90E2] text-lg mt-0.5"></i>
+                            <p class="text-xs text-gray-500 leading-relaxed">
+                                Anda dapat mendaftar tanpa mengisi ini dan menghubungkannya nanti di Profil. Jika diisi, <strong>permintaan koneksi akan dikirim ke dashboard siswa</strong> untuk disetujui, tidak otomatis terhubung.
+                            </p>
+                        </div>
                         
                         @error('child_id_code')
                             <div class="flex items-center gap-2 text-[#d93025] text-xs mt-2 font-medium animate-slide-down">

@@ -210,34 +210,50 @@ class AuthController extends Controller
             'role' => 'required|in:siswa,ortu',
             'kelas' => 'required_if:role,siswa|nullable|integer',
             
-            // Aturan 'exists:users,user_code' memastikan kode yang diketik ada di database
-            'child_id_code' => 'required_if:role,ortu|nullable|string|exists:users,user_code', 
+            // PERBAIKAN: Hapus 'required_if' agar jadi opsional (boleh kosong), tapi kalau diisi harus valid
+            'child_id_code' => 'nullable|string|exists:users,user_code', 
         ], [
-            // Pesan error kustom jika kodenya salah/tidak ditemukan
             'child_id_code.exists' => 'User ID Siswa tidak ditemukan. Pastikan kodenya sudah benar.'
         ]);
 
-        // 2. Logika Generate Kode Siswa (Kode yang kita buat sebelumnya)
+        // 2. Logika Generate Kode Siswa
         $generatedUserCode = null;
         if ($validated['role'] === 'siswa') {
             $randomNumber = rand(10000, 99999);
             $generatedUserCode = 'SIS-' . $validated['kelas'] . '-' . $randomNumber;
         }
 
-        // 3. Simpan ke Database
+        // 3. Logika Permintaan Koneksi (Khusus Ortu)
+        $childId = null;
+        $connectionStatus = null;
+
+        // Jika dia Ortu DAN dia mengisi kode anak di form registrasi
+        if ($validated['role'] === 'ortu' && !empty($validated['child_id_code'])) {
+            // Cari data siswa asli berdasarkan user_code tersebut
+            $child = \App\Models\User::where('user_code', $validated['child_id_code'])->first();
+            
+            if ($child) {
+                $childId = $child->id; // Ambil ID asli (primary key) siswa
+                $connectionStatus = 'pending'; // Set status menunggu persetujuan dari siswa
+            }
+        }
+
+        // 4. Simpan ke Database
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
             'role' => $validated['role'],
             'kelas' => $validated['role'] === 'siswa' ? $validated['kelas'] : null,
             'user_code' => $generatedUserCode, 
             
-            // Kolom ini sekarang dijamin valid dan benar-benar terhubung dengan akun siswa!
+            // Simpan data koneksi
             'child_id_code' => $validated['role'] === 'ortu' ? $validated['child_id_code'] : null,
+            'child_id' => $childId,
+            'child_connection_status' => $connectionStatus,
         ];
 
-        User::create($userData);
+        \App\Models\User::create($userData);
 
         return redirect('/login')->with('success', 'Akun berhasil dibuat! Silakan masuk.');
     }
