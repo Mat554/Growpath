@@ -4611,3 +4611,266 @@ LINE 1: select * from \"exams\" where \"kelas\" = $1 order by \"exam_date...
 #59 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(16): require_once('/Users/jessicap...')
 #60 {main}
 "} 
+[2026-05-13 14:28:14] local.ERROR: htmlspecialchars(): Argument #1 ($string) must be of type string, array given {"view":{"view":"/Users/jessicaputrivirdianti/Documents/Growpath/Growpath/resources/views/laporan.blade.php","data":{"errors":"<pre class=sf-dump id=sf-dump-2098968354 data-indent-pad=\"  \"><span class=sf-dump-note>Illuminate\\Support\\ViewErrorBag</span> {<a class=sf-dump-ref>#329</a><samp data-depth=1 class=sf-dump-expanded>
+  #<span class=sf-dump-protected title=\"Protected property\">bags</span>: []
+</samp>}
+</pre><script>Sfdump(\"sf-dump-2098968354\", {\"maxDepth\":3,\"maxStringLength\":160})</script>
+","result":"<pre class=sf-dump id=sf-dump-1816112964 data-indent-pad=\"  \"><span class=sf-dump-note>App\\Models\\ExamResult</span> {<a class=sf-dump-ref>#1049</a><samp data-depth=1 class=sf-dump-expanded>
+  #<span class=sf-dump-protected title=\"Protected property\">connection</span>: \"<span class=sf-dump-str title=\"5 characters\">pgsql</span>\"
+  #<span class=sf-dump-protected title=\"Protected property\">table</span>: \"<span class=sf-dump-str title=\"12 characters\">exam_results</span>\"
+  #<span class=sf-dump-protected title=\"Protected property\">primaryKey</span>: \"<span class=sf-dump-str title=\"2 characters\">id</span>\"
+  #<span class=sf-dump-protected title=\"Protected property\">keyType</span>: \"<span class=sf-dump-str title=\"3 characters\">int</span>\"
+  +<span class=sf-dump-public title=\"Public property\">incrementing</span>: <span class=sf-dump-const>true</span>
+  #<span class=sf-dump-protected title=\"Protected property\">with</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">withCount</span>: []
+  +<span class=sf-dump-public title=\"Public property\">preventsLazyLoading</span>: <span class=sf-dump-const>false</span>
+  #<span class=sf-dump-protected title=\"Protected property\">perPage</span>: <span class=sf-dump-num>15</span>
+  +<span class=sf-dump-public title=\"Public property\">exists</span>: <span class=sf-dump-const>true</span>
+  +<span class=sf-dump-public title=\"Public property\">wasRecentlyCreated</span>: <span class=sf-dump-const>false</span>
+  #<span class=sf-dump-protected title=\"Protected property\">escapeWhenCastingToString</span>: <span class=sf-dump-const>false</span>
+  #<span class=sf-dump-protected title=\"Protected property\">attributes</span>: <span class=sf-dump-note>array:13</span> [<samp data-depth=2 class=sf-dump-compact>
+    \"<span class=sf-dump-key>id</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>user_id</span>\" => <span class=sf-dump-num>11</span>
+    \"<span class=sf-dump-key>exam_id</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>score_r</span>\" => <span class=sf-dump-num>6</span>
+    \"<span class=sf-dump-key>score_i</span>\" => <span class=sf-dump-num>1</span>
+    \"<span class=sf-dump-key>score_a</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>score_s</span>\" => <span class=sf-dump-num>3</span>
+    \"<span class=sf-dump-key>score_e</span>\" => <span class=sf-dump-num>1</span>
+    \"<span class=sf-dump-key>score_c</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>dominant_code</span>\" => \"<span class=sf-dump-str title=\"3 characters\">RSA</span>\"
+    \"<span class=sf-dump-key>created_at</span>\" => \"<span class=sf-dump-str title=\"19 characters\">2026-05-12 20:53:25</span>\"
+    \"<span class=sf-dump-key>updated_at</span>\" => \"<span class=sf-dump-str title=\"19 characters\">2026-05-12 20:53:25</span>\"
+    \"<span class=sf-dump-key>status</span>\" => \"<span class=sf-dump-str title=\"6 characters\">review</span>\"
+  </samp>]
+  #<span class=sf-dump-protected title=\"Protected property\">original</span>: <span class=sf-dump-note>array:13</span> [<samp data-depth=2 class=sf-dump-compact>
+    \"<span class=sf-dump-key>id</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>user_id</span>\" => <span class=sf-dump-num>11</span>
+    \"<span class=sf-dump-key>exam_id</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>score_r</span>\" => <span class=sf-dump-num>6</span>
+    \"<span class=sf-dump-key>score_i</span>\" => <span class=sf-dump-num>1</span>
+    \"<span class=sf-dump-key>score_a</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>score_s</span>\" => <span class=sf-dump-num>3</span>
+    \"<span class=sf-dump-key>score_e</span>\" => <span class=sf-dump-num>1</span>
+    \"<span class=sf-dump-key>score_c</span>\" => <span class=sf-dump-num>2</span>
+    \"<span class=sf-dump-key>dominant_code</span>\" => \"<span class=sf-dump-str title=\"3 characters\">RSA</span>\"
+    \"<span class=sf-dump-key>created_at</span>\" => \"<span class=sf-dump-str title=\"19 characters\">2026-05-12 20:53:25</span>\"
+    \"<span class=sf-dump-key>updated_at</span>\" => \"<span class=sf-dump-str title=\"19 characters\">2026-05-12 20:53:25</span>\"
+    \"<span class=sf-dump-key>status</span>\" => \"<span class=sf-dump-str title=\"6 characters\">review</span>\"
+  </samp>]
+  #<span class=sf-dump-protected title=\"Protected property\">changes</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">casts</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">classCastCache</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">attributeCastCache</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">dates</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">dateFormat</span>: <span class=sf-dump-const>null</span>
+  #<span class=sf-dump-protected title=\"Protected property\">appends</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">dispatchesEvents</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">observables</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">relations</span>: <span class=sf-dump-note>array:1</span> [<samp data-depth=2 class=sf-dump-compact>
+    \"<span class=sf-dump-key>user</span>\" => <span class=sf-dump-note title=\"App\\Models\\User
+\"><span class=\"sf-dump-ellipsis sf-dump-ellipsis-note\">App\\Models</span><span class=\"sf-dump-ellipsis sf-dump-ellipsis-note\">\\</span>User</span> {<a class=sf-dump-ref>#1056</a><samp data-depth=3 class=sf-dump-compact>
+      #<span class=sf-dump-protected title=\"Protected property\">connection</span>: \"<span class=sf-dump-str title=\"5 characters\">pgsql</span>\"
+      #<span class=sf-dump-protected title=\"Protected property\">table</span>: \"<span class=sf-dump-str title=\"5 characters\">users</span>\"
+      #<span class=sf-dump-protected title=\"Protected property\">primaryKey</span>: \"<span class=sf-dump-str title=\"2 characters\">id</span>\"
+      #<span class=sf-dump-protected title=\"Protected property\">keyType</span>: \"<span class=sf-dump-str title=\"3 characters\">int</span>\"
+      +<span class=sf-dump-public title=\"Public property\">incrementing</span>: <span class=sf-dump-const>true</span>
+      #<span class=sf-dump-protected title=\"Protected property\">with</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">withCount</span>: []
+      +<span class=sf-dump-public title=\"Public property\">preventsLazyLoading</span>: <span class=sf-dump-const>false</span>
+      #<span class=sf-dump-protected title=\"Protected property\">perPage</span>: <span class=sf-dump-num>15</span>
+      +<span class=sf-dump-public title=\"Public property\">exists</span>: <span class=sf-dump-const>true</span>
+      +<span class=sf-dump-public title=\"Public property\">wasRecentlyCreated</span>: <span class=sf-dump-const>false</span>
+      #<span class=sf-dump-protected title=\"Protected property\">escapeWhenCastingToString</span>: <span class=sf-dump-const>false</span>
+      #<span class=sf-dump-protected title=\"Protected property\">attributes</span>: <span class=sf-dump-note>array:18</span> [ &#8230;18]
+      #<span class=sf-dump-protected title=\"Protected property\">original</span>: <span class=sf-dump-note>array:18</span> [ &#8230;18]
+      #<span class=sf-dump-protected title=\"Protected property\">changes</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">casts</span>: <span class=sf-dump-note>array:2</span> [ &#8230;2]
+      #<span class=sf-dump-protected title=\"Protected property\">classCastCache</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">attributeCastCache</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">dates</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">dateFormat</span>: <span class=sf-dump-const>null</span>
+      #<span class=sf-dump-protected title=\"Protected property\">appends</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">dispatchesEvents</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">observables</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">relations</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">touches</span>: []
+      +<span class=sf-dump-public title=\"Public property\">timestamps</span>: <span class=sf-dump-const>true</span>
+      #<span class=sf-dump-protected title=\"Protected property\">hidden</span>: <span class=sf-dump-note>array:2</span> [ &#8230;2]
+      #<span class=sf-dump-protected title=\"Protected property\">visible</span>: []
+      #<span class=sf-dump-protected title=\"Protected property\">fillable</span>: <span class=sf-dump-note>array:11</span> [ &#8230;11]
+      #<span class=sf-dump-protected title=\"Protected property\">guarded</span>: <span class=sf-dump-note>array:1</span> [ &#8230;1]
+      #<span class=sf-dump-protected title=\"Protected property\">rememberTokenName</span>: \"<span class=sf-dump-str title=\"14 characters\">remember_token</span>\"
+      #<span class=sf-dump-protected title=\"Protected property\">accessToken</span>: <span class=sf-dump-const>null</span>
+    </samp>}
+  </samp>]
+  #<span class=sf-dump-protected title=\"Protected property\">touches</span>: []
+  +<span class=sf-dump-public title=\"Public property\">timestamps</span>: <span class=sf-dump-const>true</span>
+  #<span class=sf-dump-protected title=\"Protected property\">hidden</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">visible</span>: []
+  #<span class=sf-dump-protected title=\"Protected property\">fillable</span>: <span class=sf-dump-note>array:9</span> [<samp data-depth=2 class=sf-dump-compact>
+    <span class=sf-dump-index>0</span> => \"<span class=sf-dump-str title=\"7 characters\">user_id</span>\"
+    <span class=sf-dump-index>1</span> => \"<span class=sf-dump-str title=\"7 characters\">exam_id</span>\"
+    <span class=sf-dump-index>2</span> => \"<span class=sf-dump-str title=\"7 characters\">score_r</span>\"
+    <span class=sf-dump-index>3</span> => \"<span class=sf-dump-str title=\"7 characters\">score_i</span>\"
+    <span class=sf-dump-index>4</span> => \"<span class=sf-dump-str title=\"7 characters\">score_a</span>\"
+    <span class=sf-dump-index>5</span> => \"<span class=sf-dump-str title=\"7 characters\">score_s</span>\"
+    <span class=sf-dump-index>6</span> => \"<span class=sf-dump-str title=\"7 characters\">score_e</span>\"
+    <span class=sf-dump-index>7</span> => \"<span class=sf-dump-str title=\"7 characters\">score_c</span>\"
+    <span class=sf-dump-index>8</span> => \"<span class=sf-dump-str title=\"13 characters\">dominant_code</span>\"
+  </samp>]
+  #<span class=sf-dump-protected title=\"Protected property\">guarded</span>: <span class=sf-dump-note>array:1</span> [<samp data-depth=2 class=sf-dump-compact>
+    <span class=sf-dump-index>0</span> => \"<span class=sf-dump-str>*</span>\"
+  </samp>]
+</samp>}
+</pre><script>Sfdump(\"sf-dump-1816112964\", {\"maxDepth\":3,\"maxStringLength\":160})</script>
+","namaPemilik":"<pre class=sf-dump id=sf-dump-1501595532 data-indent-pad=\"  \">\"<span class=sf-dump-str title=\"15 characters\">ningsih labibah</span>\"
+</pre><script>Sfdump(\"sf-dump-1501595532\", {\"maxDepth\":3,\"maxStringLength\":160})</script>
+","aiData":"<pre class=sf-dump id=sf-dump-1684700864 data-indent-pad=\"  \"><span class=sf-dump-note>array:5</span> [<samp data-depth=1 class=sf-dump-expanded>
+  \"<span class=sf-dump-key>judul</span>\" => \"<span class=sf-dump-str title=\"28 characters\">The Innovators / The Leaders</span>\"
+  \"<span class=sf-dump-key>deskripsi</span>\" => \"<span class=sf-dump-str title=\"195 characters\">Anda memiliki keahlian dalam memecahkan masalah dan mengembangkan solusi inovatif. Anda juga memiliki kemampuan untuk memimpin dan menginspirasi orang lain untuk mencapai tujuan yang lebih besar.</span>\"
+  \"<span class=sf-dump-key>jurusan</span>\" => <span class=sf-dump-note>array:5</span> [<samp data-depth=2 class=sf-dump-compact>
+    <span class=sf-dump-index>0</span> => \"<span class=sf-dump-str title=\"9 characters\">Manajemen</span>\"
+    <span class=sf-dump-index>1</span> => \"<span class=sf-dump-str title=\"15 characters\">Teknik Industri</span>\"
+    <span class=sf-dump-index>2</span> => \"<span class=sf-dump-str title=\"16 characters\">Sistem Informasi</span>\"
+    <span class=sf-dump-index>3</span> => \"<span class=sf-dump-str title=\"14 characters\">Teknik Elektro</span>\"
+    <span class=sf-dump-index>4</span> => \"<span class=sf-dump-str title=\"7 characters\">Ekonomi</span>\"
+  </samp>]
+  \"<span class=sf-dump-key>kampus</span>\" => <span class=sf-dump-note>array:1</span> [<samp data-depth=2 class=sf-dump-compact>
+    <span class=sf-dump-index>0</span> => <span class=sf-dump-note>array:3</span> [<samp data-depth=3 class=sf-dump-compact>
+      \"<span class=sf-dump-key>Universitas Indonesia (UI)</span>\" => <span class=sf-dump-note>array:2</span> [ &#8230;2]
+      \"<span class=sf-dump-key>Institut Teknologi Bandung (ITB)</span>\" => <span class=sf-dump-note>array:2</span> [ &#8230;2]
+      \"<span class=sf-dump-key>Universitas Gadjah Mada (UGM)</span>\" => <span class=sf-dump-note>array:2</span> [ &#8230;2]
+    </samp>]
+  </samp>]
+  \"<span class=sf-dump-key>tips</span>\" => <span class=sf-dump-note>array:3</span> [<samp data-depth=2 class=sf-dump-compact>
+    <span class=sf-dump-index>0</span> => \"<span class=sf-dump-str title=\"118 characters\">Belajarlah dengan cara yang lebih praktis dan aplikatif, seperti membuat proyek yang relevan dengan bidang minat Anda.</span>\"
+    <span class=sf-dump-index>1</span> => \"<span class=sf-dump-str title=\"75 characters\">Jangan ragu untuk meminta bantuan dari orang lain jika Anda membutuhkannya.</span>\"
+    <span class=sf-dump-index>2</span> => \"<span class=sf-dump-str title=\"79 characters\">Pikirlah secara kreatif dan luar biasa untuk mencari solusi yang lebih inovatif</span>\"
+  </samp>]
+</samp>]
+</pre><script>Sfdump(\"sf-dump-1684700864\", {\"maxDepth\":3,\"maxStringLength\":160})</script>
+"}},"userId":9,"exception":"[object] (Spatie\\LaravelIgnition\\Exceptions\\ViewException(code: 0): htmlspecialchars(): Argument #1 ($string) must be of type string, array given at /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Support/helpers.php:123)
+[stacktrace]
+#0 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Support/helpers.php(123): htmlspecialchars(Array, 3, 'UTF-8', true)
+#1 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/resources/views/laporan.blade.php(174): e(Array)
+#2 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(109): require('/Users/jessicap...')
+#3 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(110): Illuminate\\Filesystem\\Filesystem::{closure:Illuminate\\Filesystem\\Filesystem::getRequire():106}()
+#4 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/Engines/PhpEngine.php(58): Illuminate\\Filesystem\\Filesystem->getRequire('/Users/jessicap...', Array)
+#5 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/Engines/CompilerEngine.php(70): Illuminate\\View\\Engines\\PhpEngine->evaluatePath('/Users/jessicap...', Array)
+#6 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/View.php(195): Illuminate\\View\\Engines\\CompilerEngine->get('/Users/jessicap...', Array)
+#7 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/View.php(178): Illuminate\\View\\View->getContents()
+#8 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/View.php(147): Illuminate\\View\\View->renderContents()
+#9 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Response.php(69): Illuminate\\View\\View->render()
+#10 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Response.php(35): Illuminate\\Http\\Response->setContent(Object(Illuminate\\View\\View))
+#11 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(906): Illuminate\\Http\\Response->__construct(Object(Illuminate\\View\\View), 200, Array)
+#12 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(875): Illuminate\\Routing\\Router::toResponse(Object(Illuminate\\Http\\Request), Object(Illuminate\\View\\View))
+#13 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(797): Illuminate\\Routing\\Router->prepareResponse(Object(Illuminate\\Http\\Request), Object(Illuminate\\View\\View))
+#14 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(141): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():797}(Object(Illuminate\\Http\\Request))
+#15 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/app/Http/Middleware/ExtendOTPticket.php(13): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():139}(Object(Illuminate\\Http\\Request))
+#16 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): App\\Http\\Middleware\\ExtendOTPticket->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#18 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#19 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(44): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#20 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php(78): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#22 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#24 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(121): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#26 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(64): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest(Object(Illuminate\\Http\\Request), Object(Illuminate\\Session\\Store), Object(Closure))
+#27 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Session\\Middleware\\StartSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php(37): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#29 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#30 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php(67): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#31 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#32 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(116): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#33 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(797): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#34 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(776): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#35 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(740): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#36 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(729): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#37 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(190): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#38 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(141): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():187}(Object(Illuminate\\Http\\Request))
+#39 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():139}(Object(Illuminate\\Http\\Request))
+#40 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#41 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#42 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#43 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#44 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#45 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#46 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#47 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(86): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#48 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#49 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#50 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#51 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#52 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(116): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#54 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(165): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#55 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(134): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#56 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/public/index.php(53): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#57 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(16): require_once('/Users/jessicap...')
+#58 {main}
+
+[previous exception] [object] (TypeError(code: 0): htmlspecialchars(): Argument #1 ($string) must be of type string, array given at /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Support/helpers.php:123)
+[stacktrace]
+#0 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Support/helpers.php(123): htmlspecialchars(Array, 3, 'UTF-8', true)
+#1 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/storage/framework/views/0c6ee1b3f319985da0f39d14c5729ec8c7ebc0a3.php(175): e(Array)
+#2 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(109): require('/Users/jessicap...')
+#3 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(110): Illuminate\\Filesystem\\Filesystem::{closure:Illuminate\\Filesystem\\Filesystem::getRequire():106}()
+#4 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/Engines/PhpEngine.php(58): Illuminate\\Filesystem\\Filesystem->getRequire('/Users/jessicap...', Array)
+#5 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/Engines/CompilerEngine.php(70): Illuminate\\View\\Engines\\PhpEngine->evaluatePath('/Users/jessicap...', Array)
+#6 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/View.php(195): Illuminate\\View\\Engines\\CompilerEngine->get('/Users/jessicap...', Array)
+#7 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/View.php(178): Illuminate\\View\\View->getContents()
+#8 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/View.php(147): Illuminate\\View\\View->renderContents()
+#9 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Response.php(69): Illuminate\\View\\View->render()
+#10 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Response.php(35): Illuminate\\Http\\Response->setContent(Object(Illuminate\\View\\View))
+#11 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(906): Illuminate\\Http\\Response->__construct(Object(Illuminate\\View\\View), 200, Array)
+#12 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(875): Illuminate\\Routing\\Router::toResponse(Object(Illuminate\\Http\\Request), Object(Illuminate\\View\\View))
+#13 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(797): Illuminate\\Routing\\Router->prepareResponse(Object(Illuminate\\Http\\Request), Object(Illuminate\\View\\View))
+#14 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(141): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():797}(Object(Illuminate\\Http\\Request))
+#15 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/app/Http/Middleware/ExtendOTPticket.php(13): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():139}(Object(Illuminate\\Http\\Request))
+#16 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): App\\Http\\Middleware\\ExtendOTPticket->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#18 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#19 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(44): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#20 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php(78): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#22 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#24 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(121): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#26 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php(64): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest(Object(Illuminate\\Http\\Request), Object(Illuminate\\Session\\Store), Object(Closure))
+#27 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Session\\Middleware\\StartSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php(37): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#29 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#30 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php(67): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#31 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#32 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(116): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#33 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(797): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#34 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(776): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#35 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(740): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#36 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Routing/Router.php(729): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#37 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(190): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#38 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(141): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():187}(Object(Illuminate\\Http\\Request))
+#39 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():139}(Object(Illuminate\\Http\\Request))
+#40 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#41 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#42 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#43 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#44 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#45 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#46 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#47 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(86): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#48 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#49 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#50 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#51 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#52 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(116): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():155}:156}(Object(Illuminate\\Http\\Request))
+#54 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(165): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#55 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(134): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#56 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/public/index.php(53): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#57 /Users/jessicaputrivirdianti/Documents/Growpath/Growpath/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(16): require_once('/Users/jessicap...')
+#58 {main}
+"} 

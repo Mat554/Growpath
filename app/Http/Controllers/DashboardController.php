@@ -335,13 +335,17 @@ class DashboardController extends Controller
    private function generateOllamaAnalysis($kodeDominan)
     {
         // Prompt tetap sama persis!
-        $prompt = "Kamu adalah pakar karir. Analisis kode dominan RIASEC: '{$kodeDominan}'. 
-                   Balas HANYA dengan format JSON persis seperti ini tanpa teks pengantar apa pun: 
+        $prompt = "Kamu adalah pakar pendidikan dan konsultan karir profesional di Indonesia. 
+                   Analisis kode dominan RIASEC ini: '{$kodeDominan}'. 
+                   Balas HANYA dengan format JSON persis seperti struktur di bawah ini tanpa teks pengantar, markdown, atau penutup apa pun: 
                    {
-                       \"judul\": \"Nama Kepribadian (contoh: The Organizers)\", 
-                       \"deskripsi\": \"Penjelasan singkat 2 kalimat tentang karakter ini.\", 
-                       \"jurusan\": [\"Jurusan 1\", \"Jurusan 2\", \"Jurusan 3\", \"Jurusan 4\", \"Jurusan 5\"]
-                   }";
+                       \"judul\": \"Nama Kepribadian (contoh: The Organizers / The Creators)\", 
+                       \"deskripsi\": \"Penjelasan singkat 2 kalimat yang memotivasi tentang karakter dan potensi utama dari kode ini.\", 
+                       \"jurusan\": [\"Jurusan Kuliah 1\", \"Jurusan Kuliah 2\", \"Jurusan Kuliah 3\", \"Jurusan Kuliah 4\", \"Jurusan Kuliah 5\"],
+                       \"kampus\": [\"Universitas Indonesia (UI) - Nama Fakultas/Jurusan\", \"Institut Teknologi Bandung (ITB) - Nama Fakultas/Jurusan\", \"Universitas Gadjah Mada (UGM) - Nama Fakultas/Jurusan\"],
+                       \"tips\": [\"Tips belajar 1 yang disesuaikan dengan gaya belajar kode ini\", \"Tips belajar 2 yang aplikatif\", \"Tips belajar 3\"]
+                   }
+                   PENTING: Untuk bagian 'kampus', berikan 3-5 nama Universitas/Institut TERBAIK dan NYATA di INDONESIA yang paling cocok dengan jurusan-jurusan tersebut.";
 
         try {
             // Kita arahkan tembakan ke server Groq Cloud
