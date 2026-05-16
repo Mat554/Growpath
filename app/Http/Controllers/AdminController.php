@@ -126,6 +126,20 @@ public function betaTestPreview(Request $request)
         return view('admin.monitoring', compact('activeExams'));
     }
 
+
+    public function publishLaporan($id)
+    {
+        // 1. Cari laporan berdasarkan ID (Sesuaikan nama Model-mu, misalnya ExamResult atau Report)
+        $report = \App\Models\ExamResult::findOrFail($id);
+
+        // 2. Ubah statusnya menjadi 'published' (Pastikan kamu punya kolom 'status' di tabel database-mu)
+        $report->status = 'published'; 
+        $report->save();
+
+        // 3. Kembalikan ke halaman Admin dengan pesan sukses
+        return redirect()->back()->with('success', 'Laporan berhasil di-publish! Orang tua dan siswa sekarang bisa melihatnya.');
+    }
+
     // 2. The API Endpoint for Live Data Fetching
     public function getMonitoringData(Request $request)
     {

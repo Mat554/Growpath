@@ -22,6 +22,7 @@ Route::get('/otp-verification', [AuthController::class, 'showOtpForm'])->name('o
 Route::post('/otp-verification', [AuthController::class, 'verifyOtp'])->name('otp.check');
 
 
+
 // =========================================================
 // 2. RUTE GUEST (HANYA UNTUK YANG BELUM LOGIN)
 // =========================================================
@@ -68,7 +69,8 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/admin/monitoring', [AdminController::class, 'monitoringView'])->name('admin.monitoring');
     Route::get('/admin/api/monitoring', [AdminController::class, 'getMonitoringData'])->name('admin.api.monitoring');
-
+// Rute untuk tombol Publish Laporan (Pastikan ditaruh di dalam middleware admin)
+    Route::post('/admin/laporan/{id}/publish', [AdminController::class, 'publishLaporan'])->name('admin.laporan.publish');
     // -----------------------------------------------------
     // B. AREA SISWA
     // -----------------------------------------------------

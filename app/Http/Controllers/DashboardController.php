@@ -229,6 +229,10 @@ class DashboardController extends Controller
     // 5. DASHBOARD ORTU UTAMA
     // =========================================================
 
+    // =========================================================
+    // 5. DASHBOARD ORTU UTAMA
+    // =========================================================
+
     public function ortu()
     {
         if (Auth::user()->role !== 'ortu') {
@@ -240,15 +244,29 @@ class DashboardController extends Controller
                     ->first();
 
         $hasilTesAnak = collect(); 
+        $result = null; // Siapkan wadah kosong untuk laporan
+        $aiData = null; // Siapkan wadah kosong untuk data AI
 
         if ($anak) {
-            // Ortu hanya melihat laporan yang sudah di publish
+            // Ortu hanya melihat laporan yang sudah di publish (Untuk penanda status)
             $hasilTesAnak = ExamResult::where('user_id', $anak->id)
                                       ->where('status', 'published')
                                       ->get();
+
+            // Ambil 1 laporan terbaru yang SUDAH di-publish untuk ditampilkan di tengah dashboard
+            $result = ExamResult::where('user_id', $anak->id)
+                                ->where('status', 'published')
+                                ->latest()
+                                ->first();
+
+            // Jika laporannya ada, minta AI (Groq) membuat deskripsi dan rekomendasinya
+            if ($result) {
+                $aiData = $this->generateOllamaAnalysis($result->dominant_code);
+            }
         }
 
-        return view('ortu.ortu-dashboard', compact('anak', 'hasilTesAnak')); 
+        // Jangan lupa kirim $result dan $aiData ke view ortu-dashboard!
+        return view('ortu.ortu-dashboard', compact('anak', 'hasilTesAnak', 'result', 'aiData')); 
     }
 
     public function profileOrtu()
