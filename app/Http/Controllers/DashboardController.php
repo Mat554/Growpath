@@ -29,24 +29,36 @@ class DashboardController extends Controller
                                 ->toArray();
 
        // 2. Ambil SEMUA ujian yang belum dikerjakan untuk kelas ini
+        // 2. Ambil SEMUA ujian yang belum dikerjakan untuk kelas ini
         $pendingExams = Exam::where('target_class', $user->kelas)
                     ->whereNotIn('id', $completedExamIds)
                     ->get();
         
-        // 3. Kita beri "Skor Prioritas" agar yang Aktif menyingkirkan yang Overdue
-        $sortedPending = $pendingExams->sortByDesc(function($exam) {
-            $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
-            $today = \Carbon\Carbon::now()->startOfDay();
-            
-            if ($today->gt($examDate)) return 0; // Overdue (Prioritas Terendah)
-            if ($today->lt($examDate)) return 2; // Mendatang (Prioritas Menengah)
-            return 3;                            // Aktif Hari Ini (Prioritas Tertinggi)
+        // 3. Pisahkan menjadi 3 kelompok dan urutkan dengan cerdas
+        $today = \Carbon\Carbon::now()->startOfDay();
+        
+        // a. Aktif Hari Ini (Kasta Tertinggi)
+        $activeExams = $pendingExams->filter(function($exam) use ($today) {
+            return \Carbon\Carbon::parse($exam->exam_date)->startOfDay()->equalTo($today);
         });
+        
+        // b. Mendatang (Kasta Menengah - Diurutkan dari jadwal yang paling DEKAT)
+        $upcomingExams = $pendingExams->filter(function($exam) use ($today) {
+            return \Carbon\Carbon::parse($exam->exam_date)->startOfDay()->greaterThan($today);
+        })->sortBy('exam_date'); 
+        
+        // c. Overdue (Kasta Terendah - Diurutkan dari yang PALING BARU terlewat)
+        $overdueExams = $pendingExams->filter(function($exam) use ($today) {
+            return \Carbon\Carbon::parse($exam->exam_date)->startOfDay()->lessThan($today);
+        })->sortByDesc('exam_date'); 
 
-        // 4. Ambil 1 kuesioner pemenang dengan prioritas tertinggi
+        // 4. Gabungkan sesuai kasta (Aktif didahulukan, lalu Mendatang, terakhir Overdue)
+        $sortedPending = $activeExams->concat($upcomingExams)->concat($overdueExams);
+
+        // 5. Ambil 1 kuesioner teratas (Sekarang dijamin selalu yang paling relevan!)
         $nextExam = $sortedPending->first();
 
-        // 5. Bungkus hasilnya ke dalam koleksi agar file Blade (@forelse) tetap bisa membacanya
+        // 6. Bungkus hasilnya ke dalam koleksi agar file Blade (@forelse) tetap bisa membacanya
         $exams = $nextExam ? collect([$nextExam]) : collect();
 
         // 4. Kita tetap butuh data ujian yang selesai untuk membuka gembok kartu "Laporan Hasil"
@@ -222,12 +234,6 @@ class DashboardController extends Controller
         return back()->with('status', 'Foto profil berhasil diperbarui!');
     }
 
-
-
-
-    // =========================================================
-    // 5. DASHBOARD ORTU UTAMA
-    // =========================================================
 
     // =========================================================
     // 5. DASHBOARD ORTU UTAMA
