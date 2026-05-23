@@ -14,7 +14,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* CSS Khusus Print */
+        /* CSS Khusus Print Browser (Ctrl+P) */
         @media print {
             body { background: white; -webkit-print-color-adjust: exact; }
             .no-print { display: none !important; }
@@ -23,10 +23,7 @@
             .bar-bg { background-color: #f3f4f6 !important; } 
         }
         
-        /* Animasi Bar Chart (Dari Desain Lama) */
         .bar-fill { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
-        
-        /* Animasi Fade In */
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -40,7 +37,7 @@
             <p class="text-gray-500 font-medium">Menganalisis jawaban Anda...</p>
         </div>
 
-        <div class="bg-gradient-to-r from-[#4A90E2] to-[#6DD5FA] p-8 md:p-10 text-white relative overflow-hidden">
+        <div class="bg-gradient-to-r from-[#4A90E2] to-[#6DD5FA] p-8 md:p-10 text-white relative overflow-hidden break-inside-avoid">
             <div class="absolute top-[-50%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
             <div class="absolute bottom-[-50%] left-[-10%] w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
 
@@ -58,7 +55,7 @@
 
         <div class="p-8 md:p-10">
             
-            <div class="animate-fade-in" style="animation-delay: 0.2s;">
+            <div class="animate-fade-in break-inside-avoid" style="animation-delay: 0.2s;">
                 <div class="bg-[#EBF5FF] border-l-[6px] border-[#4A90E2] p-6 rounded-r-xl mb-8 shadow-sm flex flex-col md:flex-row gap-6 items-center">
                     <div class="text-center min-w-[120px]">
                         <div class="text-xs text-[#4A90E2] font-bold uppercase tracking-wider mb-1">Kode Dominan</div>
@@ -73,7 +70,7 @@
                 </div>
             </div>
 
-            <div class="animate-fade-in" style="animation-delay: 0.4s;">
+            <div class="animate-fade-in break-inside-avoid mt-6" style="animation-delay: 0.4s;">
                 <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
                     <i class="ph-fill ph-chart-bar text-[#4A90E2]"></i> Rincian Skor Potensi
                 </h3>
@@ -136,7 +133,7 @@
                 </div>
             </div>
 
-            <div class="mt-10 animate-fade-in" style="animation-delay: 0.5s;">
+            <div class="mt-10 animate-fade-in break-inside-avoid" style="animation-delay: 0.5s;">
                 <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
                     <i class="ph-fill ph-chart-line text-[#4A90E2]"></i> Analisis Visual
                 </h3>
@@ -145,7 +142,7 @@
                 </div>
             </div>
 
-            <div class="mt-10 animate-fade-in" style="animation-delay: 0.6s;">
+            <div class="mt-10 animate-fade-in break-inside-avoid" style="animation-delay: 0.6s;">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
                     <i class="ph-fill ph-student text-[#4A90E2]"></i> Rekomendasi Jurusan
                 </h3>
@@ -162,7 +159,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-fade-in" style="animation-delay: 0.7s;">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-fade-in break-inside-avoid" style="animation-delay: 0.7s;">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
                         <i class="ph-fill ph-buildings text-[#4A90E2]"></i> Rekomendasi Kampus
@@ -223,132 +220,181 @@
     </div>
 
     <script>
-    // Data dari Controller
-    const mockResult = {
-        created_at: "{{ $result->created_at }}",
-        scores: { 
-            R: {{ $result->score_r }}, 
-            I: {{ $result->score_i }}, 
-            A: {{ $result->score_a }}, 
-            S: {{ $result->score_s }}, 
-            E: {{ $result->score_e }}, 
-            C: {{ $result->score_c }} 
-        }, 
-        dominant_code: "{{ $result->dominant_code }}"
-    };
+   <script>
+const mockResult = {
+    created_at: "{{ $result->created_at }}",
+    scores: { 
+        R: {{ $result->score_r }}, 
+        I: {{ $result->score_i }}, 
+        A: {{ $result->score_a }}, 
+        S: {{ $result->score_s }}, 
+        E: {{ $result->score_e }}, 
+        C: {{ $result->score_c }} 
+    }, 
+    dominant_code: "{{ $result->dominant_code }}"
+};
 
-    function renderReport() {
-        setTimeout(() => {
-            document.getElementById('loading').style.display = 'none';
+function renderReport() {
+    setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
 
-            // Format Tanggal
-            const dateObj = new Date(mockResult.created_at);
-            document.getElementById('testDate').innerText = dateObj.toLocaleDateString('id-ID', { 
-                day: 'numeric', month: 'long', year: 'numeric' 
-            });
+        const dateObj = new Date(mockResult.created_at);
+        document.getElementById('testDate').innerText = dateObj.toLocaleDateString('id-ID', { 
+            day: 'numeric', month: 'long', year: 'numeric' 
+        });
 
-            // Tampilkan Kode Dominan
-            document.getElementById('domCode').innerText = mockResult.dominant_code;
+        document.getElementById('domCode').innerText = mockResult.dominant_code;
 
-            // Update Progress Bar
-            const maxDisplayScore = 15; 
-            updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
-            updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
-            updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
-            updateBar('barS', 'scoreS', mockResult.scores.S, maxDisplayScore);
-            updateBar('barE', 'scoreE', mockResult.scores.E, maxDisplayScore);
-            updateBar('barC', 'scoreC', mockResult.scores.C, maxDisplayScore);
+        const maxDisplayScore = 15; 
+        updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
+        updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
+        updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
+        updateBar('barS', 'scoreS', mockResult.scores.S, maxDisplayScore);
+        updateBar('barE', 'scoreE', mockResult.scores.E, maxDisplayScore);
+        updateBar('barC', 'scoreC', mockResult.scores.C, maxDisplayScore);
 
-            // Render Grafik Chart.js
-            const canvas = document.getElementById('riasecChart');
-            if(canvas) {
-                const ctx = canvas.getContext('2d');
-                let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)'); 
-                gradient.addColorStop(1, 'rgba(74, 144, 226, 0.0)'); 
+        const canvas = document.getElementById('riasecChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const dynamicMax = Math.max(...Object.values(mockResult.scores)) + 1;
 
-                new Chart(ctx, {
-                    type: 'line', 
-                    data: {
-                        labels: ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'],
-                        datasets: [{
-                            label: 'Poin',
-                            data: [
-                                mockResult.scores.R, mockResult.scores.I, mockResult.scores.A, 
-                                mockResult.scores.S, mockResult.scores.E, mockResult.scores.C
-                            ],
-                            borderColor: '#4A90E2',           
-                            backgroundColor: gradient,        
-                            borderWidth: 3,                   
-                            pointBackgroundColor: '#ffffff',  
-                            pointBorderColor: '#4A90E2',      
-                            pointBorderWidth: 2,              
-                            pointRadius: 5,                   
-                            pointHoverRadius: 7,              
-                            fill: true,                       
-                            tension: 0.4                      
-                        }]
+            new Chart(ctx, {
+                type: 'line', 
+                data: {
+                    labels: ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'],
+                    datasets: [{
+                        label: 'Poin',
+                        data: [
+                            mockResult.scores.R, mockResult.scores.I, mockResult.scores.A, 
+                            mockResult.scores.S, mockResult.scores.E, mockResult.scores.C
+                        ],
+                        borderColor: '#4A90E2',
+                        backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#4A90E2',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        // IMPORTANT: onComplete fires when chart is fully drawn
+                        // This is needed so toDataURL() captures a complete chart
+                        onComplete: () => {
+                            window._chartReady = true;
+                        }
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 10, // Sesuaikan maksimal Y axis sesuai kebutuhan
-                                grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                                border: { display: false }
-                            },
-                            x: {
-                                grid: { display: false }, 
-                                border: { display: false },
-                                ticks: { font: { family: "'Poppins', sans-serif", weight: '500' }, color: '#6b7280' }
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: dynamicMax,
+                            grid: { color: '#f3f4f6', borderDash: [5, 5] },
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false }, 
+                            border: { display: false },
+                            ticks: { 
+                                font: { family: "'Poppins', sans-serif", weight: '500' }, 
+                                color: '#6b7280' 
                             }
                         }
                     }
-                });
-            }
+                }
+            });
+        }
+    }, 500); 
+}
 
-        }, 500); 
+function updateBar(barId, textId, score, max) {
+    let percentage = (score / max) * 100;
+    if (percentage > 100) percentage = 100;
+    
+    const bar = document.getElementById(barId);
+    const text = document.getElementById(textId);
+    
+    if (text) text.innerText = `${score} Poin`;
+    if (bar) {
+        setTimeout(() => { bar.style.width = percentage + "%"; }, 100);
+    }
+}
+
+async function downloadPDF() {
+    const element = document.getElementById('report-content');
+    const buttons = document.getElementById('action-buttons');
+    const canvas = document.getElementById('riasecChart');
+
+    // Save original inline styles as a string so we can restore exactly
+    const originalStyle = element.getAttribute('style') || '';
+    let imgFallback = null;
+
+    // Hide action buttons
+    if (buttons) buttons.style.display = 'none';
+
+    // Force desktop layout for PDF
+    element.style.width = '900px';
+    element.style.maxWidth = '900px';
+    element.style.margin = '0 auto';
+    element.style.borderRadius = '0px';
+    element.style.boxShadow = 'none';
+
+    // Wait for chart animation to complete if it hasn't yet
+    if (canvas && canvas.width > 0) {
+        if (!window._chartReady) {
+            await new Promise(r => setTimeout(r, 800));
+        }
+        imgFallback = document.createElement('img');
+        imgFallback.src = canvas.toDataURL('image/png', 1.0);
+        imgFallback.id = 'chartImageFallback';
+        imgFallback.style.cssText = 'width:100%;height:320px;object-fit:fill;display:block;';
+        canvas.style.display = 'none';
+        canvas.parentNode.insertBefore(imgFallback, canvas);
     }
 
-    function updateBar(barId, textId, score, max) {
-        let percentage = (score / max) * 100;
-        if(percentage > 100) percentage = 100;
-        
-        const bar = document.getElementById(barId);
-        const text = document.getElementById(textId);
-        
-        if (text) text.innerText = `${score} Poin`;
-        if (bar) {
-            setTimeout(() => {
-                bar.style.width = percentage + "%";
-            }, 100);
+    const opt = {
+        margin:      [0.2, 0, 0.2, 0],
+        filename:    'Laporan_RIASEC_' + mockResult.dominant_code + '.pdf',
+        image:       { type: 'jpeg', quality: 1.0 },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            scrollY: 0,
+            windowWidth: 900,
+            logging: false
+        }, 
+        jsPDF:       { unit: 'in', format: 'a4', orientation: 'portrait' },
+        pagebreak:   { mode: ['css', 'legacy'] }
+    };
+
+    try {
+        await html2pdf().set(opt).from(element).save();
+    } finally {
+        // Always restore — even if PDF fails
+        if (buttons) buttons.style.display = 'flex';
+
+        if (originalStyle) {
+            element.setAttribute('style', originalStyle);
+        } else {
+            element.removeAttribute('style');
+        }
+
+        if (canvas && imgFallback) {
+            canvas.style.display = 'block';
+            const fallback = document.getElementById('chartImageFallback');
+            if (fallback) fallback.remove();
         }
     }
+}
 
-    // Fungsi Download Halaman sebagai PDF
-    function downloadPDF() {
-        const element = document.getElementById('report-content');
-        const buttons = document.getElementById('action-buttons');
-        
-        buttons.style.display = 'none';
+renderReport();
+</script>
 
-        const opt = {
-            margin:       [0.5, 0.5, 0.5, 0.5], 
-            filename:     'Laporan_RIASEC_' + mockResult.dominant_code + '.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true }, 
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            buttons.style.display = 'flex';
-        });
-    }
-
-    renderReport();
-    </script>
 </body>
 </html>

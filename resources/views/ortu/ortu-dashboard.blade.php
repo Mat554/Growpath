@@ -14,6 +14,83 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+
+        /* PDF Download Overlay */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes pulse-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+@keyframes progress-fill {
+    0% { width: 0%; }
+    20% { width: 25%; }
+    50% { width: 60%; }
+    80% { width: 85%; }
+    100% { width: 100%; }
+}
+#pdf-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+#pdf-overlay.active {
+    display: flex;
+}
+#pdf-overlay-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 300px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+}
+#pdf-spinner {
+    width: 52px;
+    height: 52px;
+    border: 4px solid #EBF5FF;
+    border-top-color: #4A90E2;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+#pdf-overlay-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+#pdf-overlay-subtitle {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: -0.5rem 0 0;
+    animation: pulse-text 1.5s ease-in-out infinite;
+}
+#pdf-progress-track {
+    width: 100%;
+    height: 6px;
+    background: #f3f4f6;
+    border-radius: 99px;
+    overflow: hidden;
+}
+#pdf-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #4A90E2, #6DD5FA);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+}
         /* Animasi Notifikasi */
         @keyframes ring {
             0%, 100% { transform: rotate(0deg); }
@@ -288,15 +365,24 @@
                                 </div>
                             </div>
                         </div>
-
                         <div id="action-buttons" class="mt-10 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-4 justify-center no-print animate-fade-in" style="animation-delay: 0.8s;">
                             <button onclick="downloadPDF()" class="px-8 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold shadow-lg shadow-[#4A90E2]/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                                 <i class="ph-bold ph-download-simple"></i> Download PDF
                             </button>
                         </div>
-
                     </div>
                 </div>
+
+                 <div id="pdf-overlay">
+    <div id="pdf-overlay-card">
+        <div id="pdf-spinner"></div>
+        <p id="pdf-overlay-title">Menyiapkan PDF...</p>
+        <p id="pdf-overlay-subtitle">Mohon tunggu sebentar</p>
+        <div id="pdf-progress-track">
+            <div id="pdf-progress-bar"></div>
+        </div>
+    </div>
+</div>
 
             @else
                 <div class="bg-white w-full max-w-[900px] p-10 rounded-[20px] shadow-sm border border-gray-100 text-center flex flex-col items-center justify-center min-h-[400px]">
@@ -325,9 +411,8 @@
     </div>
 
     <script>
-        // ==========================================
-        // FUNGSI NOTIFIKASI LONCENG
-        // ==========================================
+
+        
         function toggleNotifications() {
             const menu = document.getElementById('notificationMenu');
             const bell = document.getElementById('bellIcon');
@@ -425,6 +510,9 @@
                             }]
                         },
                         options: {
+                             animation: {
+        onComplete: () => { window._chartReady = true; }
+    },
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: { legend: { display: false } },
@@ -462,24 +550,262 @@
             }
         }
 
-        function downloadPDF() {
-            const element = document.getElementById('report-content');
-            const buttons = document.getElementById('action-buttons');
-            
-            buttons.style.display = 'none';
+   async function downloadPDF() {
+    // --- Show overlay ---
+    const overlay = document.getElementById('pdf-overlay');
+    const overlayTitle = document.getElementById('pdf-overlay-title');
+    const overlaySubtitle = document.getElementById('pdf-overlay-subtitle');
+    const progressBar = document.getElementById('pdf-progress-bar');
 
-            const opt = {
-                margin:       [0.5, 0.5, 0.5, 0.5], 
-                filename:     'Laporan_RIASEC_' + mockResult.dominant_code + '.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true }, 
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
+    function setProgress(pct, title, subtitle) {
+        progressBar.style.width = pct + '%';
+        if (title) overlayTitle.textContent = title;
+        if (subtitle) overlaySubtitle.textContent = subtitle;
+    }
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                buttons.style.display = 'flex';
-            });
-        }
+    overlay.classList.add('active');
+    setProgress(0, 'Menyiapkan laporan...', 'Mengambil data hasil tes');
+
+    await new Promise(r => setTimeout(r, 300));
+
+    // Step 1 — wait for chart
+    setProgress(15, 'Memproses grafik...', 'Mengkonversi chart ke gambar');
+    if (!window._chartReady) {
+        await new Promise(r => setTimeout(r, 1000));
+    }
+
+    const canvas = document.getElementById('riasecChart');
+    let chartImageSrc = '';
+    if (canvas && canvas.width > 0) {
+        chartImageSrc = canvas.toDataURL('image/png', 1.0);
+    }
+
+    await new Promise(r => setTimeout(r, 200));
+    setProgress(30, 'Menyusun halaman...', 'Membangun layout dokumen');
+
+    // Step 2 — grab HTML
+    const buttons = document.getElementById('action-buttons');
+    if (buttons) buttons.style.display = 'none';
+    const reportHTML = document.getElementById('report-content').innerHTML;
+    if (buttons) buttons.style.display = 'flex';
+
+    await new Promise(r => setTimeout(r, 200));
+    setProgress(50, 'Membuat dokumen...', 'Memuat font dan aset');
+
+    // Step 3 — build iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:900px;height:100vh;opacity:0;pointer-events:none;border:none;z-index:-1;';
+    iframe.setAttribute('data-pdf-frame', 'true');
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+    iframeDoc.open();
+    iframeDoc.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <script src="https://unpkg.com/@phosphor-icons/web"><\/script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Poppins', sans-serif; background: white; color: #333; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .bg-gradient-to-r { background: linear-gradient(to right, #4A90E2, #6DD5FA) !important; }
+                .text-white { color: white !important; }
+                .p-8 { padding: 2rem; }
+                .md\\:p-10 { padding: 2.5rem; }
+                .text-2xl { font-size: 1.5rem; }
+                .text-3xl { font-size: 1.875rem; }
+                .font-bold { font-weight: 700; }
+                .font-extrabold { font-weight: 800; }
+                .font-semibold { font-weight: 600; }
+                .font-medium { font-weight: 500; }
+                .mb-1 { margin-bottom: 0.25rem; }
+                .mb-2 { margin-bottom: 0.5rem; }
+                .mb-4 { margin-bottom: 1rem; }
+                .mb-6 { margin-bottom: 1.5rem; }
+                .mb-8 { margin-bottom: 2rem; }
+                .mt-6 { margin-top: 1.5rem; }
+                .mt-10 { margin-top: 2.5rem; }
+                .pt-6 { padding-top: 1.5rem; }
+                .pb-2 { padding-bottom: 0.5rem; }
+                .p-5 { padding: 1.25rem; }
+                .p-6 { padding: 1.5rem; }
+                .p-4 { padding: 1rem; }
+                .gap-2 { gap: 0.5rem; }
+                .gap-4 { gap: 1rem; }
+                .gap-6 { gap: 1.5rem; }
+                .gap-8 { gap: 2rem; }
+                .flex { display: flex; }
+                .flex-col { flex-direction: column; }
+                .flex-1 { flex: 1; }
+                .grid { display: grid; }
+                .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+                .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+                .gap-x-8 { column-gap: 2rem; }
+                .gap-y-6 { row-gap: 1.5rem; }
+                .w-full { width: 100%; }
+                .h-full { height: 100%; }
+                .text-sm { font-size: 0.875rem; }
+                .text-xs { font-size: 0.75rem; }
+                .text-lg { font-size: 1.125rem; }
+                .text-4xl { font-size: 2.25rem; }
+                .text-5xl { font-size: 3rem; }
+                .leading-relaxed { line-height: 1.625; }
+                .tracking-widest { letter-spacing: 0.1em; }
+                .tracking-wider { letter-spacing: 0.05em; }
+                .uppercase { text-transform: uppercase; }
+                .rounded-full { border-radius: 9999px; }
+                .rounded-xl { border-radius: 0.75rem; }
+                .rounded-r-xl { border-radius: 0 0.75rem 0.75rem 0; }
+                .overflow-hidden { overflow: visible !important; }
+                .border-b { border-bottom: 1px solid; }
+                .border-t { border-top: 1px solid; }
+                .border-l { border-left: 1px solid; }
+                .border-l-\\[6px\\] { border-left-width: 6px !important; }
+                .border-\\[\\#4A90E2\\] { border-color: #4A90E2 !important; }
+                .border-gray-100 { border-color: #f3f4f6 !important; }
+                .border-blue-100 { border-color: #dbeafe !important; }
+                .border-orange-100 { border-color: #ffedd5 !important; }
+                .text-\\[\\#4A90E2\\] { color: #4A90E2 !important; }
+                .text-\\[\\#FF9F43\\] { color: #FF9F43 !important; }
+                .text-gray-800 { color: #1f2937 !important; }
+                .text-gray-700 { color: #374151 !important; }
+                .text-gray-600 { color: #4b5563 !important; }
+                .text-gray-500 { color: #6b7280 !important; }
+                .text-gray-900 { color: #111827 !important; }
+                .bg-\\[\\#EBF5FF\\] { background-color: #EBF5FF !important; }
+                .bg-gray-50 { background-color: #f9fafb !important; }
+                .bg-gray-100 { background-color: #f3f4f6 !important; }
+                .bg-white { background-color: white !important; }
+                .h-2\\.5 { height: 0.625rem; }
+                .w-2 { width: 0.5rem; }
+                .h-2 { height: 0.5rem; }
+                .min-w-\\[120px\\] { min-width: 120px; }
+                .text-center { text-align: center; }
+                .text-left { text-align: left; }
+                .text-right { text-align: right; }
+                .list-disc { list-style-type: disc; }
+                .list-inside { list-style-position: inside; }
+                .space-y-2 > * + * { margin-top: 0.5rem; }
+                .italic { font-style: italic; }
+                .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+                .relative { position: relative; }
+                .absolute { position: absolute; }
+                .inset-0 { top:0;right:0;bottom:0;left:0; }
+                .z-10 { z-index: 10; }
+                .hidden { display: none !important; }
+                .no-print { display: none !important; }
+                .items-center { align-items: center; }
+                .items-start { align-items: flex-start; }
+                .justify-between { justify-content: space-between; }
+                .justify-center { justify-content: center; }
+                .flex-shrink-0 { flex-shrink: 0; }
+                .md\\:flex-row { flex-direction: row; }
+                .md\\:text-left { text-align: left; }
+                .md\\:border-l { border-left: 1px solid; }
+                .md\\:border-t-0 { border-top: none; }
+                .md\\:pl-6 { padding-left: 1.5rem; }
+                .md\\:pt-0 { padding-top: 0; }
+                .md\\:block { display: block; }
+                .pt-4 { padding-top: 1rem; }
+                .blur-2xl { filter: blur(40px); }
+                .bg-white\\/10 { background: rgba(255,255,255,0.1) !important; }
+                .w-64 { width: 16rem; }
+                .h-64 { height: 16rem; }
+                .w-48 { width: 12rem; }
+                .h-48 { height: 12rem; }
+                .top-\\[-50\\%\\] { top: -50%; }
+                .right-\\[-10\\%\\] { right: -10%; }
+                .bottom-\\[-50\\%\\] { bottom: -50%; }
+                .left-\\[-10\\%\\] { left: -10%; }
+                .bar-bg { background-color: #f3f4f6 !important; }
+                .bar-fill { height: 100%; border-radius: 9999px; transition: none !important; }
+                .bg-red-500 { background-color: #ef4444 !important; }
+                .bg-blue-500 { background-color: #3b82f6 !important; }
+                .bg-yellow-400 { background-color: #facc15 !important; }
+                .bg-green-500 { background-color: #22c55e !important; }
+                .bg-purple-500 { background-color: #a855f7 !important; }
+                .bg-gray-500 { background-color: #6b7280 !important; }
+                .bg-blue-50\\/50 { background-color: rgba(239,246,255,0.5) !important; }
+                .bg-orange-50\\/50 { background-color: rgba(255,247,237,0.5) !important; }
+                .opacity-90 { opacity: 0.9; }
+                .opacity-80 { opacity: 0.8; }
+                .animate-fade-in { opacity: 1 !important; transform: none !important; }
+                .w-\\[320px\\] { width: 320px; }
+                .h-\\[320px\\] { height: 320px; }
+                #loading { display: none !important; }
+                #action-buttons { display: none !important; }
+            </style>
+        </head>
+        <body>
+            <div id="pdf-root" style="width:900px;background:white;">
+                ${reportHTML}
+            </div>
+            <script>
+                const canvas = document.querySelector('canvas');
+                if (canvas) {
+                    const img = document.createElement('img');
+                    img.src = '${chartImageSrc}';
+                    img.style.cssText = 'width:100%;height:100%;object-fit:fill;display:block;';
+                    canvas.parentNode.replaceChild(img, canvas);
+                }
+                const scores = ${JSON.stringify(mockResult.scores)};
+                const max = 15;
+                const barMap = { R:'barR', I:'barI', A:'barA', S:'barS', E:'barE', C:'barC' };
+                Object.entries(barMap).forEach(([key, id]) => {
+                    const bar = document.getElementById(id);
+                    if (bar) bar.style.width = Math.min((scores[key] / max) * 100, 100) + '%';
+                });
+
+                window.addEventListener('load', async function() {
+                    await new Promise(r => setTimeout(r, 600));
+                    const el = document.getElementById('pdf-root');
+                    const opt = {
+                        margin: [0.2, 0, 0.2, 0],
+                        filename: 'Laporan_RIASEC_${mockResult.dominant_code}.pdf',
+                        image: { type: 'jpeg', quality: 1.0 },
+                        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 900, logging: false },
+                        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: ['css', 'legacy'] }
+                    };
+                    await html2pdf().set(opt).from(el).save();
+
+                    // Notify parent that PDF is done
+                    window.parent.postMessage('pdf-done', '*');
+                });
+            <\/script>
+        </body>
+        </html>
+    `);
+    iframeDoc.close();
+
+    // Step 4 — listen for iframe to finish
+    setProgress(70, 'Merender konten...', 'Sedang memproses halaman');
+
+    await new Promise(resolve => {
+        window.addEventListener('message', function handler(e) {
+            if (e.data === 'pdf-done') {
+                window.removeEventListener('message', handler);
+                resolve();
+            }
+        });
+    });
+
+    // Step 5 — done!
+    setProgress(100, 'Selesai!', 'PDF berhasil diunduh');
+
+    await new Promise(r => setTimeout(r, 800));
+
+    // Clean up
+    const frame = document.querySelector('iframe[data-pdf-frame]');
+    if (frame) frame.remove();
+
+    overlay.classList.remove('active');
+}
+
 
         // Eksekusi fungsi render
         renderReport();
