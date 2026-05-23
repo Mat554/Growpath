@@ -594,7 +594,7 @@
 
     // Step 3 — build iframe
     const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;top:0;left:0;width:900px;height:100vh;opacity:0;pointer-events:none;border:none;z-index:-1;';
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:750px;height:100vh;opacity:0;pointer-events:none;border:none;z-index:-1;';
     iframe.setAttribute('data-pdf-frame', 'true');
     document.body.appendChild(iframe);
 
@@ -741,7 +741,7 @@
             </style>
         </head>
         <body>
-            <div id="pdf-root" style="width:900px;background:white;">
+            <div id="pdf-root" style="width:750px;background:white;margin:0 auto;">
                 ${reportHTML}
             </div>
             <script>
@@ -764,10 +764,10 @@
                     await new Promise(r => setTimeout(r, 600));
                     const el = document.getElementById('pdf-root');
                     const opt = {
-                        margin: [0.2, 0, 0.2, 0],
+                        margin: [0.4, 0.4, 0.4, 0.4],
                         filename: 'Laporan_RIASEC_${mockResult.dominant_code}.pdf',
                         image: { type: 'jpeg', quality: 1.0 },
-                        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 900, logging: false },
+                        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 750, logging: false },
                         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
                         pagebreak: { mode: ['css', 'legacy'] }
                     };
