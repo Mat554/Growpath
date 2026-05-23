@@ -324,14 +324,63 @@ class DashboardController extends Controller
             return redirect()->route('dashboard');
         }
         
-        $totalSiswa = User::where('role', 'siswa')->count();
-        $totalSoal = Exam::count(); 
-        $totalLaporan = ExamResult::count();
+        $totalSiswa = \App\Models\User::where('role', 'siswa')->count();
+        $totalSoal = \App\Models\Exam::count(); 
+        $totalLaporan = \App\Models\ExamResult::count();
 
-        $pendingReports = ExamResult::with('user')->where('status', 'review')->get();
-        $questions = Question::all(); 
+        $pendingReports = \App\Models\ExamResult::with('user')->where('status', 'review')->get();
+        $questions = \App\Models\Question::all(); 
 
-        return view('admin.admin-dashboard', compact('totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports', 'questions'));
+        // ==========================================
+        // 1. Hitung Rata-rata Skor RIASEC (%)
+        // ==========================================
+        $avgR = \App\Models\ExamResult::avg('score_r') ?? 0;
+        $avgI = \App\Models\ExamResult::avg('score_i') ?? 0;
+        $avgA = \App\Models\ExamResult::avg('score_a') ?? 0;
+        $avgS = \App\Models\ExamResult::avg('score_s') ?? 0;
+        $avgE = \App\Models\ExamResult::avg('score_e') ?? 0;
+        $avgC = \App\Models\ExamResult::avg('score_c') ?? 0;
+        
+        $totalAvg = $avgR + $avgI + $avgA + $avgS + $avgE + $avgC;
+        
+        $rataRiasec = [
+            'R' => $totalAvg > 0 ? round(($avgR / $totalAvg) * 100, 1) : 0,
+            'I' => $totalAvg > 0 ? round(($avgI / $totalAvg) * 100, 1) : 0,
+            'A' => $totalAvg > 0 ? round(($avgA / $totalAvg) * 100, 1) : 0,
+            'S' => $totalAvg > 0 ? round(($avgS / $totalAvg) * 100, 1) : 0,
+            'E' => $totalAvg > 0 ? round(($avgE / $totalAvg) * 100, 1) : 0,
+            'C' => $totalAvg > 0 ? round(($avgC / $totalAvg) * 100, 1) : 0,
+        ];
+
+        // ==========================================
+        // 2. Hitung Distribusi Kode Hasil (Top 6)
+        // ==========================================
+        $distribusiKode = \App\Models\ExamResult::select('dominant_code', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->whereNotNull('dominant_code')
+            ->groupBy('dominant_code')
+            ->orderByDesc('total')
+            ->take(6)
+            ->get();
+
+        // ==========================================
+        // 3. Hitung Distribusi Kelas
+        // ==========================================
+        $distribusiKelas = \App\Models\User::where('role', 'siswa')
+            ->whereNotNull('kelas')
+            ->select('kelas', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('kelas')
+            ->orderBy('kelas')
+            ->get()
+            ->map(function ($item) use ($totalSiswa) {
+                // Hitung persentase untuk lebar progress bar
+                $item->persentase = $totalSiswa > 0 ? round(($item->total / $totalSiswa) * 100, 1) : 0;
+                return $item;
+            });
+
+        return view('admin.admin-dashboard', compact(
+            'totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports', 'questions',
+            'rataRiasec', 'distribusiKode', 'distribusiKelas'
+        ));
     }
 
     public function laporanAdmin($id)

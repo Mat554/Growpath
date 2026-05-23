@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div id="overview" class="section active">
+       <div id="overview" class="section active">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
                     <div class="w-16 h-16 bg-[#EBF5FF] text-[#4A90E2] rounded-2xl flex items-center justify-center text-3xl">
@@ -121,44 +121,44 @@
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-bold text-gray-800 w-32">Realistic (R)</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #EF4444; width: 16.4%"></div>
+                            <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #EF4444; width: {{ $rataRiasec['R'] ?? 0 }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.4%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $rataRiasec['R'] ?? 0 }}%</span>
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-bold text-gray-800 w-32">Investigative (I)</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #3B82F6; width: 16.3%"></div>
+                            <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #3B82F6; width: {{ $rataRiasec['I'] ?? 0 }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.3%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $rataRiasec['I'] ?? 0 }}%</span>
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-bold text-gray-800 w-32">Artistic (A)</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #FACC15; width: 15.6%"></div>
+                            <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #FACC15; width: {{ $rataRiasec['A'] ?? 0 }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">15.6%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $rataRiasec['A'] ?? 0 }}%</span>
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-bold text-gray-800 w-32">Social (S)</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #22C55E; width: 17.5%"></div>
+                            <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #22C55E; width: {{ $rataRiasec['S'] ?? 0 }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">17.5%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $rataRiasec['S'] ?? 0 }}%</span>
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-bold text-gray-800 w-32">Enterprising (E)</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #A855F7; width: 16.6%"></div>
+                            <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #A855F7; width: {{ $rataRiasec['E'] ?? 0 }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.6%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $rataRiasec['E'] ?? 0 }}%</span>
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm font-bold text-gray-800 w-32">Conventional (C)</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #06B6D4; width: 17.6%"></div>
+                            <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #06B6D4; width: {{ $rataRiasec['C'] ?? 0 }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">17.6%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $rataRiasec['C'] ?? 0 }}%</span>
                     </div>
                 </div>
             </div>
@@ -177,30 +177,20 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @forelse($distribusiKode ?? [] as $kode)
                                 <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SCR</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">245</td>
+                                    <td class="p-3">
+                                        <span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">
+                                            {{ $kode->dominant_code }}
+                                        </span>
+                                    </td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">{{ $kode->total }}</td>
                                 </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SEC</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">242</td>
-                                </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RIA</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">173</td>
-                                </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RSC</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">160</td>
-                                </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SCE</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">152</td>
-                                </tr>
+                                @empty
                                 <tr>
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RIS</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">146</td>
+                                    <td colspan="2" class="p-5 text-center text-gray-400 text-sm">Belum ada data laporan</td>
                                 </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -209,32 +199,21 @@
                 <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; height: 340px;">
                     <h3 class="text-lg font-bold mb-6" style="color: #4A90E2;">Distribusi Kelas</h3>
                     
-                    <div class="flex flex-col gap-8 flex-1 justify-center pb-2">
+                    <div class="flex flex-col gap-8 flex-1 justify-center pb-2 overflow-y-auto custom-scroll pr-2">
+                        @forelse($distribusiKelas ?? [] as $kelas)
                         <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 10</span>
+                            <span class="text-sm font-bold text-gray-800 w-28">Kelas {{ $kelas->kelas }}</span>
                             <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 85%"></div>
+                                <div class="h-3 rounded-full transition-all duration-1000" style="background-color: #4A90E2; width: {{ $kelas->persentase }}%"></div>
                             </div>
-                            <span class="text-sm font-bold text-gray-800 w-12 text-right">3426</span>
+                            <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $kelas->total }}</span>
                         </div>
-                        
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 11</span>
-                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 40%"></div>
-                            </div>
-                            <span class="text-sm font-bold text-gray-800 w-12 text-right">1518</span>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 12</span>
-                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 55%"></div>
-                            </div>
-                            <span class="text-sm font-bold text-gray-800 w-12 text-right">2098</span>
-                        </div>
+                        @empty
+                        <div class="text-center text-gray-400 text-sm">Belum ada data siswa</div>
+                        @endforelse
                     </div>
                 </div>
+
             </div>
             
             <div class="bg-white p-8 shadow-sm border border-gray-100" style="border-radius: 20px;">
