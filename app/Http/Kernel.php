@@ -64,5 +64,14 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        // Role-based middleware
+        'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+        'siswa' => \App\Http\Middleware\EnsureUserIsStudent::class,
+        'ortu' => \App\Http\Middleware\EnsureUserIsParent::class,
+        'role' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+
+        // OTP rate limiting
+        'throttle.otp' => \App\Http\Middleware\ThrottleOTP::class,
     ];
 }

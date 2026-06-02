@@ -6,7 +6,7 @@
     <title>Lupa Password - Growpath</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/password.js'])
 </head>
 <body class="bg-[#f3f4f6] min-h-screen flex justify-center items-center p-5 font-sans">
 
@@ -53,13 +53,5 @@
         </div>
 
     </div>
-
-    <script>
-        document.getElementById("resetForm").addEventListener("submit", function() {
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin mr-2"></i> Mengirim...';
-            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-        });
-    </script>
 </body>
 </html>

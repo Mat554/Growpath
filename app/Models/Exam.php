@@ -10,7 +10,7 @@ class Exam extends Model
     use HasFactory;
 
     // WAJIB ADA AGAR BISA DISIMPAN
-    protected $fillable = ['title', 'target_class', 'duration_minutes', 'exam_date'];
+    protected $fillable = ['title', 'target_class', 'duration_minutes', 'exam_date', 'exam_end_date'];
 
     public function questions()
     {

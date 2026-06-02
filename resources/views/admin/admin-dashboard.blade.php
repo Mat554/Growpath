@@ -10,7 +10,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin-dashboard.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin/dashboard.js', 'resources/js/admin/questions.js', 'resources/js/admin/publisher.js'])
 
     <style>
         /* Animasi Transisi Tab */
@@ -116,58 +116,33 @@
                 <h3 class="text-lg font-bold mb-6 flex items-center gap-2" style="color: #4A90E2;">
                     Rata-rata Skor RIASEC (%)
                 </h3>
-                
+
+                @php
+                    $allScores = array_values($riasecAvg);
+                    $maxScore = max($allScores);
+                @endphp
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
+                    @foreach(['R' => ['label' => 'Realistic (R)', 'color' => '#EF4444'], 'I' => ['label' => 'Investigative (I)', 'color' => '#3B82F6'], 'A' => ['label' => 'Artistic (A)', 'color' => '#FACC15'], 'S' => ['label' => 'Social (S)', 'color' => '#22C55E'], 'E' => ['label' => 'Enterprising (E)', 'color' => '#A855F7'], 'C' => ['label' => 'Conventional (C)', 'color' => '#06B6D4']] as $key => $info)
                     <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-gray-800 w-32">Realistic (R)</span>
+                        <span class="text-sm font-bold text-gray-800 w-36">{{ $info['label'] }}</span>
                         <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #EF4444; width: 16.4%"></div>
+                            <div class="h-3 rounded-full" style="background-color: {{ $info['color'] }}; width: {{ $riasecAvg[$key] }}%"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.4%</span>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $riasecAvg[$key] }}%</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-gray-800 w-32">Investigative (I)</span>
-                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #3B82F6; width: 16.3%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.3%</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-gray-800 w-32">Artistic (A)</span>
-                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #FACC15; width: 15.6%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">15.6%</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-gray-800 w-32">Social (S)</span>
-                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #22C55E; width: 17.5%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">17.5%</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-gray-800 w-32">Enterprising (E)</span>
-                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #A855F7; width: 16.6%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">16.6%</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-gray-800 w-32">Conventional (C)</span>
-                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                            <div class="h-3 rounded-full" style="background-color: #06B6D4; width: 17.6%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-gray-800 w-12 text-right">17.6%</span>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
             <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: stretch; flex-wrap: nowrap; overflow-x: auto;">
-                
-                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; height: 340px;">
-                    <h3 class="text-lg font-bold mb-4" style="color: #4A90E2;">Distribusi Kode Hasil</h3>
-                    
+
+                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; max-height: 380px;">
+                    <h3 class="text-lg font-bold mb-4 flex items-center justify-between" style="color: #4A90E2;">
+                        Distribusi Kode Hasil
+                        <span class="text-xs font-medium text-gray-400">{{ $codeDistribution->count() }} kode</span>
+                    </h3>
+
                     <div class="flex-1 overflow-y-auto custom-scroll pr-2 border border-gray-100" style="border-radius: 8px;">
                         <table class="w-full text-left border-collapse">
                             <thead style="background-color: #EBF5FF; position: sticky; top: 0; z-index: 10;">
@@ -177,66 +152,60 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @forelse($codeDistribution as $code)
                                 <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SCR</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">245</td>
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">{{ $code->dominant_code }}</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">{{ $code->total }}</td>
                                 </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SEC</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">242</td>
-                                </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RIA</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">173</td>
-                                </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RSC</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">160</td>
-                                </tr>
-                                <tr class="border-b border-gray-50">
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">SCE</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">152</td>
-                                </tr>
+                                @empty
                                 <tr>
-                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">RIS</span></td>
-                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">146</td>
+                                    <td colspan="2" class="p-4 text-center text-gray-400 text-sm">Belum ada data hasil.</td>
                                 </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; height: 340px;">
-                    <h3 class="text-lg font-bold mb-6" style="color: #4A90E2;">Distribusi Kelas</h3>
-                    
-                    <div class="flex flex-col gap-8 flex-1 justify-center pb-2">
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 10</span>
-                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 85%"></div>
-                            </div>
-                            <span class="text-sm font-bold text-gray-800 w-12 text-right">3426</span>
-                        </div>
-                        
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 11</span>
-                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 40%"></div>
-                            </div>
-                            <span class="text-sm font-bold text-gray-800 w-12 text-right">1518</span>
-                        </div>
+                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; max-height: 380px;">
+    
+    @php
+        $maxClass = $classDistribution->max('total') ?: 1;
+        // Normalize kelas to numeric grade (10, 11, 12) and merge duplicates
+        $grouped = [];
+        foreach ($classDistribution as $class) {
+            $grade = preg_replace('/[^0-9]/', '', $class->kelas);
+            $grade = (int) substr($grade, 0, 2);
+            if (!isset($grouped[$grade])) {
+                $grouped[$grade] = 0;
+            }
+            $grouped[$grade] += $class->total;
+        }
+        ksort($grouped);
+        // Added a check to prevent max() errors if $grouped is completely empty
+        $mergedMax = !empty($grouped) ? max(array_values($grouped)) : 1;
+    @endphp
 
+    <h3 class="text-lg font-bold mb-6 flex items-center justify-between" style="color: #4A90E2;">
+        Distribusi Kelas
+        <span class="text-xs font-medium text-gray-400">{{ count($grouped) }} tingkat</span>
+    </h3>
+                    <div class="flex flex-col gap-5 flex-1 justify-center pb-2">
+                        @forelse($grouped as $grade => $total)
                         <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-gray-800 w-28">Kelas 12</span>
+                            <span class="text-sm font-bold text-gray-800 w-20">Kelas {{ $grade }}</span>
                             <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
-                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: 55%"></div>
+                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: {{ round(($total / $mergedMax) * 100) }}%"></div>
                             </div>
-                            <span class="text-sm font-bold text-gray-800 w-12 text-right">2098</span>
+                            <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $total }}</span>
                         </div>
+                        @empty
+                        <p class="text-center text-gray-400 text-sm">Belum ada data siswa.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-8 shadow-sm border border-gray-100" style="border-radius: 20px;">
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-info text-[#4A90E2]"></i> Panduan Admin
@@ -402,9 +371,15 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Tanggal Pelaksanaan</label>
-                            <input type="date" id="cardDate" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none text-gray-600">
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Tanggal Mulai</label>
+                                <input type="date" id="cardDateStart" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none text-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Tanggal Berakhir</label>
+                                <input type="date" id="cardDateEnd" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none text-gray-600">
+                            </div>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-xl mb-6 flex justify-between items-center">
@@ -432,25 +407,67 @@
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-monitor-play text-[#4A90E2]"></i> Monitoring Pengerjaan Siswa
                 </div>
+
+                {{-- Stats row --}}
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-[#EBF5FF] rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-semibold text-[#4A90E2] uppercase tracking-wide">Total Siswa</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ $totalSiswa }}</span>
+                    </div>
+                    <div class="bg-[#E8F9F5] rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-semibold text-[#2ECC71] uppercase tracking-wide">Sudah Publish</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ $publishedCount }}</span>
+                    </div>
+                    <div class="bg-[#FFF4E5] rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-semibold text-[#FF9F43] uppercase tracking-wide">Pending Review</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ $reviewCount }}</span>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Nama Siswa</th>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Kelas</th>
+                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Kode Dominan</th>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Status</th>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Progres</th>
+                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="p-4 border-b border-gray-50">Budi Santoso</td>
-                                <td class="p-4 border-b border-gray-50">12 IPA 1</td>
-                                <td class="p-4 border-b border-gray-50"><span class="px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-xs font-bold uppercase">Sedang Mengerjakan</span></td>
-                                <td class="p-4 border-b border-gray-50 text-gray-600">Soal 5/20</td>
+                            @forelse($recentResults as $result)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 border-b border-gray-50 font-medium text-gray-800">{{ $result->user->name ?? 'Unknown' }}</td>
+                                <td class="p-4 border-b border-gray-50 text-gray-600">{{ $result->user->kelas ?? '-' }}</td>
+                                <td class="p-4 border-b border-gray-50">
+                                    <span class="text-[#4A90E2] font-bold tracking-widest">{{ $result->dominant_code }}</span>
+                                </td>
+                                <td class="p-4 border-b border-gray-50">
+                                    @if($result->status === 'published')
+                                        <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase border border-green-100">Published</span>
+                                    @else
+                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold uppercase border border-yellow-200">Review</span>
+                                    @endif
+                                </td>
+                                <td class="p-4 border-b border-gray-50 text-gray-500 text-sm">{{ $result->created_at->format('d M Y') }}</td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-gray-400">
+                                    <i class="ph-fill ph-user-list text-4xl mb-2 text-gray-300 block"></i>
+                                    Belum ada siswa yang mengerjakan ujian.
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="mt-4 text-right">
+                    <a href="{{ route('admin.monitoring') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+                        <i class="ph-bold ph-arrow-square-out"></i> Lihat Semua Monitoring
+                    </a>
                 </div>
             </div>
         </div>
@@ -573,58 +590,10 @@
     </div>
 
     <script>
-        // 1. Data dari Laravel
+        // Data from Laravel — read by questions.js, dashboard.js, publisher.js
         window.globalQuestionsData = @json($questions ?? []);
         window.activeTabSession = "{{ session('tab') ?? '' }}";
         window.csrfToken = "{{ csrf_token() }}";
-
-        // ==========================================
-        // 2. FUNGSI NAVIGASI TAB
-        // ==========================================
-        function showSection(sectionId) {
-            // Sembunyikan semua section
-            document.querySelectorAll('.section').forEach(function(el) {
-                el.classList.remove('active');
-            });
-
-            // Tampilkan section yang dituju
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-            }
-
-            // Reset warna semua tombol
-            const navButtons = ['nav-overview', 'nav-create', 'nav-publish', 'nav-publisher-v2', 'nav-report'];
-            navButtons.forEach(function(btnId) {
-                const btn = document.getElementById(btnId);
-                if(btn) {
-                    btn.className = "w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left";
-                }
-            });
-
-            // Warnai tombol yang sedang aktif menjadi biru
-            const activeBtn = document.getElementById('nav-' + sectionId);
-            if (activeBtn) {
-                activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all text-left";
-            }
-        }
-        
-        // Daftarkan secara global agar bisa dibaca oleh onclick HTML
-        window.showSection = showSection;
-
-        // ==========================================
-        // 3. INISIALISASI SAAT HALAMAN SELESAI DIMUAT
-        // ==========================================
-        document.addEventListener("DOMContentLoaded", function() {
-            // Auto-buka tab jika baru saja menyimpan soal
-            if (window.activeTabSession && window.activeTabSession !== '') {
-                showSection(window.activeTabSession);
-            }
-            
-            // Catatan: Karena kamu menghapus elemen canvas dari desain baru, 
-            // kode inisialisasi Chart.js saya biarkan (tetap aman karena dilindungi oleh kondisi "if") 
-            // agar tidak menyebabkan error dan siap jika kamu ingin menambahkannya kembali di masa depan.
-        });
     </script>
 </body>
 </html>

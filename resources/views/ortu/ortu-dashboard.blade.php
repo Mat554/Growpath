@@ -7,14 +7,104 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/parent/dashboard.js', 'resources/js/parent/dashboard-report.js'])
+
+    @if(isset($result) && $result)
+    <script>
+        window.reportData = {
+            created_at: "{{ $result->created_at }}",
+            scores: {
+                R: {{ $result->score_r }},
+                I: {{ $result->score_i }},
+                A: {{ $result->score_a }},
+                S: {{ $result->score_s }},
+                E: {{ $result->score_e }},
+                C: {{ $result->score_c }}
+            },
+            dominant_code: "{{ $result->dominant_code }}"
+        };
+    </script>
+    @endif
 
     <style>
-        /* Animasi Notifikasi */
+        /* ===== PDF DOWNLOAD OVERLAY ===== */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        #pdf-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            pointer-events: none;
+        }
+        #pdf-overlay.active {
+            display: flex;
+            pointer-events: all;
+        }
+        #pdf-overlay-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+            min-width: 300px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+        }
+        #pdf-spinner {
+            width: 52px;
+            height: 52px;
+            border: 4px solid #EBF5FF;
+            border-top-color: #4A90E2;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        #pdf-overlay-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        #pdf-overlay-subtitle {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin: -0.5rem 0 0;
+            animation: pulse-text 1.5s ease-in-out infinite;
+            font-family: 'Poppins', sans-serif;
+        }
+        #pdf-progress-track {
+            width: 100%;
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        #pdf-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #4A90E2, #6DD5FA);
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
+        /* ===== NOTIFICATION ANIMATION ===== */
         @keyframes ring {
             0%, 100% { transform: rotate(0deg); }
             25% { transform: rotate(15deg); }
@@ -25,17 +115,7 @@
             animation: ring 0.5s ease-in-out infinite;
         }
 
-        /* CSS Khusus Print Laporan */
-        @media print {
-            body { background: white; -webkit-print-color-adjust: exact; }
-            aside, .mobile-nav, .dashboard-header, .no-print { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; }
-            .shadow-lg, .shadow-sm, .shadow-[0_10px_40px_rgba(0,0,0,0.08)] { box-shadow: none !important; }
-            .report-card { border: none; max-width: 100%; box-shadow: none; margin: 0; padding: 0; }
-            .bar-bg { background-color: #f3f4f6 !important; } 
-        }
-        
-        /* Animasi Laporan */
+        /* ===== REPORT ANIMATIONS ===== */
         .bar-fill { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -44,11 +124,23 @@
 
 <body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden text-[#333]">
 
+    {{-- PDF Overlay: direct child of body --}}
+    <div id="pdf-overlay">
+        <div id="pdf-overlay-card">
+            <div id="pdf-spinner"></div>
+            <p id="pdf-overlay-title">Menyiapkan PDF...</p>
+            <p id="pdf-overlay-subtitle">Mohon tunggu sebentar</p>
+            <div id="pdf-progress-track">
+                <div id="pdf-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sidebar --}}
     <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-100 p-6 hidden md:flex transition-all z-20 shadow-[0_0_20px_rgba(0,0,0,0.03)]">
         <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5 mb-10">
             <i class="ph-fill ph-brain text-2xl"></i> Growpath
         </div>
-        
         <nav class="flex-1 flex flex-col gap-2">
             <a href="{{ route('dashboard.ortu') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all shadow-sm">
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
@@ -57,7 +149,6 @@
                 <i class="ph ph-user text-lg"></i> Profil Saya
             </a>
         </nav>
-        
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all mt-auto cursor-pointer">
@@ -66,17 +157,17 @@
         </form>
     </aside>
 
+    {{-- Main Content --}}
     <main class="flex-1 p-8 overflow-y-auto">
-        
+
+        {{-- Header --}}
         <div class="dashboard-header flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
             <div>
-                <h2 class="text-2xl font-semibold text-gray-800">
-                    Halo, {{ Auth::user()->name }}! 👋
-                </h2>
+                <h2 class="text-2xl font-semibold text-gray-800">Halo, {{ Auth::user()->name }}! 👋</h2>
                 <p class="text-gray-500 text-sm mt-1">Selamat datang di portal pemantauan minat bakat.</p>
             </div>
-            
             <div class="flex items-center justify-end gap-4 ml-auto">
+                {{-- Notification Bell --}}
                 <div class="relative" id="notificationDropdown">
                     <button onclick="toggleNotifications()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border border-gray-100 focus:outline-none">
                         <i id="bellIcon" class="ph-fill ph-bell text-xl {{ isset($anak) && $anak ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
@@ -84,7 +175,6 @@
                             <span id="notifBadge" class="absolute top-2.5 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                         @endif
                     </button>
-
                     <div id="notificationMenu" class="hidden absolute right-0 mt-3 w-[320px] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-gray-100 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
                         <div class="p-4 border-b border-gray-100 bg-[#F8FAFC]">
                             <h3 class="font-bold text-gray-800 text-sm">Notifikasi</h3>
@@ -113,28 +203,28 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2.5 text-sm font-semibold text-[#4A90E2]">
                     <i class="ph-fill ph-users text-lg"></i>
                     <span>Wali Murid</span>
                 </div>
-            </div> 
-        </div> 
+            </div>
+        </div>
 
+        {{-- Report Content --}}
         <div class="w-full flex justify-center">
-            
             @if(isset($result) && $result)
                 <div id="report-content" class="bg-white w-full max-w-[900px] rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] overflow-hidden report-card mb-10 relative">
-                    
+
+                    {{-- Loading Spinner --}}
                     <div id="loading" class="absolute inset-0 bg-white z-50 flex flex-col justify-center items-center rounded-[20px]">
                         <i class="ph ph-spinner ph-spin text-4xl text-[#4A90E2] mb-3"></i>
                         <p class="text-gray-500 font-medium">Menganalisis data laporan...</p>
                     </div>
 
+                    {{-- Blue Header --}}
                     <div class="bg-gradient-to-r from-[#4A90E2] to-[#6DD5FA] p-8 md:p-10 text-white relative overflow-hidden">
                         <div class="absolute top-[-50%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
                         <div class="absolute bottom-[-50%] left-[-10%] w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
-
                         <div class="relative z-10 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
                             <div>
                                 <h1 class="text-2xl md:text-3xl font-bold mb-1">Laporan Hasil Analisis</h1>
@@ -147,15 +237,16 @@
                         </div>
                     </div>
 
+                    {{-- Report Body --}}
                     <div class="p-8 md:p-10">
-                        
+
+                        {{-- Kode Dominan Card --}}
                         <div class="animate-fade-in" style="animation-delay: 0.2s;">
-                            <div class="bg-[#EBF5FF] border-l-[6px] border-[#4A90E2] p-6 rounded-r-xl mb-8 shadow-sm flex flex-col md:flex-row gap-6 items-center">
-                                <div class="text-center min-w-[120px]">
+<div class="bg-[#EBF5FF] border-l-[6px] border-[#4A90E2] p-6 mb-8 shadow-sm flex flex-col md:flex-row gap-6 items-center -mx-8 md:-mx-10 px-8 md:px-10">                                <div class="text-center min-w-[120px]">
                                     <div class="text-xs text-[#4A90E2] font-bold uppercase tracking-wider mb-1">Kode Dominan</div>
                                     <div id="domCode" class="text-4xl md:text-5xl font-extrabold text-[#4A90E2] tracking-widest">---</div>
                                 </div>
-                               <div class="flex-1 text-center md:text-left border-t md:border-t-0 md:border-l border-blue-100 pt-4 md:pt-0 md:pl-6">
+                                <div class="flex-1 text-center md:text-left border-t md:border-t-0 md:border-l border-blue-100 pt-4 md:pt-0 md:pl-6">
                                     <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $aiData['judul'] ?? 'Menunggu Hasil...' }}</h3>
                                     <p class="text-gray-600 text-sm leading-relaxed">
                                         {{ $aiData['deskripsi'] ?? 'Sistem sedang memproses hasil kepribadian anak Anda.' }}
@@ -164,11 +255,11 @@
                             </div>
                         </div>
 
+                        {{-- Score Bars --}}
                         <div class="animate-fade-in" style="animation-delay: 0.4s;">
                             <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
                                 <i class="ph-fill ph-chart-bar text-[#4A90E2]"></i> Rincian Skor Potensi
                             </h3>
-
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                 <div>
                                     <div class="flex justify-between mb-2 text-sm font-medium">
@@ -227,6 +318,7 @@
                             </div>
                         </div>
 
+                        {{-- Chart --}}
                         <div class="mt-10 animate-fade-in" style="animation-delay: 0.5s;">
                             <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
                                 <i class="ph-fill ph-chart-line text-[#4A90E2]"></i> Analisis Visual
@@ -236,6 +328,7 @@
                             </div>
                         </div>
 
+                        {{-- Jurusan --}}
                         <div class="mt-10 animate-fade-in" style="animation-delay: 0.6s;">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
                                 <i class="ph-fill ph-student text-[#4A90E2]"></i> Rekomendasi Jurusan
@@ -253,6 +346,7 @@
                             </div>
                         </div>
 
+                        {{-- Kampus & Tips --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-fade-in" style="animation-delay: 0.7s;">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
@@ -270,7 +364,6 @@
                                     </ul>
                                 </div>
                             </div>
-
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
                                     <i class="ph-fill ph-lightbulb text-[#FF9F43]"></i> Tips Belajar
@@ -289,6 +382,7 @@
                             </div>
                         </div>
 
+                        {{-- Download Button --}}
                         <div id="action-buttons" class="mt-10 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-4 justify-center no-print animate-fade-in" style="animation-delay: 0.8s;">
                             <button onclick="downloadPDF()" class="px-8 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold shadow-lg shadow-[#4A90E2]/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                                 <i class="ph-bold ph-download-simple"></i> Download PDF
@@ -309,10 +403,10 @@
                     </p>
                 </div>
             @endif
-
         </div>
     </main>
 
+    {{-- Mobile Nav --}}
     <div class="mobile-nav fixed bottom-0 w-full bg-white border-t border-gray-200 p-3 flex md:hidden justify-around z-50">
         <a href="{{ route('dashboard.ortu') }}" class="flex flex-col items-center text-[#4A90E2]">
             <i class="ph-fill ph-squares-four text-2xl"></i>
@@ -324,166 +418,5 @@
         </a>
     </div>
 
-    <script>
-        // ==========================================
-        // FUNGSI NOTIFIKASI LONCENG
-        // ==========================================
-        function toggleNotifications() {
-            const menu = document.getElementById('notificationMenu');
-            const bell = document.getElementById('bellIcon');
-            const badge = document.getElementById('notifBadge');
-            
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                if(bell) bell.classList.remove('animate-ring');
-                if(badge) badge.classList.add('hidden');
-
-                setTimeout(() => {
-                    menu.classList.remove('opacity-0', 'scale-95');
-                    menu.classList.add('opacity-100', 'scale-100');
-                }, 10);
-            } else {
-                menu.classList.remove('opacity-100', 'scale-100');
-                menu.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => {
-                    menu.classList.add('hidden');
-                }, 200);
-            }
-        }
-
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('notificationDropdown');
-            const menu = document.getElementById('notificationMenu');
-            if (dropdown && !dropdown.contains(event.target) && menu && !menu.classList.contains('hidden')) {
-                toggleNotifications();
-            }
-        });
-
-        // ==========================================
-        // FUNGSI RENDER LAPORAN (HANYA JIKA ADA DATA)
-        // ==========================================
-        @if(isset($result) && $result)
-        const mockResult = {
-            created_at: "{{ $result->created_at }}",
-            scores: { 
-                R: {{ $result->score_r }}, 
-                I: {{ $result->score_i }}, 
-                A: {{ $result->score_a }}, 
-                S: {{ $result->score_s }}, 
-                E: {{ $result->score_e }}, 
-                C: {{ $result->score_c }} 
-            }, 
-            dominant_code: "{{ $result->dominant_code }}"
-        };
-
-        function renderReport() {
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-
-                const dateObj = new Date(mockResult.created_at);
-                document.getElementById('testDate').innerText = dateObj.toLocaleDateString('id-ID', { 
-                    day: 'numeric', month: 'long', year: 'numeric' 
-                });
-
-                document.getElementById('domCode').innerText = mockResult.dominant_code;
-
-                const maxDisplayScore = 15; 
-                updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
-                updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
-                updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
-                updateBar('barS', 'scoreS', mockResult.scores.S, maxDisplayScore);
-                updateBar('barE', 'scoreE', mockResult.scores.E, maxDisplayScore);
-                updateBar('barC', 'scoreC', mockResult.scores.C, maxDisplayScore);
-
-                const canvas = document.getElementById('riasecChart');
-                if(canvas) {
-                    const ctx = canvas.getContext('2d');
-                    let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                    gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)'); 
-                    gradient.addColorStop(1, 'rgba(74, 144, 226, 0.0)'); 
-
-                    new Chart(ctx, {
-                        type: 'line', 
-                        data: {
-                            labels: ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'],
-                            datasets: [{
-                                label: 'Poin',
-                                data: [
-                                    mockResult.scores.R, mockResult.scores.I, mockResult.scores.A, 
-                                    mockResult.scores.S, mockResult.scores.E, mockResult.scores.C
-                                ],
-                                borderColor: '#4A90E2',           
-                                backgroundColor: gradient,        
-                                borderWidth: 3,                   
-                                pointBackgroundColor: '#ffffff',  
-                                pointBorderColor: '#4A90E2',      
-                                pointBorderWidth: 2,              
-                                pointRadius: 5,                   
-                                pointHoverRadius: 7,              
-                                fill: true,                       
-                                tension: 0.4                      
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 10,
-                                    grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                                    border: { display: false }
-                                },
-                                x: {
-                                    grid: { display: false }, 
-                                    border: { display: false },
-                                    ticks: { font: { family: "'Poppins', sans-serif", weight: '500' }, color: '#6b7280' }
-                                }
-                            }
-                        }
-                    });
-                }
-            }, 500); 
-        }
-
-        function updateBar(barId, textId, score, max) {
-            let percentage = (score / max) * 100;
-            if(percentage > 100) percentage = 100;
-            
-            const bar = document.getElementById(barId);
-            const text = document.getElementById(textId);
-            
-            if (text) text.innerText = `${score} Poin`;
-            if (bar) {
-                setTimeout(() => {
-                    bar.style.width = percentage + "%";
-                }, 100);
-            }
-        }
-
-        function downloadPDF() {
-            const element = document.getElementById('report-content');
-            const buttons = document.getElementById('action-buttons');
-            
-            buttons.style.display = 'none';
-
-            const opt = {
-                margin:       [0.5, 0.5, 0.5, 0.5], 
-                filename:     'Laporan_RIASEC_' + mockResult.dominant_code + '.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true }, 
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                buttons.style.display = 'flex';
-            });
-        }
-
-        // Eksekusi fungsi render
-        renderReport();
-        @endif
-    </script>
-</body>
+    </body>
 </html>

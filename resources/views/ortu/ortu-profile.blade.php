@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/parent/profile.js'])
 </head>
 <body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden text-[#333]">
 
@@ -298,56 +298,4 @@
 
 </body>
 
-<script>
-    function openRevokeModal() {
-        const modal = document.getElementById('revokeModal');
-        const content = document.getElementById('revokeModalContent');
-        
-        modal.classList.remove('hidden');
-        
-        setTimeout(() => {
-            content.classList.remove('scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
-
-    function closeRevokeModal() {
-        const modal = document.getElementById('revokeModal');
-        const content = document.getElementById('revokeModalContent');
-        
-        content.classList.remove('scale-100', 'opacity-100');
-        content.classList.add('scale-95', 'opacity-0');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 200);
-    }
-
-    let originalSrc = document.getElementById('avatarPreview').src;
-
-    function previewImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            // Membaca file yang dipilih untuk ditampilkan sementara
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('avatarPreview').src = e.target.result;
-                // Munculkan tombol simpan dan batal
-                document.getElementById('saveButtonContainer').classList.remove('hidden');
-                document.getElementById('saveButtonContainer').classList.add('flex');
-            }
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function cancelUpload() {
-        // Kosongkan input file
-        document.getElementById('avatarUpload').value = ""; 
-        // Kembalikan ke foto asli
-        document.getElementById('avatarPreview').src = originalSrc; 
-        // Sembunyikan kembali tombol
-        document.getElementById('saveButtonContainer').classList.add('hidden');
-        document.getElementById('saveButtonContainer').classList.remove('flex');
-    }
-</script>
 </html>

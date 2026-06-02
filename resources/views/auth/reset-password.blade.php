@@ -6,7 +6,7 @@
     <title>Buat Password Baru - Growpath</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/password.js'])
 </head>
 <body class="bg-[#f3f4f6] min-h-screen flex justify-center items-center p-5 font-sans">
 
@@ -92,24 +92,7 @@
         </div>
 
     <script>
-        function togglePassword(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(iconId);
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.replace('ph-eye', 'ph-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.replace('ph-eye-slash', 'ph-eye');
-            }
-        }
-
-        document.getElementById("newPasswordForm").addEventListener("submit", function() {
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin mr-2"></i> Menyimpan...';
-            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-        });
+        window.csrfToken = "{{ csrf_token() }}";
     </script>
 </body>
 </html>

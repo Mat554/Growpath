@@ -11,7 +11,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/report.js'])
+
+    <script>
+        // Data from Controller - passed to JS file via window variables
+        window.reportData = {
+            created_at: "{{ $result->created_at }}",
+            scores: {
+                R: {{ $result->score_r }},
+                I: {{ $result->score_i }},
+                A: {{ $result->score_a }},
+                S: {{ $result->score_s }},
+                E: {{ $result->score_e }},
+                C: {{ $result->score_c }}
+            },
+            dominant_code: "{{ $result->dominant_code }}"
+        };
+    </script>
 
     <style>
         /* CSS Khusus Print */
@@ -222,133 +238,5 @@
         </div>
     </div>
 
-    <script>
-    // Data dari Controller
-    const mockResult = {
-        created_at: "{{ $result->created_at }}",
-        scores: { 
-            R: {{ $result->score_r }}, 
-            I: {{ $result->score_i }}, 
-            A: {{ $result->score_a }}, 
-            S: {{ $result->score_s }}, 
-            E: {{ $result->score_e }}, 
-            C: {{ $result->score_c }} 
-        }, 
-        dominant_code: "{{ $result->dominant_code }}"
-    };
-
-    function renderReport() {
-        setTimeout(() => {
-            document.getElementById('loading').style.display = 'none';
-
-            // Format Tanggal
-            const dateObj = new Date(mockResult.created_at);
-            document.getElementById('testDate').innerText = dateObj.toLocaleDateString('id-ID', { 
-                day: 'numeric', month: 'long', year: 'numeric' 
-            });
-
-            // Tampilkan Kode Dominan
-            document.getElementById('domCode').innerText = mockResult.dominant_code;
-
-            // Update Progress Bar
-            const maxDisplayScore = 15; 
-            updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
-            updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
-            updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
-            updateBar('barS', 'scoreS', mockResult.scores.S, maxDisplayScore);
-            updateBar('barE', 'scoreE', mockResult.scores.E, maxDisplayScore);
-            updateBar('barC', 'scoreC', mockResult.scores.C, maxDisplayScore);
-
-            // Render Grafik Chart.js
-            const canvas = document.getElementById('riasecChart');
-            if(canvas) {
-                const ctx = canvas.getContext('2d');
-                let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)'); 
-                gradient.addColorStop(1, 'rgba(74, 144, 226, 0.0)'); 
-
-                new Chart(ctx, {
-                    type: 'line', 
-                    data: {
-                        labels: ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'],
-                        datasets: [{
-                            label: 'Poin',
-                            data: [
-                                mockResult.scores.R, mockResult.scores.I, mockResult.scores.A, 
-                                mockResult.scores.S, mockResult.scores.E, mockResult.scores.C
-                            ],
-                            borderColor: '#4A90E2',           
-                            backgroundColor: gradient,        
-                            borderWidth: 3,                   
-                            pointBackgroundColor: '#ffffff',  
-                            pointBorderColor: '#4A90E2',      
-                            pointBorderWidth: 2,              
-                            pointRadius: 5,                   
-                            pointHoverRadius: 7,              
-                            fill: true,                       
-                            tension: 0.4                      
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 10, // Sesuaikan maksimal Y axis sesuai kebutuhan
-                                grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                                border: { display: false }
-                            },
-                            x: {
-                                grid: { display: false }, 
-                                border: { display: false },
-                                ticks: { font: { family: "'Poppins', sans-serif", weight: '500' }, color: '#6b7280' }
-                            }
-                        }
-                    }
-                });
-            }
-
-        }, 500); 
-    }
-
-    function updateBar(barId, textId, score, max) {
-        let percentage = (score / max) * 100;
-        if(percentage > 100) percentage = 100;
-        
-        const bar = document.getElementById(barId);
-        const text = document.getElementById(textId);
-        
-        if (text) text.innerText = `${score} Poin`;
-        if (bar) {
-            setTimeout(() => {
-                bar.style.width = percentage + "%";
-            }, 100);
-        }
-    }
-
-    // Fungsi Download Halaman sebagai PDF
-    function downloadPDF() {
-        const element = document.getElementById('report-content');
-        const buttons = document.getElementById('action-buttons');
-        
-        buttons.style.display = 'none';
-
-        const opt = {
-            margin:       [0.5, 0.5, 0.5, 0.5], 
-            filename:     'Laporan_RIASEC_' + mockResult.dominant_code + '.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true }, 
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            buttons.style.display = 'flex';
-        });
-    }
-
-    renderReport();
-    </script>
 </body>
 </html>

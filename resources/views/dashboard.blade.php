@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/dashboard.js'])
     <style>
         @keyframes ring {
             0%, 100% { transform: rotate(0deg); }
@@ -161,12 +161,13 @@
                 $sortedExams = collect($exams)->sortByDesc(function($exam) use ($completedExams) {
                     $result = isset($completedExams) ? collect($completedExams)->firstWhere('exam_id', $exam->id) : null;
                     $isCompleted = $result !== null;
-                    $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $startDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $endDate = $exam->exam_end_date ? \Carbon\Carbon::parse($exam->exam_end_date)->startOfDay() : $startDate;
                     $today = \Carbon\Carbon::now()->startOfDay();
-                    
+
                     if ($isCompleted) return 1; // Prioritas 1: Selesai
-                    if ($today->gt($examDate)) return 0; // Prioritas 0: Overdue (Paling Bawah)
-                    if ($today->lt($examDate)) return 2; // Prioritas 2: Jadwal Mendatang
+                    if ($today->lt($startDate)) return 2; // Prioritas 2: Jadwal Mendatang (Terkunci)
+                    if ($today->gt($endDate)) return 0; // Prioritas 0: Overdue (Paling Bawah)
                     return 3; // Prioritas 3: Aktif Hari Ini (Paling Atas)
                 });
             @endphp
@@ -175,11 +176,12 @@
                 @php
                     $result = isset($completedExams) ? collect($completedExams)->firstWhere('exam_id', $exam->id) : null;
                     $isCompleted = $result !== null;
-                    $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $startDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $endDate = $exam->exam_end_date ? \Carbon\Carbon::parse($exam->exam_end_date)->startOfDay() : $startDate;
                     $today = \Carbon\Carbon::now()->startOfDay();
-                    
-                    $isLocked  = $today->lt($examDate);
-                    $isOverdue = $today->gt($examDate); 
+
+                    $isLocked  = $today->lt($startDate);
+                    $isOverdue = $today->gt($endDate);
                 @endphp
                 
                 <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300 relative overflow-hidden group flex flex-col">
@@ -215,7 +217,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <i class="ph-fill ph-calendar {{ ($isOverdue && !$isCompleted) ? 'text-red-500' : 'text-[#4A90E2]' }}"></i> 
-                            Jadwal: {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                            Jadwal: {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}{{ $exam->exam_end_date ? ' - ' . \Carbon\Carbon::parse($exam->exam_end_date)->format('d M Y') : '' }}
                         </div>
                     </div>
                     
@@ -320,36 +322,4 @@
     </div>
 
 </body>
-
-<script>
-    function toggleNotifications() {
-        const menu = document.getElementById('notificationMenu');
-        
-        if (menu.classList.contains('hidden')) {
-            // Tampilkan menu
-            menu.classList.remove('hidden');
-            setTimeout(() => {
-                menu.classList.remove('opacity-0', 'scale-95');
-                menu.classList.add('opacity-100', 'scale-100');
-            }, 10);
-        } else {
-            // Sembunyikan menu
-            menu.classList.remove('opacity-100', 'scale-100');
-            menu.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                menu.classList.add('hidden');
-            }, 200); // Tunggu animasi selesai baru disembunyikan
-        }
-    }
-
-    // Tutup notifikasi jika user mengklik area luar kotak
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('notificationDropdown');
-        const menu = document.getElementById('notificationMenu');
-        
-        if (!dropdown.contains(event.target) && !menu.classList.contains('hidden')) {
-            toggleNotifications();
-        }
-    });
-</script>
 </html>

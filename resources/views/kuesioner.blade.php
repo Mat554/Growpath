@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/kuesioner.js'])
 
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -75,11 +75,12 @@
                     $result = isset($completedExams) ? $completedExams->get($exam->id) : null;
                     $isCompleted = $result !== null;
                     $isPublished = $isCompleted && $result->status === 'published';
-                    
-                    $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+
+                    $startDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $endDate = $exam->exam_end_date ? \Carbon\Carbon::parse($exam->exam_end_date)->startOfDay() : $startDate;
                     $today = \Carbon\Carbon::now()->startOfDay();
-                    $isLocked  = $today->lt($examDate);
-                    $isOverdue = $today->gt($examDate); 
+                    $isLocked  = $today->lt($startDate);
+                    $isOverdue = $today->gt($endDate); 
 
                     // Menentukan tag kategori untuk filter tab
                     $kategoriFilter = $isCompleted ? 'selesai' : 'belum';
@@ -124,7 +125,7 @@
                                 <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: {{ $exam->duration_minutes }} Menit</span>
                                 <span class="flex items-center gap-1.5 {{ ($isOverdue && !$isCompleted) ? 'text-red-400 font-medium' : '' }}">
                                     <i class="ph-fill {{ ($isOverdue && !$isCompleted) ? 'ph-warning-circle text-red-400' : 'ph-calendar text-gray-400' }}"></i> 
-                                    {{ ($isOverdue && !$isCompleted) ? 'Kedaluwarsa:' : 'Batas:' }} {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                                    {{ ($isOverdue && !$isCompleted) ? 'Kedaluwarsa:' : 'Batas:' }} {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}{{ $exam->exam_end_date ? ' - ' . \Carbon\Carbon::parse($exam->exam_end_date)->format('d M Y') : '' }}
                                 </span>
                             @endif
                         </div>
@@ -195,54 +196,5 @@
             <span class="text-[10px] font-medium mt-1">Profil</span>
         </a>
     </div>
-
-    <script>
-        // Variabel untuk mengingat tab mana yang sedang diklik
-        let currentKategori = 'semua';
-
-        // --- FUNGSI 1: FILTER TAB ---
-        function filterKuesioner(kategori, btnElement) {
-            currentKategori = kategori; // Simpan status tab saat ini
-            
-            // Reset desain semua tombol tab
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
-                btn.classList.add('text-gray-500', 'border-transparent', 'font-medium');
-            });
-            
-            // Beri warna biru pada tombol yang diklik
-            btnElement.classList.add('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
-            btnElement.classList.remove('text-gray-500', 'border-transparent', 'font-medium');
-
-            // Panggil fungsi pencarian setiap kali tab ditekan agar selaras
-            searchKuesioner();
-        }
-
-        // --- FUNGSI 2: PENCARIAN (CASE-INSENSITIVE) ---
-        function searchKuesioner() {
-            // 1. toLowerCase() inilah yang membuatnya kebal huruf besar/kecil!
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            let cards = document.querySelectorAll('.kuesioner-card');
-
-            cards.forEach(card => {
-                // 2. Judul kuesioner juga diubah ke huruf kecil untuk dicocokkan
-                let title = card.querySelector('h3').innerText.toLowerCase();
-                let cardKategori = card.getAttribute('data-kategori');
-                
-                // 3. Evaluasi: Apakah cocok dengan teks?
-                let isMatchSearch = title.includes(input);
-                
-                // 4. Evaluasi: Apakah cocok dengan tab yang sedang aktif?
-                let isMatchTab = (currentKategori === 'semua' || cardKategori === currentKategori);
-
-                // 5. Tampilkan HANYA jika lolos kedua syarat di atas
-                if (isMatchSearch && isMatchTab) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-    </script>
 </body>
 </html>

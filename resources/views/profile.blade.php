@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/profile.js'])
 </head>
 <body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden">
 
@@ -200,28 +200,5 @@
         </div>
     </main>
 
-    <script>
-    let originalSrc = document.getElementById('avatarPreview').src;
-
-    function previewImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('avatarPreview').src = e.target.result;
-                document.getElementById('saveButtonContainer').classList.remove('hidden');
-                document.getElementById('saveButtonContainer').classList.add('flex');
-            }
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function cancelUpload() {
-        document.getElementById('avatarUpload').value = ""; 
-        document.getElementById('avatarPreview').src = originalSrc; 
-        document.getElementById('saveButtonContainer').classList.add('hidden');
-        document.getElementById('saveButtonContainer').classList.remove('flex');
-    }
-</script>
 </body>
 </html>

@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/register.js'])
 </head>
 <body class="bg-[#F8F9FD] min-h-screen flex justify-center items-center p-5 font-sans">
 
@@ -146,68 +146,6 @@
         </div>
     </div>
 
-    <script>
-        // 1. Fungsi Toggle Password
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.replace('ph-eye', 'ph-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.replace('ph-eye-slash', 'ph-eye');
-            }
-        }
-
-        // 2. Fungsi Switch Role (Siswa vs Ortu)
-        function switchRole(role) {
-            const tabSiswa = document.getElementById('tabSiswa');
-            const tabOrtu = document.getElementById('tabOrtu');
-            const sectionSiswa = document.getElementById('sectionSiswa');
-            const sectionOrtu = document.getElementById('sectionOrtu');
-            const roleInput = document.getElementById('roleInput');
-            const btnSubmit = document.getElementById('btnSubmit');
-
-            // Set Hidden Input Value untuk dikirim ke Backend
-            roleInput.value = role;
-
-            if (role === 'siswa') {
-                // UI Tab Active State (Siswa)
-                tabSiswa.classList.add('bg-white', 'text-[#4A90E2]', 'shadow-sm');
-                tabSiswa.classList.remove('text-[#888]');
-                
-                // UI Tab Inactive State (Ortu)
-                tabOrtu.classList.remove('bg-white', 'text-[#4A90E2]', 'shadow-sm');
-                tabOrtu.classList.add('text-[#888]');
-
-                // Show/Hide Sections
-                sectionSiswa.classList.remove('hidden');
-                sectionOrtu.classList.add('hidden');
-                
-                // Ganti Teks Tombol
-                btnSubmit.innerText = "Daftar Sebagai Siswa";
-            } else {
-                // UI Tab Active State (Ortu)
-                tabOrtu.classList.add('bg-white', 'text-[#4A90E2]', 'shadow-sm');
-                tabOrtu.classList.remove('text-[#888]');
-
-                // UI Tab Inactive State (Siswa)
-                tabSiswa.classList.remove('bg-white', 'text-[#4A90E2]', 'shadow-sm');
-                tabSiswa.classList.add('text-[#888]');
-
-                // Show/Hide Sections
-                sectionSiswa.classList.add('hidden');
-                sectionOrtu.classList.remove('hidden');
-                
-                // Ganti Teks Tombol
-                btnSubmit.innerText = "Daftar Sebagai Orang Tua";
-            }
-        }
-        
-    </script>
-    
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
