@@ -4,41 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Growpath</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin/dashboard.js', 'resources/js/admin/questions.js', 'resources/js/admin/publisher.js'])
 
     <style>
-        /* Animasi Transisi Tab */
         .section { display: none; animation: fadeIn 0.4s ease-out; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Custom Scrollbar untuk List Soal */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+        .mobile-overlay { transition: opacity 0.3s ease; }
+        .mobile-menu { transition: transform 0.3s ease; }
     </style>
 </head>
-<body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden text-[#333]">
+<body class="bg-[#F4F7F6] font-sans text-[#333]">
 
-    <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-200 p-6 z-50 shadow-[0_0_20px_rgba(0,0,0,0.03)]">
+    <!-- Mobile Header -->
+    <header class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+            <div class="text-lg font-bold text-[#4A90E2] flex items-center gap-2">
+                <i class="ph-fill ph-gear text-xl"></i> Admin Panel
+            </div>
+            <button id="mobileMenuBtn" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <i class="ph ph-list text-2xl text-gray-600"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 hidden opacity-0" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Sidebar -->
+    <aside id="mobileSidebar" class="mobile-menu fixed top-0 left-0 w-[260px] h-full bg-white z-50 flex flex-col transform -translate-x-full overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5">
+                    <i class="ph-fill ph-gear text-2xl"></i> Admin Panel
+                </div>
+                <button onclick="closeMobileMenu()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="ph ph-x text-xl text-gray-500"></i>
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col gap-1 p-4 overflow-y-auto">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-2 mb-2 pl-3">Utama</div>
+            <button onclick="showSection('overview'); closeMobileMenu();" id="nav-overview-m" class="w-full flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-squares-four text-lg"></i> Dashboard
+            </button>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Tes</div>
+            <button onclick="showSection('create'); closeMobileMenu();" id="nav-create-m" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-plus-circle text-lg"></i> Buat Tes
+            </button>
+            <button onclick="showSection('publish'); closeMobileMenu();" id="nav-publish-m" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-list-checks text-lg"></i> Kelola Soal
+            </button>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Fitur Baru</div>
+            <button onclick="showSection('publisher-v2'); closeMobileMenu();" id="nav-publisher-v2-m" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-package text-lg"></i> Publisher
+            </button>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Laporan</div>
+            <a href="{{ route('admin.monitoring') }}" onclick="closeMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-monitor-play text-lg"></i> Monitoring
+            </a>
+            <button onclick="showSection('report'); closeMobileMenu();" id="nav-report-m" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-file-text text-lg"></i> Publish Laporan
+            </button>
+        </div>
+        <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-gray-200">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all">
+                <i class="ph ph-sign-out text-lg"></i> Keluar
+            </button>
+        </form>
+    </aside>
+
+    <!-- Desktop Sidebar -->
+    <aside class="w-[260px] bg-white h-screen flex flex-col border-r border-gray-200 p-6 z-50 shadow-[0_0_20px_rgba(0,0,0,0.03)] hidden md:flex fixed left-0 top-0">
         <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5 mb-8">
             <i class="ph-fill ph-gear text-2xl"></i> Admin Panel
         </div>
 
         <div class="flex-1 flex flex-col gap-1 overflow-y-auto custom-scroll pr-2">
-            
+
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4 mb-2 pl-3">Utama</div>
             <button onclick="showSection('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
             </button>
-            
+
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Tes</div>
             <button onclick="showSection('create')" id="nav-create" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-plus-circle text-lg"></i> Buat Tes
@@ -69,7 +131,7 @@
         </form>
     </aside>
 
-    <main class="flex-1 p-8 overflow-y-auto bg-[#F4F7F6]">
+    <main class="md:ml-[260px] p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto bg-[#F4F7F6]">
         
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -594,6 +656,32 @@
         window.globalQuestionsData = @json($questions ?? []);
         window.activeTabSession = "{{ session('tab') ?? '' }}";
         window.csrfToken = "{{ csrf_token() }}";
+    </script>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+
+        function openMobileMenu() {
+            mobileOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                mobileOverlay.classList.remove('opacity-0');
+                mobileSidebar.classList.remove('-translate-x-full');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileOverlay.classList.add('opacity-0');
+            mobileSidebar.classList.add('-translate-x-full');
+            setTimeout(() => {
+                mobileOverlay.classList.add('hidden');
+            }, 300);
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileMenu);
     </script>
 </body>
 </html>

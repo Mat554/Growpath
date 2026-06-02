@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Siswa - Growpath</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/dashboard.js'])
     <style>
         @keyframes ring {
@@ -19,14 +19,65 @@
         .animate-ring {
             animation: ring 0.5s ease-in-out infinite;
         }
+        .mobile-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .mobile-menu {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 
+<body class="bg-[#F4F7F6] font-sans">
 
-<body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden">
+    <!-- Mobile Header -->
+    <header class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3">
+        <div class="flex items-center justify-between">
+            <div class="text-lg font-bold text-[#4A90E2] flex items-center gap-2">
+                <i class="ph-fill ph-brain text-xl"></i> Growpath
+            </div>
+            <button id="mobileMenuBtn" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <i class="ph ph-list text-2xl text-gray-600"></i>
+            </button>
+        </div>
+    </header>
 
-    <!-- SIDEBAR (Desktop) -->
-    <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-100 p-6 hidden md:flex transition-all z-20">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 hidden opacity-0" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Sidebar -->
+    <aside id="mobileSidebar" class="mobile-menu fixed top-0 left-0 w-[260px] h-full bg-white z-50 flex flex-col transform -translate-x-full">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5">
+                    <i class="ph-fill ph-brain text-2xl"></i> Growpath
+                </div>
+                <button onclick="closeMobileMenu()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="ph ph-x text-xl text-gray-500"></i>
+                </button>
+            </div>
+        </div>
+        <nav class="flex-1 flex flex-col gap-2 p-4">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
+                <i class="ph ph-squares-four text-lg"></i> Dashboard
+            </a>
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+                <i class="ph ph-user text-lg"></i> Profil Saya
+            </a>
+            <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+                <i class="ph ph-clipboard-text text-lg"></i> Test
+            </a>
+        </nav>
+        <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-gray-100">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all cursor-pointer border-none bg-transparent text-left">
+                <i class="ph ph-sign-out text-lg"></i> Keluar
+            </button>
+        </form>
+    </aside>
+
+    <!-- Desktop Sidebar -->
+    <aside class="w-[260px] bg-white h-screen flex flex-col border-r border-gray-100 p-6 hidden md:flex fixed left-0 top-0 transition-all z-20">
         <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5 mb-10">
             <i class="ph-fill ph-brain text-2xl"></i> Growpath
         </div>
@@ -52,19 +103,19 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-        
+    <main class="md:ml-[260px] p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto">
+
         <!-- HEADER / TOPBAR -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-10 gap-4">
             <div>
-                <h2 class="text-2xl font-semibold text-gray-800">
+                <h2 class="text-xl md:text-2xl font-semibold text-gray-800">
                     Halo, {{ Auth::user()->name }}! 👋
                 </h2>
                 <p class="text-gray-500 text-sm mt-1">Selamat datang di portal penentuan minat bakat.</p>
             </div>
-            
-            <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                
+
+            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+
             <div class="relative" id="notificationDropdown">
     <button onclick="toggleNotifications()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border-none focus:outline-none">
         
@@ -305,21 +356,48 @@
         </div>
     </main>
 
-    <!-- MOBILE NAVIGATION -->
-    <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 p-3 flex md:hidden justify-around z-50">
+    <!-- MOBILE NAV -->
+    <div class="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t border-gray-200 p-3 flex justify-around z-50">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-[#4A90E2]">
             <i class="ph-fill ph-squares-four text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Home</span>
         </a>
-        <a href="{{ route('kuesioner') }}" class="flex flex-col items-center text-gray-400">
+        <a href="{{ route('kuesioner') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
             <i class="ph ph-clipboard-text text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Tes</span>
         </a>
-        <a href="{{ route('profile') }}" class="flex flex-col items-center text-gray-400">
+        <a href="{{ route('profile') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
             <i class="ph ph-user text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Profil</span>
         </a>
     </div>
+
+    <script>
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+
+        function openMobileMenu() {
+            mobileOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                mobileOverlay.classList.remove('opacity-0');
+                mobileSidebar.classList.remove('-translate-x-full');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileOverlay.classList.add('opacity-0');
+            mobileSidebar.classList.add('-translate-x-full');
+            setTimeout(() => {
+                mobileOverlay.classList.add('hidden');
+            }, 300);
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileMenu);
+    </script>
 
 </body>
 </html>
