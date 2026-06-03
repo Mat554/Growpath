@@ -8,7 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin-dashboard.js'])
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin/dashboard.js', 'resources/js/admin/questions.js', 'resources/js/admin/publisher.js'])
 
     <style>
         /* Animasi Transisi Tab */
@@ -37,9 +39,9 @@
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
             </button>
             
-            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Kuesioner</div>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Tes</div>
             <button onclick="showSection('create')" id="nav-create" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
-                <i class="ph ph-plus-circle text-lg"></i> Buat Kuesioner
+                <i class="ph ph-plus-circle text-lg"></i> Buat Tes
             </button>
             <button onclick="showSection('publish')" id="nav-publish" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-list-checks text-lg"></i> Kelola Soal
@@ -52,8 +54,8 @@
 
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Laporan</div>
             <a href="{{ route('admin.monitoring') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
-     <i class="ph ph-monitor-play text-lg"></i> Monitoring
-</a>
+                <i class="ph ph-monitor-play text-lg"></i> Monitoring
+            </a>
             <button onclick="showSection('report')" id="nav-report" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-file-text text-lg"></i> Publish Laporan
             </button>
@@ -81,53 +83,169 @@
 
         <div id="overview" class="section active">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
                     <div class="w-16 h-16 bg-[#EBF5FF] text-[#4A90E2] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-users"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statUsers">{{ $totalSiswa }}</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statUsers">{{ $totalSiswa ?? 0 }}</h3>
                         <p class="text-gray-500 text-sm">Total Siswa</p>
                     </div>
                 </div>
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
-                    <div class="w-16 h-16 bg-[#E8F9F5] text-[#2ECC71] rounded-2xl flex items-center justify-center text-3xl">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
+                    <div class="w-16 h-16 bg-[#E8F9F5] text-[#16A34A] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-question"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statQuestions">{{ $totalSoal }}</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statQuestions">{{ $totalSoal ?? 0 }}</h3>
                         <p class="text-gray-500 text-sm">Bank Soal</p>
                     </div>
                 </div>
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-5 border border-gray-100">
                     <div class="w-16 h-16 bg-[#FFF4E5] text-[#FF9F43] rounded-2xl flex items-center justify-center text-3xl">
                         <i class="ph-fill ph-file-dashed"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-800" id="statReports">{{ $totalLaporan }}</h3>
+                        <h3 class="text-2xl font-bold text-gray-800" id="statReports">{{ $totalLaporan ?? 0 }}</h3>
                         <p class="text-gray-500 text-sm">Laporan Masuk</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white p-8 rounded-2xl shadow-sm">
+
+            <div class="bg-white p-6 shadow-sm mb-6 border border-gray-100" style="border-radius: 20px;">
+                <h3 class="text-lg font-bold mb-6 flex items-center gap-2" style="color: #4A90E2;">
+                    Rata-rata Skor RIASEC (%)
+                </h3>
+
+                @php
+                    $allScores = array_values($riasecAvg);
+                    $maxScore = max($allScores);
+                @endphp
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
+                    @foreach(['R' => ['label' => 'Realistic (R)', 'color' => '#EF4444'], 'I' => ['label' => 'Investigative (I)', 'color' => '#3B82F6'], 'A' => ['label' => 'Artistic (A)', 'color' => '#FACC15'], 'S' => ['label' => 'Social (S)', 'color' => '#22C55E'], 'E' => ['label' => 'Enterprising (E)', 'color' => '#A855F7'], 'C' => ['label' => 'Conventional (C)', 'color' => '#06B6D4']] as $key => $info)
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-gray-800 w-36">{{ $info['label'] }}</span>
+                        <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                            <div class="h-3 rounded-full" style="background-color: {{ $info['color'] }}; width: {{ $riasecAvg[$key] }}%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $riasecAvg[$key] }}%</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: stretch; flex-wrap: nowrap; overflow-x: auto;">
+
+                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; max-height: 380px;">
+                    <h3 class="text-lg font-bold mb-4 flex items-center justify-between" style="color: #4A90E2;">
+                        Distribusi Kode Hasil
+                        <span class="text-xs font-medium text-gray-400">{{ $codeDistribution->count() }} kode</span>
+                    </h3>
+
+                    <div class="flex-1 overflow-y-auto custom-scroll pr-2 border border-gray-100" style="border-radius: 8px;">
+                        <table class="w-full text-left border-collapse">
+                            <thead style="background-color: #EBF5FF; position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th class="p-3 font-bold text-sm" style="color: #333;">Kode RIASEC</th>
+                                    <th class="p-3 font-bold text-sm text-right" style="color: #333;">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($codeDistribution as $code)
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3"><span class="text-white font-bold text-xs tracking-wide inline-block" style="background-color: #4A90E2; padding: 4px 12px; border-radius: 6px;">{{ $code->dominant_code }}</span></td>
+                                    <td class="p-3 text-right text-gray-800 font-medium text-sm">{{ $code->total }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="2" class="p-4 text-center text-gray-400 text-sm">Belum ada data hasil.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 shadow-sm border border-gray-100 flex flex-col" style="flex: 1; min-width: 300px; border-radius: 20px; max-height: 380px;">
+    
+    @php
+        $maxClass = $classDistribution->max('total') ?: 1;
+        // Normalize kelas to numeric grade (10, 11, 12) and merge duplicates
+        $grouped = [];
+        foreach ($classDistribution as $class) {
+            $grade = preg_replace('/[^0-9]/', '', $class->kelas);
+            $grade = (int) substr($grade, 0, 2);
+            if (!isset($grouped[$grade])) {
+                $grouped[$grade] = 0;
+            }
+            $grouped[$grade] += $class->total;
+        }
+        ksort($grouped);
+        // Added a check to prevent max() errors if $grouped is completely empty
+        $mergedMax = !empty($grouped) ? max(array_values($grouped)) : 1;
+    @endphp
+
+    <h3 class="text-lg font-bold mb-6 flex items-center justify-between" style="color: #4A90E2;">
+        Distribusi Kelas
+        <span class="text-xs font-medium text-gray-400">{{ count($grouped) }} tingkat</span>
+    </h3>
+                    <div class="flex flex-col gap-5 flex-1 justify-center pb-2">
+                        @forelse($grouped as $grade => $total)
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold text-gray-800 w-20">Kelas {{ $grade }}</span>
+                            <div class="flex-1 rounded-full h-3" style="background-color: #F3F4F6;">
+                                <div class="h-3 rounded-full" style="background-color: #4A90E2; width: {{ round(($total / $mergedMax) * 100) }}%"></div>
+                            </div>
+                            <span class="text-sm font-bold text-gray-800 w-12 text-right">{{ $total }}</span>
+                        </div>
+                        @empty
+                        <p class="text-center text-gray-400 text-sm">Belum ada data siswa.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 shadow-sm border border-gray-100" style="border-radius: 20px;">
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-info text-[#4A90E2]"></i> Panduan Admin
                 </div>
-                <div class="flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
-                    <i class="ph-fill ph-number-circle-one text-3xl text-[#4A90E2]"></i>
-                    <div class="text-sm text-gray-600"><strong>Buat Soal RIASEC:</strong> Input 6 opsi jawaban mewakili (Realistic, Investigative, Artistic, Social, Enterprising, Conventional).</div>
-                </div>
-                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
-                    <i class="ph-fill ph-number-circle-two text-3xl text-[#4A90E2]"></i>
-                    <div class="text-sm text-gray-600"><strong>Beta Test & Publish:</strong> Simulasi ujian akan menghitung dominasi 3 kode teratas (misal: "SEC").</div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-one text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">1. Buat Soal RIASEC</strong>
+                            Input teks pertanyaan beserta 6 opsi jawaban yang mewakili masing-masing kategori (Realistic, Investigative, Artistic, Social, Enterprising, Conventional).
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-two text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">2. Beta Test & Publish</strong>
+                            Konfigurasi kartu ujian dan lakukan simulasi (Beta Test) untuk memastikan perhitungan 3 kode dominan berjalan lancar sebelum di-Publish.
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-three text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">3. Monitoring Pengerjaan</strong>
+                            Pantau status siswa yang sedang mengerjakan ujian secara real-time pada menu Monitoring untuk melihat progres penyelesaian soal.
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
+                        <i class="ph-fill ph-number-circle-four text-3xl text-[#4A90E2] mt-0.5"></i>
+                        <div class="text-sm text-gray-600">
+                            <strong class="text-gray-800 block mb-1">4. Validasi & Publish Laporan</strong>
+                            Review detail skor dan kode kepribadian final siswa. Klik Publish agar laporan dan rekomendasi jurusan dapat diakses oleh siswa dan orang tua.
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-
+        </div> 
         <div id="create" class="section">
             <div class="bg-white p-8 rounded-2xl shadow-sm">
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
@@ -182,13 +300,6 @@
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] bg-gray-50 focus:bg-white">
                         </div>
                     </div>
-
-                    <div class="mt-8 text-right">
-                        <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 flex items-center gap-2 ml-auto">
-                            <i class="ph-fill ph-floppy-disk text-lg"></i> Simpan RIASEC
-                        </button>
-                    </div>
-                </form>
 
                     <div class="mt-8 text-right">
                         <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 flex items-center gap-2 ml-auto">
@@ -260,9 +371,15 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Tanggal Pelaksanaan</label>
-                            <input type="date" id="cardDate" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none text-gray-600">
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Tanggal Mulai</label>
+                                <input type="date" id="cardDateStart" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none text-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Tanggal Berakhir</label>
+                                <input type="date" id="cardDateEnd" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none text-gray-600">
+                            </div>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-xl mb-6 flex justify-between items-center">
@@ -276,8 +393,8 @@
                             </button>
                             
                           <button onclick="window.compileCard(event)" class="py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all flex justify-center items-center gap-2">
-    <i class="ph-fill ph-rocket-launch"></i> Publish
-</button>
+                                <i class="ph-fill ph-rocket-launch"></i> Publish
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -290,25 +407,67 @@
                 <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <i class="ph-fill ph-monitor-play text-[#4A90E2]"></i> Monitoring Pengerjaan Siswa
                 </div>
+
+                {{-- Stats row --}}
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-[#EBF5FF] rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-semibold text-[#4A90E2] uppercase tracking-wide">Total Siswa</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ $totalSiswa }}</span>
+                    </div>
+                    <div class="bg-[#E8F9F5] rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-semibold text-[#2ECC71] uppercase tracking-wide">Sudah Publish</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ $publishedCount }}</span>
+                    </div>
+                    <div class="bg-[#FFF4E5] rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-semibold text-[#FF9F43] uppercase tracking-wide">Pending Review</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ $reviewCount }}</span>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Nama Siswa</th>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Kelas</th>
+                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Kode Dominan</th>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Status</th>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Progres</th>
+                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="p-4 border-b border-gray-50">Budi Santoso</td>
-                                <td class="p-4 border-b border-gray-50">12 IPA 1</td>
-                                <td class="p-4 border-b border-gray-50"><span class="px-3 py-1 bg-[#FFF4E5] text-[#FF9F43] rounded-full text-xs font-bold uppercase">Sedang Mengerjakan</span></td>
-                                <td class="p-4 border-b border-gray-50 text-gray-600">Soal 5/20</td>
+                            @forelse($recentResults as $result)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 border-b border-gray-50 font-medium text-gray-800">{{ $result->user->name ?? 'Unknown' }}</td>
+                                <td class="p-4 border-b border-gray-50 text-gray-600">{{ $result->user->kelas ?? '-' }}</td>
+                                <td class="p-4 border-b border-gray-50">
+                                    <span class="text-[#4A90E2] font-bold tracking-widest">{{ $result->dominant_code }}</span>
+                                </td>
+                                <td class="p-4 border-b border-gray-50">
+                                    @if($result->status === 'published')
+                                        <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-xs font-bold uppercase border border-green-100">Published</span>
+                                    @else
+                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold uppercase border border-yellow-200">Review</span>
+                                    @endif
+                                </td>
+                                <td class="p-4 border-b border-gray-50 text-gray-500 text-sm">{{ $result->created_at->format('d M Y') }}</td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-gray-400">
+                                    <i class="ph-fill ph-user-list text-4xl mb-2 text-gray-300 block"></i>
+                                    Belum ada siswa yang mengerjakan ujian.
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="mt-4 text-right">
+                    <a href="{{ route('admin.monitoring') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+                        <i class="ph-bold ph-arrow-square-out"></i> Lihat Semua Monitoring
+                    </a>
                 </div>
             </div>
         </div>
@@ -331,7 +490,7 @@
                         </thead>
                         
                         <tbody>
-                            @forelse($pendingReports as $report)
+                            @forelse($pendingReports ?? [] as $report)
                             <tr>
                                 <td class="p-4 border-b border-gray-50">{{ $report->user->name ?? 'Siswa' }}</td>
                                 <td class="p-4 border-b border-gray-50 text-[#4A90E2] font-bold">{{ $report->dominant_code }}</td>
@@ -430,17 +589,11 @@
         </div>
     </div>
 
-  <script>
-        // 1. Kirim data soal ke Javascript
-        window.globalQuestionsData = @json($questions);
-        
-        // 2. Kirim data session tab (jika baru saja menyimpan soal)
+    <script>
+        // Data from Laravel — read by questions.js, dashboard.js, publisher.js
+        window.globalQuestionsData = @json($questions ?? []);
         window.activeTabSession = "{{ session('tab') ?? '' }}";
-        
-        // 3. Kirim Token CSRF untuk form Javascript (opsional jika butuh fetch)
         window.csrfToken = "{{ csrf_token() }}";
     </script>
-</body>
-</html>
 </body>
 </html>
