@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Kuesioner - Growpath</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/kuesioner.js'])
 
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -16,11 +16,60 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .mobile-overlay { transition: opacity 0.3s ease; }
+        .mobile-menu { transition: transform 0.3s ease; }
     </style>
 </head>
-<body class="bg-[#F4F7F6] flex h-screen overflow-hidden text-[#333]">
+<body class="bg-[#F4F7F6] font-sans text-[#333]">
 
-    <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-100 p-6 hidden md:flex transition-all z-20">
+    <!-- Mobile Header -->
+    <header class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3">
+        <div class="flex items-center justify-between">
+            <div class="text-lg font-bold text-[#4A90E2] flex items-center gap-2">
+                <i class="ph-fill ph-brain text-xl"></i> Growpath
+            </div>
+            <button id="mobileMenuBtn" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <i class="ph ph-list text-2xl text-gray-600"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 hidden opacity-0" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Sidebar -->
+    <aside id="mobileSidebar" class="mobile-menu fixed top-0 left-0 w-[260px] h-full bg-white z-50 flex flex-col transform -translate-x-full">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5">
+                    <i class="ph-fill ph-brain text-2xl"></i> Growpath
+                </div>
+                <button onclick="closeMobileMenu()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="ph ph-x text-xl text-gray-500"></i>
+                </button>
+            </div>
+        </div>
+        <nav class="flex-1 flex flex-col gap-2 p-4">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+                <i class="ph ph-squares-four text-lg"></i> Dashboard
+            </a>
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+                <i class="ph ph-user text-lg"></i> Profil Saya
+            </a>
+            <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
+                <i class="ph ph-clipboard-text text-lg"></i> Test
+            </a>
+        </nav>
+        <form action="{{ route('logout') }}" method="POST" class="p-4 border-t border-gray-100">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all cursor-pointer border-none bg-transparent text-left">
+                <i class="ph ph-sign-out text-lg"></i> Keluar
+            </button>
+        </form>
+    </aside>
+
+    <!-- Desktop Sidebar -->
+    <aside class="w-[260px] bg-white h-screen flex flex-col border-r border-gray-100 p-6 hidden md:flex fixed left-0 top-0 transition-all z-20">
         <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5 mb-10">
             <i class="ph-fill ph-brain text-2xl"></i> Growpath
         </div>
@@ -32,10 +81,10 @@
                 <i class="ph ph-user text-lg"></i> Profil Saya
             </a>
             <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
-                <i class="ph ph-clipboard-text text-lg"></i> Kuesioner
+                <i class="ph ph-clipboard-text text-lg"></i> Test
             </a>
         </nav>
-        
+
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all mt-auto cursor-pointer border-none bg-transparent text-left">
@@ -44,17 +93,18 @@
         </form>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full overflow-hidden">
+    <main class="md:ml-[260px] flex flex-col min-h-screen overflow-hidden">
+
         
         <div class="p-4 md:p-8 pb-0 md:pb-0 shrink-0">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-800">Daftar Kuesioner</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800">Daftar Test</h2>
                     <p class="text-gray-500 text-sm mt-1">Selesaikan tes minat bakat yang telah ditugaskan kepada Anda.</p>
                 </div>
                 
                 <div class="w-full md:w-auto relative">
-                    <input type="text" placeholder="Cari kuesioner..." class="w-full md:w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all">
+                    <input type="text" id="searchInput" onkeyup="searchKuesioner()" placeholder="Cari kuesioner..." class="w-full md:w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all">
                     <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
                 </div>
             </div>
@@ -75,11 +125,12 @@
                     $result = isset($completedExams) ? $completedExams->get($exam->id) : null;
                     $isCompleted = $result !== null;
                     $isPublished = $isCompleted && $result->status === 'published';
-                    
-                    $examDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+
+                    $startDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
+                    $endDate = $exam->exam_end_date ? \Carbon\Carbon::parse($exam->exam_end_date)->startOfDay() : $startDate;
                     $today = \Carbon\Carbon::now()->startOfDay();
-                    $isLocked  = $today->lt($examDate);
-                    $isOverdue = $today->gt($examDate); 
+                    $isLocked  = $today->lt($startDate);
+                    $isOverdue = $today->gt($endDate); 
 
                     // Menentukan tag kategori untuk filter tab
                     $kategoriFilter = $isCompleted ? 'selesai' : 'belum';
@@ -124,7 +175,7 @@
                                 <span class="flex items-center gap-1.5"><i class="ph-fill ph-clock text-gray-400"></i> Waktu: {{ $exam->duration_minutes }} Menit</span>
                                 <span class="flex items-center gap-1.5 {{ ($isOverdue && !$isCompleted) ? 'text-red-400 font-medium' : '' }}">
                                     <i class="ph-fill {{ ($isOverdue && !$isCompleted) ? 'ph-warning-circle text-red-400' : 'ph-calendar text-gray-400' }}"></i> 
-                                    {{ ($isOverdue && !$isCompleted) ? 'Kedaluwarsa:' : 'Batas:' }} {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}
+                                    {{ ($isOverdue && !$isCompleted) ? 'Kedaluwarsa:' : 'Batas:' }} {{ \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') }}{{ $exam->exam_end_date ? ' - ' . \Carbon\Carbon::parse($exam->exam_end_date)->format('d M Y') : '' }}
                                 </span>
                             @endif
                         </div>
@@ -172,8 +223,8 @@
                     <div class="w-20 h-20 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center text-4xl mb-4">
                         <i class="ph-fill ph-clipboard-text"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Kuesioner</h3>
-                    <p class="text-gray-400 text-sm max-w-sm">Daftar kuesioner akan muncul di sini setelah sekolah mempublikasikan jadwal untuk Anda.</p>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Test</h3>
+                    <p class="text-gray-400 text-sm max-w-sm">Daftar Test akan muncul di sini setelah sekolah mempublikasikan jadwal untuk Anda.</p>
                 </div>
                 @endforelse
 
@@ -181,7 +232,7 @@
         </div>
     </main>
 
-    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 flex md:hidden justify-around z-50">
+    <div class="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t border-gray-200 p-3 flex justify-around z-50">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
             <i class="ph-fill ph-squares-four text-2xl"></i>
             <span class="text-[10px] font-medium mt-1">Home</span>
@@ -197,27 +248,29 @@
     </div>
 
     <script>
-        function filterKuesioner(kategori, btnElement) {
-            // 1. Reset desain semua tombol tab
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
-                btn.classList.add('text-gray-500', 'border-transparent', 'font-medium');
-            });
-            
-            // 2. Beri warna biru pada tombol yang sedang diklik
-            btnElement.classList.add('active', 'text-[#4A90E2]', 'border-[#4A90E2]', 'font-semibold');
-            btnElement.classList.remove('text-gray-500', 'border-transparent', 'font-medium');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileSidebar = document.getElementById('mobileSidebar');
 
-            // 3. Sembunyikan atau tampilkan kartu berdasarkan atribut data-kategori
-            const cards = document.querySelectorAll('.kuesioner-card');
-            cards.forEach(card => {
-                if (kategori === 'semua' || card.getAttribute('data-kategori') === kategori) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+        function openMobileMenu() {
+            mobileOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                mobileOverlay.classList.remove('opacity-0');
+                mobileSidebar.classList.remove('-translate-x-full');
+            }, 10);
+            document.body.style.overflow = 'hidden';
         }
+
+        function closeMobileMenu() {
+            mobileOverlay.classList.add('opacity-0');
+            mobileSidebar.classList.add('-translate-x-full');
+            setTimeout(() => {
+                mobileOverlay.classList.add('hidden');
+            }, 300);
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileMenu);
     </script>
 </body>
 </html>

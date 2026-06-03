@@ -1,27 +1,107 @@
 {
+  "_vendor-axios-48cf6512.js": {
+    "file": "assets/vendor-axios-48cf6512.js"
+  },
+  "_vendor-lodash-25305b17.js": {
+    "file": "assets/vendor-lodash-25305b17.js"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-d9436cec.css",
+    "file": "assets/app-98a6a3cc.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
-  "resources/js/admin-dashboard.js": {
-    "file": "assets/admin-dashboard-c293bdad.js",
+  "resources/js/admin/dashboard.js": {
+    "file": "assets/dashboard-da32cd60.js",
     "isEntry": true,
-    "src": "resources/js/admin-dashboard.js"
+    "src": "resources/js/admin/dashboard.js"
+  },
+  "resources/js/admin/monitoring.js": {
+    "file": "assets/monitoring-8ee150b0.js",
+    "isEntry": true,
+    "src": "resources/js/admin/monitoring.js"
+  },
+  "resources/js/admin/publisher.js": {
+    "file": "assets/publisher-e9215bfe.js",
+    "isEntry": true,
+    "src": "resources/js/admin/publisher.js"
+  },
+  "resources/js/admin/questions.js": {
+    "file": "assets/questions-ef9498a4.js",
+    "isEntry": true,
+    "src": "resources/js/admin/questions.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-905dcadf.js",
+    "file": "assets/app-b019cd64.js",
+    "imports": [
+      "_vendor-lodash-25305b17.js",
+      "_vendor-axios-48cf6512.js"
+    ],
     "isEntry": true,
     "src": "resources/js/app.js"
   },
-  "resources/js/exam.js": {
-    "file": "assets/exam-bf18496e.js",
+  "resources/js/auth/login.js": {
+    "file": "assets/login-8c102453.js",
     "isEntry": true,
-    "src": "resources/js/exam.js"
+    "src": "resources/js/auth/login.js"
   },
-  "resources/js/otp.js": {
-    "file": "assets/otp-89b520c0.js",
+  "resources/js/auth/otp.js": {
+    "file": "assets/otp-321b5686.js",
     "isEntry": true,
-    "src": "resources/js/otp.js"
+    "src": "resources/js/auth/otp.js"
+  },
+  "resources/js/auth/password.js": {
+    "file": "assets/password-c92174d0.js",
+    "isEntry": true,
+    "src": "resources/js/auth/password.js"
+  },
+  "resources/js/auth/register.js": {
+    "file": "assets/register-4d167e4b.js",
+    "isEntry": true,
+    "src": "resources/js/auth/register.js"
+  },
+  "resources/js/parent/dashboard-report.js": {
+    "file": "assets/dashboard-report-9b745304.js",
+    "isEntry": true,
+    "src": "resources/js/parent/dashboard-report.js"
+  },
+  "resources/js/parent/dashboard.js": {
+    "file": "assets/dashboard-8d3470b3.js",
+    "isEntry": true,
+    "src": "resources/js/parent/dashboard.js"
+  },
+  "resources/js/parent/profile.js": {
+    "file": "assets/profile-7b0e654a.js",
+    "isEntry": true,
+    "src": "resources/js/parent/profile.js"
+  },
+  "resources/js/parent/report.js": {
+    "file": "assets/report-d4b2f357.js",
+    "isEntry": true,
+    "src": "resources/js/parent/report.js"
+  },
+  "resources/js/student/dashboard.js": {
+    "file": "assets/dashboard-d4b275d1.js",
+    "isEntry": true,
+    "src": "resources/js/student/dashboard.js"
+  },
+  "resources/js/student/exam.js": {
+    "file": "assets/exam-e1fb2885.js",
+    "isEntry": true,
+    "src": "resources/js/student/exam.js"
+  },
+  "resources/js/student/kuesioner.js": {
+    "file": "assets/kuesioner-3b5bc634.js",
+    "isEntry": true,
+    "src": "resources/js/student/kuesioner.js"
+  },
+  "resources/js/student/profile.js": {
+    "file": "assets/profile-b07c3958.js",
+    "isEntry": true,
+    "src": "resources/js/student/profile.js"
+  },
+  "resources/js/student/report.js": {
+    "file": "assets/report-48dc3996.js",
+    "isEntry": true,
+    "src": "resources/js/student/report.js"
   }
 }

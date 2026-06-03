@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi OTP</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/otp.js'])
+    <script>
+        window.otpExpiredTime = {{ $expired_time }};
+    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/otp.js'])
 </head>
 <body class="bg-[#F8F9FD] min-h-screen flex justify-center items-center p-5 font-sans">
 
@@ -61,11 +64,5 @@
             <a href="{{ route('login') }}" class="text-xs text-[#888] hover:text-[#4A90E2]">Salah Email? Kembali ke Login</a>
         </div>
     </div>
-
-    <script>
-        window.otpExpiredTime = {{ $expired_time }};
-    </script>
-</body>
-</html>
 </body>
 </html>

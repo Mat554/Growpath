@@ -1,32 +1,40 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Mail\OTPMail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Models\User;
-use App\Mail\OTPMail;
-use Carbon\Carbon;
 
 class AuthController extends Controller
 {
-    // --- 1. HALAMAN LOGIN ---
+    // =========================================================
+    // 1. LOGIN & OTP FLOW
+    // =========================================================
+
+    /**
+     * Show login form
+     */
     public function showLoginForm()
     {
         return view('login');
     }
 
-
-
+    /**
+     * Process login request
+     */
     public function login(Request $request)
     {
         // A. Validasi Input
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'role' => ['required', 'in:siswa,ortu,admin'], // Pastikan admin ada di sini
+            'role' => ['required', 'in:siswa,ortu,admin'],
         ]);
 
         // B. Cari User
@@ -34,7 +42,7 @@ class AuthController extends Controller
 
         // C. Cek Password
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['email' => 'Email atau password salah.']);
+            return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
         // D. Cek Kesesuaian Role
@@ -42,61 +50,67 @@ class AuthController extends Controller
             $roleName = ucfirst($user->role);
             return back()->withErrors([
                 'email' => "Akun ini terdaftar sebagai $roleName. Silakan pindah ke tab $roleName.",
-            ]);
+            ])->withInput();
         }
 
+        // --- LOGIN ADMIN (Tanpa OTP) ---
         if ($user->role === 'admin') {
-            // Langsung login resmi
             Auth::login($user);
             $request->session()->regenerate();
-
-            // Langsung arahkan ke dashboard admin
             return redirect()->intended('/admin-dashboard');
         }
 
-        // --- MULAI LOGIKA OTP (Hanya untuk Siswa & Ortu) ---
+        // =========================================================
+        // OTP FLOW (Untuk Siswa & Ortu)
+        // =========================================================
 
         // E. Generate OTP
         $otp = rand(100000, 999999);
 
-        // F. Simpan OTP ke Database
+        // F. Simpan OTP ke Database (5 minutes expiry - standardized)
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addSeconds(60)
+            'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
-        // G. Kirim Email (Gunakan Try-Catch agar tidak error jika internet putus)
+        // G. Kirim Email
         try {
-            Mail::to($user->email)->send(new \App\Mail\OTPMail($otp));
+            Mail::to($user->email)->send(new OTPMail($otp));
         } catch (\Exception $e) {
             return back()->withErrors(['email' => 'Gagal mengirim email OTP. Cek koneksi SMTP.']);
         }
 
-        // H. Simpan ID sementara di session (Bukan Login permanen)
+        // H. Simpan ID sementara di session
         session(['temp_user_id' => $user->id]);
 
         // I. Arahkan ke Halaman Input OTP
         return redirect()->route('otp.verify');
     }
 
-    // --- 3. HALAMAN INPUT OTP (Method yang tadi hilang) ---
-   public function showOtpForm()
+    /**
+     * Show OTP verification form
+     */
+    public function showOtpForm()
     {
         if (!session()->has('temp_user_id')) {
             return redirect('/login');
         }
 
-        // Ambil data user untuk tahu kapan expired-nya
         $user = User::find(session('temp_user_id'));
+
+        if (!$user) {
+            return redirect('/login');
+        }
 
         return view('auth.otp', [
             'email' => $user->email,
-            // Kirim waktu expired dalam format Timestamp (detik) agar mudah dibaca JS
             'expired_time' => $user->otp_expires_at ? $user->otp_expires_at->timestamp : 0
         ]);
     }
 
-    // --- BARU: Method Resend OTP ---
+    /**
+     * Resend OTP
+     */
     public function resendOtp(Request $request)
     {
         if (!session()->has('temp_user_id')) {
@@ -105,13 +119,17 @@ class AuthController extends Controller
 
         $user = User::find(session('temp_user_id'));
 
+        if (!$user) {
+            return redirect('/login');
+        }
+
         // 1. Generate OTP Baru
         $otp = rand(100000, 999999);
-        
-        // 2. Update Database (Perpanjang 5 menit lagi)
+
+        // 2. Update Database (5 minutes - standardized)
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(1)
+            'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
         // 3. Kirim Email
@@ -125,7 +143,9 @@ class AuthController extends Controller
         return back()->with('success', 'Kode OTP baru telah dikirim ke email Anda.');
     }
 
-    // --- 4. VERIFIKASI KODE OTP ---
+    /**
+     * Verify OTP code
+     */
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -140,6 +160,10 @@ class AuthController extends Controller
 
         $user = User::find($userId);
 
+        if (!$user) {
+            return redirect('/login');
+        }
+
         // Cek 1: Apakah kodenya sama?
         if ($user->otp !== $request->otp_code) {
             return back()->withErrors(['otp_code' => 'Kode OTP salah.']);
@@ -152,71 +176,30 @@ class AuthController extends Controller
 
         // --- SUKSES ---
 
-        // 1. Login Resmi Laravel
-        Auth::login($user);
-
-        // 2. Hapus data OTP bekas pakai & session sementara
-        $user->update(['otp' => null, 'otp_expires_at' => null]);
-        session()->forget('temp_user_id');
+        // 1. Regenerate session BEFORE login (security fix)
         $request->session()->regenerate();
 
-        // 3. Redirect ke Dashboard sesuai Role
+        // 2. Login Resmi Laravel
+        Auth::login($user);
+
+        // 3. Hapus data OTP bekas pakai & session sementara
+        $user->update(['otp' => null, 'otp_expires_at' => null]);
+        session()->forget('temp_user_id');
+
+        // 4. Set OTP bypass cookie (30 minutes - standardized)
+        $karcisBebasOtp = cookie('tiket_bebas_otp', 'terverifikasi', 30);
+
+        // 5. Redirect ke Dashboard sesuai Role
         if ($user->role === 'siswa') {
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/dashboard')->withCookie($karcisBebasOtp);
         } else {
-            return redirect()->intended('/dashboard-ortu');
+            return redirect()->intended('/dashboard-ortu')->withCookie($karcisBebasOtp);
         }
     }
 
-    // --- 5. HALAMAN REGISTER ---
-    public function showRegisterForm()
-    {
-        return view('register');
-    }
-
-    // --- 6. PROSES REGISTER ---
-    public function register(Request $request)
-    {
-        // 1. Validasi Input + Cek Kode Siswa
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-            'role' => 'required|in:siswa,ortu',
-            'kelas' => 'required_if:role,siswa|nullable|integer',
-            
-            // Aturan 'exists:users,user_code' memastikan kode yang diketik ada di database
-            'child_id_code' => 'required_if:role,ortu|nullable|string|exists:users,user_code', 
-        ], [
-            // Pesan error kustom jika kodenya salah/tidak ditemukan
-            'child_id_code.exists' => 'User ID Siswa tidak ditemukan. Pastikan kodenya sudah benar.'
-        ]);
-
-        // 2. Logika Generate Kode Siswa (Kode yang kita buat sebelumnya)
-        $generatedUserCode = null;
-        if ($validated['role'] === 'siswa') {
-            $randomNumber = rand(10000, 99999);
-            $generatedUserCode = 'SIS-' . $validated['kelas'] . '-' . $randomNumber;
-        }
-
-        // 3. Simpan ke Database
-        $userData = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-            'kelas' => $validated['role'] === 'siswa' ? $validated['kelas'] : null,
-            'user_code' => $generatedUserCode, 
-            
-            // Kolom ini sekarang dijamin valid dan benar-benar terhubung dengan akun siswa!
-            'child_id_code' => $validated['role'] === 'ortu' ? $validated['child_id_code'] : null,
-        ];
-
-        User::create($userData);
-
-        return redirect('/login')->with('success', 'Akun berhasil dibuat! Silakan masuk.');
-    }
-    // --- 7. LOGOUT ---
+    /**
+     * Process logout
+     */
     public function logout(Request $request)
     {
         Auth::logout();

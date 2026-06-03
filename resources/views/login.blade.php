@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/login.js'])
 </head>
 <body class="bg-[#f3f4f6] min-h-screen flex justify-center items-center p-5 font-sans">
 
@@ -101,48 +101,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // 1. Toggle Password Visibility (Dari Main)
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.replace('ph-eye', 'ph-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.replace('ph-eye-slash', 'ph-eye');
-            }
-        }
-
-        // 2. Switch Role Logic (Gabungan UI Branch & Logic Main)
-        function switchRole(role) {
-            const tabSiswa = document.getElementById('tabSiswa');
-            const tabOrtu = document.getElementById('tabOrtu');
-            const roleInput = document.getElementById('roleInput');
-            const submitBtn = document.getElementById('submitBtn');
-
-            roleInput.value = role;
-
-            if (role === 'siswa') {
-                tabSiswa.className = "flex-1 py-3 text-sm font-semibold rounded-xl transition-all duration-300 bg-white text-[#4A90E2] shadow-sm cursor-pointer";
-                tabOrtu.className = "flex-1 py-3 text-sm font-semibold rounded-xl transition-all duration-300 text-[#6b7280] hover:text-[#4A90E2] cursor-pointer";
-                submitBtn.innerText = "Masuk Sebagai Siswa";
-            } else {
-                tabOrtu.className = "flex-1 py-3 text-sm font-semibold rounded-xl transition-all duration-300 bg-white text-[#4A90E2] shadow-sm cursor-pointer";
-                tabSiswa.className = "flex-1 py-3 text-sm font-semibold rounded-xl transition-all duration-300 text-[#6b7280] hover:text-[#4A90E2] cursor-pointer";
-                submitBtn.innerText = "Masuk Sebagai Orang Tua";
-            }
-        }
-
-        // 3. Loading State UX (Dari Branch)
-        document.getElementById("loginForm").addEventListener("submit", function() {
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin mr-2"></i> Memproses...';
-            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-        });
-    </script>
 </body>
 </html>

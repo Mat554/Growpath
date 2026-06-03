@@ -8,15 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <script>
-        window.examQuestions = @json($questions ?? []);
-        window.isBetaMode = @json(isset($is_beta) && $is_beta);
-        window.examDuration = {{ (int)($duration ?? 60) }}; 
-        window.examId = {{ isset($exam) ? $exam->id : 0 }};
-        window.csrfToken = "{{ csrf_token() }}";
-    </script>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/exam.js'])
 </head>
 <body class="bg-[#F4F7F6] font-sans flex justify-center items-center min-h-screen p-5 text-[#333]">
 
