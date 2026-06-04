@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ViewHelper;
 use App\Models\Exam;
 use App\Models\ExamResult;
 use Illuminate\Http\Request;
@@ -25,7 +26,8 @@ class ExamController extends Controller
                      ->orderBy('exam_date', 'asc')
                      ->get();
 
-        return view('kuesioner', compact('exams', 'completedExams'));
+        $viewName = ViewHelper::resolveView('kuesioner');
+        return view($viewName, compact('exams', 'completedExams'));
     }
 
     /**

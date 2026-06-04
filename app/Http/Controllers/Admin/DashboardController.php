@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ViewHelper;
 use App\Models\Exam;
 use App\Models\ExamResult;
 use App\Models\Question;
@@ -77,7 +78,8 @@ class DashboardController extends Controller
         $publishedCount = ExamResult::where('status', 'published')->count();
         $reviewCount = ExamResult::where('status', 'review')->count();
 
-        return view('admin.admin-dashboard', compact(
+        $viewName = ViewHelper::resolveView('admin.admin-dashboard');
+        return view($viewName, compact(
             'totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports',
             'questions', 'riasecAvg', 'codeDistribution', 'classDistribution',
             'recentResults', 'activeExamCount', 'publishedCount', 'reviewCount'

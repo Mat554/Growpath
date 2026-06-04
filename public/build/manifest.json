@@ -6,12 +6,12 @@
     "file": "assets/vendor-lodash-25305b17.js"
   },
   "resources/css/app.css": {
-    "file": "assets/app-98a6a3cc.css",
+    "file": "assets/app-3b2a1bd7.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
   "resources/js/admin/dashboard.js": {
-    "file": "assets/dashboard-da32cd60.js",
+    "file": "assets/dashboard-1c822f2e.js",
     "isEntry": true,
     "src": "resources/js/admin/dashboard.js"
   },
@@ -21,7 +21,7 @@
     "src": "resources/js/admin/monitoring.js"
   },
   "resources/js/admin/publisher.js": {
-    "file": "assets/publisher-e9215bfe.js",
+    "file": "assets/publisher-26ce3284.js",
     "isEntry": true,
     "src": "resources/js/admin/publisher.js"
   },
