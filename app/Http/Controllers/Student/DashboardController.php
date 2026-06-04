@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ViewHelper;
 use App\Models\Exam;
 use App\Models\ExamResult;
 use App\Models\User;
@@ -63,7 +64,8 @@ class DashboardController extends Controller
         $pendingParents = Auth::user()->parents()->where('child_connection_status', 'pending')->get();
         $connectedParents = Auth::user()->parents()->where('child_connection_status', 'approved')->get();
 
-        return view('dashboard', compact('exams', 'completedExams', 'completedExamIds', 'connectedParents', 'pendingParents'));
+        $viewName = ViewHelper::resolveView('dashboard');
+        return view($viewName, compact('exams', 'completedExams', 'completedExamIds', 'connectedParents', 'pendingParents'));
     }
 
     /**
@@ -71,6 +73,7 @@ class DashboardController extends Controller
      */
     public function tipsbelajar()
     {
-        return view('tipsbelajar');
+        $viewName = ViewHelper::resolveView('tipsbelajar');
+        return view($viewName);
     }
 }

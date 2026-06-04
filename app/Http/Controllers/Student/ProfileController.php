@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ViewHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,8 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        return view('profile');
+        $viewName = ViewHelper::resolveView('profile');
+        return view($viewName);
     }
 
     /**

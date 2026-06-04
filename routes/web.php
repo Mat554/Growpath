@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\ExamController as AdminExam;
 use App\Http\Controllers\Admin\ReportController as AdminReport;
 use App\Http\Controllers\Admin\MonitoringController;
+use App\Helpers\ViewHelper;
 
 // =========================================================
 // 1. RUTE AWAL & UMUM
@@ -27,6 +28,24 @@ Route::get('/', function () {
 // Proses Logout (Bisa diakses dari mana saja asal login)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/tips', [StudentDashboard::class, 'tipsbelajar'])->name('tips');
+
+// Mobile View Toggle Routes (available for all authenticated users)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mobile/toggle', function () {
+        $enabled = ViewHelper::toggleMobileView();
+        return redirect()->back()->with('mobile_view', $enabled);
+    })->name('mobile.toggle');
+
+    Route::get('/mobile/enable', function () {
+        ViewHelper::toggleMobileView(true);
+        return redirect()->back();
+    })->name('mobile.enable');
+
+    Route::get('/mobile/disable', function () {
+        ViewHelper::toggleMobileView(false);
+        return redirect()->back();
+    })->name('mobile.disable');
+});
 
 // Verifikasi OTP (Dengan rate limiting)
 Route::middleware(['throttle.otp'])->group(function () {

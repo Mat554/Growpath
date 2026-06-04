@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Parent;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shared\ReportTrait;
+use App\Helpers\ViewHelper;
 use App\Models\ExamResult;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -48,6 +49,7 @@ class DashboardController extends Controller
             }
         }
 
-        return view('ortu.ortu-dashboard', compact('anak', 'hasilTesAnak', 'result', 'aiData'));
+        $viewName = ViewHelper::resolveView('ortu.ortu-dashboard');
+        return view($viewName, compact('anak', 'hasilTesAnak', 'result', 'aiData'));
     }
 }

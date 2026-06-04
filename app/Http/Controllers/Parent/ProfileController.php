@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Parent;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ViewHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,8 @@ class ProfileController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('ortu.ortu-profile');
+        $viewName = ViewHelper::resolveView('ortu.ortu-profile');
+        return view($viewName);
     }
 
     /**
