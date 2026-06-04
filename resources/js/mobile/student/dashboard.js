@@ -1,6 +1,6 @@
 /**
  * Mobile Student Dashboard Script
- * Handles notification dropdown functionality for mobile devices
+ * Handles notification dropdown functionality for desktop and mobile devices
  */
 
 (function() {
@@ -29,7 +29,7 @@
     }
 
     /**
-     * Toggle notifications dropdown for mobile
+     * Toggle notifications dropdown
      */
     window.toggleNotifications = function() {
         const menu = document.getElementById('notificationMenu');
