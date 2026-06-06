@@ -28,7 +28,8 @@
     <!-- SIDEBAR (Desktop) -->
     <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-100 p-6 hidden md:flex transition-all z-20">
         <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5 mb-10">
-            <i class="ph-fill ph-brain text-2xl"></i> Growpath
+            <i class="ph-fill ph-brain text-2xl"></i> 
+            <span class="text-xl font-bold text-gray-800 tracking-tight">Grow<span class="text-[#4A90E2]">path</span></span>
         </div>
 
         <nav class="flex-1 flex flex-col gap-2">
