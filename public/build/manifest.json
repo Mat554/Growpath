@@ -59,6 +59,36 @@
     "isEntry": true,
     "src": "resources/js/auth/register.js"
   },
+  "resources/js/mobile/admin/dashboard.js": {
+    "file": "assets/dashboard-9d5b80f3.js",
+    "isEntry": true,
+    "src": "resources/js/mobile/admin/dashboard.js"
+  },
+  "resources/js/mobile/parent/dashboard.js": {
+    "file": "assets/dashboard-fdfe8fac.js",
+    "isEntry": true,
+    "src": "resources/js/mobile/parent/dashboard.js"
+  },
+  "resources/js/mobile/parent/profile.js": {
+    "file": "assets/profile-382592af.js",
+    "isEntry": true,
+    "src": "resources/js/mobile/parent/profile.js"
+  },
+  "resources/js/mobile/student/dashboard.js": {
+    "file": "assets/dashboard-462b2532.js",
+    "isEntry": true,
+    "src": "resources/js/mobile/student/dashboard.js"
+  },
+  "resources/js/mobile/student/kuesioner.js": {
+    "file": "assets/kuesioner-b0720892.js",
+    "isEntry": true,
+    "src": "resources/js/mobile/student/kuesioner.js"
+  },
+  "resources/js/mobile/student/profile.js": {
+    "file": "assets/profile-0c7af4c9.js",
+    "isEntry": true,
+    "src": "resources/js/mobile/student/profile.js"
+  },
   "resources/js/parent/dashboard-report.js": {
     "file": "assets/dashboard-report-9b745304.js",
     "isEntry": true,

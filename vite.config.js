@@ -35,6 +35,14 @@ export default defineConfig({
                 'resources/js/admin/questions.js',
                 'resources/js/admin/publisher.js',
                 'resources/js/admin/monitoring.js',
+
+                // Mobile pages
+                'resources/js/mobile/student/dashboard.js',
+                'resources/js/mobile/student/kuesioner.js',
+                'resources/js/mobile/student/profile.js',
+                'resources/js/mobile/parent/dashboard.js',
+                'resources/js/mobile/parent/profile.js',
+                'resources/js/mobile/admin/dashboard.js',
             ],
             refresh: true,
         }),
