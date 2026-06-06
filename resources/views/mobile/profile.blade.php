@@ -2,171 +2,224 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Saya - Growpath</title>
-
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/mobile/student/profile.js'])
-    <style>
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        html, body { overflow-x: hidden; overscroll-behavior: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-    </style>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/student/kuesioner.js'])
 </head>
-<body class="bg-[#F4F7F6] font-sans min-h-screen pb-20">
+<body class="bg-[#F4F7F6] font-sans flex h-screen overflow-hidden">
 
-    <!-- MOBILE HEADER -->
-    <header class="bg-white px-4 py-3 sticky top-0 z-40 shadow-sm">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('dashboard') }}" class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500">
-                    <i class="ph ph-arrow-left text-xl"></i>
-                </a>
-                <h1 class="font-bold text-gray-800 text-lg">Profil Saya</h1>
-            </div>
+    <aside class="w-[260px] bg-white h-full flex flex-col border-r border-gray-100 p-6 hidden md:flex transition-all z-20">
+        <div class="text-xl font-bold text-[#4A90E2] flex items-center gap-2.5 mb-10">
+            <i class="ph-fill ph-brain text-2xl"></i> 
+            <span class="text-xl font-bold text-gray-800 tracking-tight">Grow<span class="text-[#4A90E2]">path</span></span>
         </div>
-    </header>
+        <nav class="flex-1 flex flex-col gap-2">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+                <i class="ph ph-squares-four text-lg"></i> Dashboard
+            </a>
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all">
+                <i class="ph ph-user text-lg"></i> Profil Saya
+            </a>
+            <a href="{{ route('kuesioner') }}" class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all">
+                <i class="ph ph-clipboard-text text-lg"></i> Test
+            </a>
+        </nav>
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all mt-auto cursor-pointer border-none bg-transparent text-left">
+                <i class="ph ph-sign-out text-lg"></i> Keluar
+            </button>
+        </form>
+    </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="px-4 py-4 animate-fade-in">
+    <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto">
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800">Profil Siswa</h2>
+        </div>
 
-        <!-- Avatar Card -->
-        <div class="bg-white p-6 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 mb-4 overflow-hidden relative">
-            <div class="h-[80px] bg-gradient-to-br from-[#4A90E2] to-[#56CCF2] rounded-[14px] -mx-6 -mt-6 mb-4"></div>
-            <div class="text-center -mt-[50px]">
-                <form action="{{ route('profile.update.avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm" class="flex flex-col items-center">
-                    @csrf
-                    <div class="w-[100px] h-[100px] bg-white rounded-full p-1.5 shadow-lg relative group">
-                        <img id="avatarPreview" src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}"
-                             alt="Avatar" class="w-full h-full rounded-full object-cover">
-                        <label for="avatarUpload" class="absolute inset-1.5 rounded-full overflow-hidden bg-black/50 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer">
-                            <i class="ph-fill ph-camera-plus text-white text-2xl mb-0.5"></i>
-                            <span class="text-white text-[9px]">Pilih</span>
-                        </label>
-                        <input type="file" name="avatar" id="avatarUpload" class="hidden" accept="image/jpeg,image/png,image/jpg" onchange="previewImage(event)">
+        <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 items-start">
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                <div class="h-[120px] bg-gradient-to-br from-[#4A90E2] to-[#56CCF2]"></div>
+                
+                <div class="text-center -mt-[60px] relative px-6">
+                    <form action="{{ route('profile.update.avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm" class="flex flex-col items-center">
+                        @csrf
+                        
+                        <div class="w-[120px] h-[120px] bg-white rounded-full p-1.5 shadow-md relative group">
+                            
+                            <img id="avatarPreview" src="{{ Auth::user()->avatar ? 'https://ivmjjoplrdblxwhjzpcb.supabase.co/storage/v1/object/public/avatars/' . Auth::user()->avatar : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=4A90E2&color=fff&size=128' }}" 
+                                 alt="Avatar" class="w-full h-full rounded-full object-cover">
+                            
+                            <label for="avatarUpload" class="absolute inset-1.5 rounded-full overflow-hidden bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-sm">
+                                <i class="ph-fill ph-camera-plus text-white text-3xl mb-1"></i>
+                                <span class="text-white text-[10px] font-medium">Pilih Foto</span>
+                            </label>
+                            
+                            <input type="file" name="avatar" id="avatarUpload" class="hidden" accept="image/jpeg,image/png,image/jpg" onchange="previewImage(event)">
+                        </div>
+
+                        <div id="saveButtonContainer" class="hidden mt-4 flex-col items-center gap-2">
+                            <button type="submit" class="px-5 py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-full font-semibold text-xs transition-all shadow-sm flex items-center gap-2 cursor-pointer border-none">
+                                <i class="ph-bold ph-floppy-disk text-sm"></i> Simpan Foto
+                            </button>
+                            <button type="button" onclick="cancelUpload()" class="text-xs text-red-400 hover:text-red-600 font-medium transition-all bg-transparent border-none cursor-pointer">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="text-center px-6 pb-8 pt-4">
+                    <h3 class="text-xl font-bold text-gray-800 mb-1">{{ Auth::user()->name }}</h3>
+                    <span class="inline-block px-3 py-1 bg-[#EBF5FF] text-[#4A90E2] rounded-full text-xs font-bold uppercase tracking-wide mb-6">
+                        SISWA
+                    </span>
+
+                    <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl flex items-center gap-4 text-left mb-3 border-l-4 border-l-[#4A90E2]">
+                        <div class="w-10 h-10 bg-[#EBF5FF] rounded-lg flex items-center justify-center text-[#4A90E2] text-xl flex-shrink-0">
+                            <i class="ph-fill ph-identification-card"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-xs text-gray-500 block">User ID</span>
+                            <strong class="text-[#357ABD] text-base font-mono tracking-wide truncate block">
+                                {{ Auth::user()->user_code ?? '-' }}
+                            </strong>
+                        </div>
                     </div>
 
-                    <div id="saveButtonContainer" class="hidden mt-3 flex-col items-center gap-2">
-                        <button type="submit" class="px-5 py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl text-xs font-semibold transition-all shadow-lg shadow-[#4A90E2]/30">
-                            Simpan
-                        </button>
-                        <button type="button" onclick="cancelUpload()" class="text-xs text-red-500 font-semibold hover:underline">Batal</button>
+                    <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl flex items-center gap-4 text-left mb-3">
+                        <div class="w-10 h-10 bg-[#EBF5FF] rounded-lg flex items-center justify-center text-[#4A90E2] text-xl flex-shrink-0">
+                            <i class="ph-fill ph-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">Kelas</span>
+                            <strong class="text-gray-800 text-base">
+                                {{ Auth::user()->kelas ? 'Kelas ' . Auth::user()->kelas : 'Belum Diatur' }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#E8F9F5] border border-dashed border-[#2ECC71] p-4 rounded-xl flex items-center gap-4 text-left mt-4">
+                        <i class="ph-fill ph-shield-check text-2xl text-[#2ECC71] flex-shrink-0"></i>
+                        <div>
+                            <span class="text-xs text-gray-500 block">Status Akun</span>
+                            <strong class="text-[#27ae60] text-sm">Akun Terverifikasi</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                
+                <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                    <i class="ph-fill ph-user-circle text-[#4A90E2]"></i> Data Pribadi
+                </h3>
+                
+                <form action="#" method="POST"> @csrf 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                            <div class="relative">
+                                <input type="text" 
+                                    value="{{ Auth::user()->name }}" 
+                                    readonly 
+                                    class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none transition-all">
+                                <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                            <div class="relative">
+                                <input type="text" value="Kelas {{ Auth::user()->kelas ?? '-' }}" readonly class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none">
+                                <i class="ph ph-graduation-cap absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Alamat Email</label>
+                        <div class="relative">
+                            <input type="email" value="{{ Auth::user()->email }}" readonly class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none">
+                            <i class="ph ph-envelope-simple absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                        </div>
                     </div>
                 </form>
 
-                <h3 class="text-lg font-bold text-gray-800 mt-3">{{ Auth::user()->name }}</h3>
-                <span class="inline-block px-4 py-1 bg-[#EBF5FF] text-[#4A90E2] rounded-full text-[10px] font-bold uppercase tracking-wide">
-                    <i class="ph-fill ph-student mr-1"></i>Siswa
-                </span>
+                <hr class="border-gray-100 my-8">
+
+                <h3 class="text-lg font-semibold text-[#4A90E2] mb-2 flex items-center gap-2">
+                    <i class="ph-fill ph-qr-code"></i> Kode Sambung Orang Tua
+                </h3>
+                <p class="text-sm text-gray-500 mb-5">
+                    Berikan <strong>User ID</strong> ini kepada Orang Tua Anda untuk menghubungkan akun.
+                </p>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">User ID Anda</label>
+                    <div class="relative group cursor-copy" onclick="copyToClipboard('{{ Auth::user()->user_code }}')">
+                        <input type="text" value="{{ Auth::user()->user_code ?? 'BELUM-ADA' }}" readonly 
+                            class="w-full pl-11 pr-4 py-3 bg-[#EBF5FF] border-2 border-dashed border-[#4A90E2] rounded-xl text-center font-mono font-bold text-lg text-[#357ABD] tracking-widest cursor-pointer focus:outline-none hover:bg-blue-50 transition-colors">
+                        <i class="ph ph-copy absolute left-4 top-1/2 -translate-y-1/2 text-[#4A90E2] text-xl"></i>
+                        
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#4A90E2] opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
+                            Klik salin
+                        </span>
+                    </div>
+                    <small class="text-[#27ae60] mt-2 block flex items-center gap-1">
+                        <i class="ph-fill ph-check-circle"></i> Kode aktif dan dapat digunakan.
+                    </small>
+                </div>
+
+                <hr class="border-gray-100 my-8">
+
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="ph-fill ph-lock-key"></i> Keamanan Akun
+                </h3>
+                
+                <div class="bg-gray-50 border border-gray-100 p-5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Ubah Kata Sandi</p>
+                        <p class="text-xs text-gray-500 mt-1">Kami sarankan memperbarui kata sandi secara berkala.</p>
+                    </div>
+                    
+                    <a href="{{ route('profile.ubah-password') }}" class="w-full sm:w-auto text-center whitespace-nowrap px-6 py-2.5 bg-white border border-[#4A90E2] text-[#4A90E2] hover:bg-[#F0F7FF] rounded-xl font-semibold text-sm transition-all shadow-sm block">
+                        Ubah Password
+                    </a>
+                </div>
+
             </div>
         </div>
-
-        <!-- User Info Cards -->
-        <div class="bg-white p-5 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 mb-4">
-            <div class="space-y-3">
-                <div class="flex items-center gap-3 p-3 bg-[#F8FAFC] rounded-xl border-l-4 border-l-[#4A90E2]">
-                    <div class="w-10 h-10 bg-[#EBF5FF] text-[#4A90E2] rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="ph-fill ph-identification-card text-lg"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <span class="text-[10px] text-gray-500 font-medium">User ID</span>
-                        <strong class="text-[#357ABD] text-sm font-mono block truncate">{{ Auth::user()->user_code ?? '-' }}</strong>
-                    </div>
-                    <button onclick="copyToClipboard('{{ Auth::user()->user_code }}')" class="w-9 h-9 bg-white text-[#4A90E2] rounded-lg flex items-center justify-center shadow-sm hover:bg-[#EBF5FF] transition-colors">
-                        <i class="ph ph-copy text-sm"></i>
-                    </button>
-                </div>
-
-                <div class="flex items-center gap-3 p-3 bg-[#F8FAFC] rounded-xl">
-                    <div class="w-10 h-10 bg-[#EBF5FF] text-[#4A90E2] rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="ph-fill ph-graduation-cap text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <span class="text-[10px] text-gray-500 font-medium">Kelas</span>
-                        <strong class="text-gray-800 text-sm font-semibold block">{{ Auth::user()->kelas ? 'Kelas ' . Auth::user()->kelas : 'Belum Diatur' }}</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Pribadi -->
-        <div class="bg-white p-5 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 mb-4">
-            <h3 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="ph-fill ph-user text-[#4A90E2]"></i> Data Pribadi
-            </h3>
-
-            <div class="space-y-3">
-                <div class="p-3 bg-[#F8FAFC] rounded-xl flex items-center gap-3">
-                    <i class="ph ph-user text-gray-400"></i>
-                    <span class="text-sm text-gray-700">{{ Auth::user()->name }}</span>
-                </div>
-                <div class="p-3 bg-[#F8FAFC] rounded-xl flex items-center gap-3">
-                    <i class="ph ph-envelope text-gray-400"></i>
-                    <span class="text-sm text-gray-700 truncate">{{ Auth::user()->email }}</span>
-                </div>
-                <div class="p-3 bg-[#F8FAFC] rounded-xl flex items-center gap-3">
-                    <i class="ph ph-graduation-cap text-gray-400"></i>
-                    <span class="text-sm text-gray-700">{{ Auth::user()->kelas ? 'Kelas ' . Auth::user()->kelas : '-' }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Kode Sambung Orang Tua -->
-        <div class="bg-white p-5 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 mb-4">
-            <h3 class="text-sm font-bold text-[#4A90E2] mb-2 flex items-center gap-2">
-                <i class="ph-fill ph-qr-code"></i> Kode Sambung Orang Tua
-            </h3>
-            <p class="text-[11px] text-gray-500 mb-4">Berikan User ID ini kepada Orang Tua untuk menghubungkan akun.</p>
-
-            <div class="relative" onclick="copyToClipboard('{{ Auth::user()->user_code }}')">
-                <input type="text" value="{{ Auth::user()->user_code ?? 'BELUM-ADA' }}" readonly
-                    class="w-full px-4 py-3.5 bg-[#EBF5FF] border-2 border-dashed border-[#4A90E2]/50 rounded-xl text-center font-mono font-bold text-base text-[#357ABD] tracking-wider cursor-pointer">
-                <div class="absolute inset-y-0 right-3 flex items-center">
-                    <i class="ph ph-copy text-[#4A90E2]"></i>
-                </div>
-            </div>
-            <p class="text-[11px] text-[#2ECC71] mt-3 flex items-center gap-1 font-medium">
-                <i class="ph-fill ph-check-circle"></i> Kode aktif
-            </p>
-        </div>
-
-        <!-- Pengaturan Akun -->
-        <div class="bg-white p-5 rounded-[18px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 mb-4">
-            <h3 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="ph-fill ph-gear text-[#4A90E2]"></i> Pengaturan Akun
-            </h3>
-            <a href="{{ route('profile.ubah-password') }}" class="flex items-center justify-center gap-2 w-full py-3 bg-white border-2 border-[#4A90E2] text-[#4A90E2] rounded-xl font-semibold text-sm hover:bg-[#EBF5FF] transition-all">
-                <i class="ph ph-lock-key"></i> Ubah Password
-            </a>
-        </div>
-
-        <!-- Logout -->
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full py-3.5 bg-red-50 text-red-500 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 hover:bg-red-100 transition-all">
-                <i class="ph ph-sign-out"></i> Keluar
-            </button>
-        </form>
     </main>
 
-    <!-- MOBILE BOTTOM NAVIGATION -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex justify-around items-center z-50">
-        <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-gray-400 py-1 px-4">
-            <i class="ph ph-squares-four text-xl"></i>
-            <span class="text-[9px] font-medium mt-0.5">Home</span>
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 flex md:hidden justify-around items-center z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] pb-safe">
+        <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
+            <i class="ph ph-squares-four text-2xl"></i>
+            <span class="text-[10px] font-medium mt-1">Home</span>
         </a>
-        <a href="{{ route('kuesioner') }}" class="flex flex-col items-center text-gray-400 py-1 px-4">
-            <i class="ph ph-clipboard-text text-xl"></i>
-            <span class="text-[9px] font-medium mt-0.5">Tes</span>
+        
+        <a href="{{ route('profile') }}" class="flex flex-col items-center text-[#4A90E2]">
+            <i class="ph-fill ph-user text-2xl"></i>
+            <span class="text-[10px] font-medium mt-1">Profil</span>
         </a>
-        <a href="{{ route('profile') }}" class="flex flex-col items-center text-[#4A90E2] py-1 px-4">
-            <i class="ph-fill ph-user text-xl"></i>
-            <span class="text-[9px] font-medium mt-0.5">Profil</span>
+        
+        <a href="{{ route('kuesioner') }}" class="flex flex-col items-center text-gray-400 hover:text-[#4A90E2] transition-colors">
+            <i class="ph ph-clipboard-text text-2xl"></i>
+            <span class="text-[10px] font-medium mt-1">Tes</span>
         </a>
-    </nav>
+        <form action="{{ route('logout') }}" method="POST" class="m-0 p-0 flex">
+            @csrf
+            <button type="submit" class="flex flex-col items-center text-red-400 hover:text-red-500 bg-transparent border-none p-0 cursor-pointer transition-colors">
+                <i class="ph ph-sign-out text-2xl"></i>
+                <span class="text-[10px] font-medium mt-1">Keluar</span>
+            </button>
+        </form>
+    </div>
 
 </body>
 </html>
