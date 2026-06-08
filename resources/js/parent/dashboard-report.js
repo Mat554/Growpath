@@ -31,8 +31,10 @@ function renderReport() {
         const domCodeEl = document.getElementById('domCode');
         if (domCodeEl) domCodeEl.innerText = data.dominant_code;
 
+        // Dynamic max score based on exam (60 questions = max 60 points, etc.)
+        const maxScore = data.max_score || 60;
+
         // Update score bars
-        const maxScore = 15;
         updateBar('barR', 'scoreR', data.scores.R, maxScore);
         updateBar('barI', 'scoreI', data.scores.I, maxScore);
         updateBar('barA', 'scoreA', data.scores.A, maxScore);
@@ -61,8 +63,8 @@ function renderReport() {
                         pointBackgroundColor: '#ffffff',
                         pointBorderColor: '#4A90E2',
                         pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
                         fill: true,
                         tension: 0.4
                     }]
@@ -75,9 +77,14 @@ function renderReport() {
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 10,
+                            max: maxScore,
                             grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                            border: { display: false }
+                            border: { display: false },
+                            ticks: {
+                                stepSize: Math.ceil(maxScore / 6),
+                                font: { family: "'Poppins', sans-serif" },
+                                color: '#9ca3af'
+                            }
                         },
                         x: {
                             grid: { display: false },
@@ -299,7 +306,7 @@ if (canvas && '${chartImageSrc}') {
     canvas.parentNode.replaceChild(img, canvas);
 }
 const scores = ${JSON.stringify(data.scores)};
-const max = 15;
+const max = data.max_score || 60;
 const barMap = { R:'barR', I:'barI', A:'barA', S:'barS', E:'barE', C:'barC' };
 Object.entries(barMap).forEach(([key, id]) => {
     const bar = document.getElementById(id);

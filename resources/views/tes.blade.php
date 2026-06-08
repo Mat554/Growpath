@@ -175,6 +175,9 @@
             <div class="exam-title">
                 <i class="ph-fill ph-brain"></i>
                 Tes Minat Bakat (RIASEC)
+                <span class="text-xs font-normal text-gray-500 ml-2">
+                    <span id="currNum">1</span>/<span id="totalNum">0</span>
+                </span>
             </div>
             <div class="timer">
                 <i class="ph-fill ph-timer"></i>

@@ -24,7 +24,8 @@
                 E: {{ $result->score_e }},
                 C: {{ $result->score_c }}
             },
-            dominant_code: "{{ $result->dominant_code }}"
+            dominant_code: "{{ $result->dominant_code }}",
+            max_score: {{ $maxScore ?? 60 }}
         };
     </script>
     @endif

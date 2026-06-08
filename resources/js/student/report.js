@@ -35,8 +35,10 @@ window.renderReport = function() {
     const domCode = document.getElementById('domCode');
     if (domCode) domCode.innerText = data.dominant_code;
 
-    // Update Progress Bars
-    const maxDisplayScore = 15;
+    // Dynamic max score based on exam (60 questions = max 60 points, etc.)
+    const maxDisplayScore = data.max_score || 60;
+
+    // Update Progress Bars with dynamic max
     window.updateBar('barR', 'scoreR', data.scores.R, maxDisplayScore);
     window.updateBar('barI', 'scoreI', data.scores.I, maxDisplayScore);
     window.updateBar('barA', 'scoreA', data.scores.A, maxDisplayScore);
@@ -44,13 +46,23 @@ window.renderReport = function() {
     window.updateBar('barE', 'scoreE', data.scores.E, maxDisplayScore);
     window.updateBar('barC', 'scoreC', data.scores.C, maxDisplayScore);
 
-    // Render Chart.js
+    // Render Chart.js with dynamic Y-axis max
     const canvas = document.getElementById('riasecChart');
     if (canvas && typeof Chart !== 'undefined') {
         const ctx = canvas.getContext('2d');
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
         gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
         gradient.addColorStop(1, 'rgba(74, 144, 226, 0.0)');
+
+        // Chart colors for each RIASEC dimension
+        const chartColors = {
+            R: '#EF4444', // red
+            I: '#3B82F6', // blue
+            A: '#EAB308', // yellow
+            S: '#22C55E', // green
+            E: '#A855F7', // purple
+            C: '#6B7280'  // gray
+        };
 
         new Chart(ctx, {
             type: 'line',
@@ -65,8 +77,8 @@ window.renderReport = function() {
                     pointBackgroundColor: '#ffffff',
                     pointBorderColor: '#4A90E2',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
                     fill: true,
                     tension: 0.4
                 }]
@@ -78,9 +90,14 @@ window.renderReport = function() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 10,
+                        max: maxDisplayScore,
                         grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                        border: { display: false }
+                        border: { display: false },
+                        ticks: {
+                            stepSize: Math.ceil(maxDisplayScore / 6),
+                            font: { family: "'Poppins', sans-serif" },
+                            color: '#9ca3af'
+                        }
                     },
                     x: {
                         grid: { display: false },

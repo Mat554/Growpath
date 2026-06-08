@@ -86,13 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
         optionsMap.forEach(opt => {
             const isSelected = userAnswers[currentIndex].includes(opt.code);
 
-            const baseClass = "p-5 border-2 rounded-2xl cursor-pointer transition-all flex items-center justify-center text-center font-medium min-h-[80px] relative group";
-            const activeClass = isSelected
-                ? "bg-[#4A90E2] border-[#4A90E2] text-white shadow-md transform -translate-y-1"
-                : "bg-white border-gray-100 text-gray-600 hover:border-[#4A90E2] hover:bg-blue-50";
+            const baseClass = "option";
+            const activeClass = isSelected ? "option selected" : "";
 
             const btn = document.createElement('div');
-            btn.className = `${baseClass} ${activeClass}`;
+            btn.className = `${baseClass} ${activeClass}`.trim();
             btn.innerText = opt.text;
 
             if (isSelected) {
@@ -114,11 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (nextBtn) {
             if (currentIndex === questions.length - 1) {
-                nextBtn.innerHTML = 'Selesai & Kirim <i class="ph-bold ph-paper-plane-right"></i>';
-                nextBtn.className = "px-8 py-3 bg-[#2ECC71] hover:bg-[#27ae60] text-white rounded-xl font-semibold shadow-lg shadow-green-500/30 transition-all transform hover:-translate-y-1 flex items-center gap-2";
+                nextBtn.innerHTML = 'Selesai& Kirim <i class="ph-bold ph-paper-plane-right"></i>';
+                nextBtn.className = "btn btn-next finish";
             } else {
                 nextBtn.innerHTML = 'Selanjutnya <i class="ph-bold ph-arrow-right"></i>';
-                nextBtn.className = "px-8 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold shadow-lg shadow-[#4A90E2]/30 transition-all transform hover:-translate-y-1 flex items-center gap-2";
+                nextBtn.className = "btn btn-next";
             }
         }
     }

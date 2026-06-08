@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shared\ReportTrait;
 use App\Helpers\ViewHelper;
 use App\Models\ExamResult;
+use App\Models\Exam;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,7 @@ class DashboardController extends Controller
         $hasilTesAnak = collect();
         $result = null;
         $aiData = null;
+        $maxScore = 60;
 
         if ($anak) {
             // Ortu hanya melihat laporan yang sudah di publish
@@ -46,10 +48,14 @@ class DashboardController extends Controller
             // Generate AI analysis if report exists
             if ($result) {
                 $aiData = $this->generateOllamaAnalysis($result->dominant_code);
+
+                // Get exam to determine question count (max score)
+                $exam = Exam::with('questions')->find($result->exam_id);
+                $maxScore = $exam ? $exam->questions->count() : 60;
             }
         }
 
         $viewName = ViewHelper::resolveView('ortu.ortu-dashboard');
-        return view($viewName, compact('anak', 'hasilTesAnak', 'result', 'aiData'));
+        return view($viewName, compact('anak', 'hasilTesAnak', 'result', 'aiData', 'maxScore'));
     }
 }

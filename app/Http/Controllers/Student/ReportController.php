@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shared\ReportTrait;
 use App\Models\ExamResult;
+use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,9 +28,13 @@ class ReportController extends Controller
             return redirect()->route('dashboard')->with('error', 'Laporan Anda belum tersedia atau sedang dievaluasi oleh Admin.');
         }
 
+        // Get exam to determine question count (max score)
+        $exam = Exam::with('questions')->find($result->exam_id);
+        $maxScore = $exam ? $exam->questions->count() : 60; // Default to 60 if not found
+
         $aiData = $this->generateOllamaAnalysis($result->dominant_code);
         $namaPemilik = Auth::user()->name;
 
-        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
+        return view('laporan', compact('result', 'namaPemilik', 'aiData', 'maxScore'));
     }
 }
