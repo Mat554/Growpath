@@ -236,7 +236,7 @@
                         </button>
                     @else
                         <a href="{{ route('exam.take', $exam->id) }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#4A90E2]/30 text-center block">
-                            Mulai Kuesioner
+                            Mulai Kerjakan
                         </a>
                     @endif
                 </div>
