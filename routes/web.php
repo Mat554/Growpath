@@ -98,6 +98,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin-dashboard/question/{id}/remove', [QuestionController::class, 'removeFromActive'])->name('admin.question.remove');
         Route::post('/admin-dashboard/question/{id}/delete', [QuestionController::class, 'destroy'])->name('admin.question.destroy');
         Route::post('/admin-dashboard/question/{id}/class', [QuestionController::class, 'updateClass'])->name('admin.question.updateClass');
+        Route::get('/admin/beta-test-preview', [AdminExam::class, 'betaTestPreview'])->name('admin.beta.preview');
+        Route::post('/admin/beta-store-results', [AdminExam::class, 'storeBetaResults'])->name('admin.beta.store');
+        Route::get('/admin/beta-report-preview', [AdminExam::class, 'betaReportPreview'])->name('admin.beta.report');
         Route::post('/admin-dashboard/beta-test', [AdminExam::class, 'betaTest'])->name('admin.beta.test');
         Route::post('/admin-dashboard/publish', [AdminExam::class, 'publish'])->name('admin.publish.exam');
 

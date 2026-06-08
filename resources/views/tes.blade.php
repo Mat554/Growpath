@@ -4,61 +4,207 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tes Minat Bakat - Growpath</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-</head>
-<body class="bg-[#F4F7F6] font-sans flex justify-center items-center min-h-screen p-5 text-[#333]">
 
-    <div class="bg-white w-full max-w-[900px] p-6 md:p-10 rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] relative overflow-hidden">
-        
-        <div class="mb-8">
-            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden mb-4">
-                <div id="progressBar" class="h-full bg-[#4A90E2] w-0 transition-all duration-500 ease-out rounded-full"></div>
-            </div>
-            
-            <div class="flex justify-between items-center text-sm font-medium text-gray-500">
-                <div class="flex items-center gap-3">
-                    <span class="flex items-center gap-2 text-[#4A90E2]">
-                        <i class="ph-fill ph-brain text-lg"></i> Tes Minat Bakat (RIASEC)
-                    </span>
-                    <span id="examTimer" class="bg-red-50 text-red-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border border-red-100 shadow-sm">
-                        <i class="ph-fill ph-timer"></i> <span id="timeDisplay">00:00</span>
-                    </span>
-                </div>
-                <span>Soal <span id="currNum" class="text-gray-800 font-bold">1</span> dari <span id="totalNum"></span></span>
-            </div>
-        </div>
-
-        <div id="quizArea" class="animate-fade-in">
-            <h2 id="qText" class="text-xl md:text-2xl font-bold text-gray-800 mb-2 leading-relaxed">
-                Sedang memuat pertanyaan...
-            </h2>
-            <p class="text-gray-400 text-sm italic mb-8">
-                *Pilih semua opsi yang sesuai dengan diri Anda (Boleh lebih dari satu).
-            </p>
-            
-            <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                </div>
-        </div>
-
-        <div class="mt-10 pt-6 border-t border-gray-100 flex justify-between items-center">
-            <button id="btnPrev" class="px-6 py-3 rounded-xl font-semibold text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all flex items-center gap-2 disabled:opacity-0 disabled:cursor-default">
-                <i class="ph-bold ph-arrow-left"></i> Kembali
-            </button>
-            
-            <button id="btnNext" class="px-8 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold shadow-lg shadow-[#4A90E2]/30 transition-all transform hover:-translate-y-1 flex items-center gap-2">
-                Selanjutnya <i class="ph-bold ph-arrow-right"></i>
-            </button>
-        </div>
-
-    </div>
+    <script>
+        window.examQuestions = @json($questions ?? []);
+        window.isBetaMode = @json(isset($is_beta) && $is_beta);
+        window.examDuration = {{ $duration ?? 60 }};
+        window.examId = {{ $exam->id ?? 0 }};
+    </script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        window.csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    </script>
 
     <style>
-        /* Animasi Transisi Halus */
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f7f6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4A90E2;
+            transition: width 0.3s ease;
+        }
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .exam-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4A90E2;
+            font-weight: 600;
+        }
+        .timer {
+            background: #FEF3C7;
+            color: #D97706;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid #FCD34D;
+        }
+        .card-body {
+            padding: 32px;
+        }
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+ }
+        .question-hint {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 600px) {
+            .options { grid-template-columns: 1fr; }
+            .card-body { padding: 24px; }
+        }
+        .option {
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #475569;
+            text-align: center;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            border-color: #4A90E2;
+            background: #eff6ff;
+        }
+        .option.selected {
+            background: #4A90E2;
+            border-color: #4A90E2;
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+        .card-footer {
+            padding: 20px 32px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .btn-back:hover { background: #e2e8f0; }
+        .btn-next {
+            background: #4A90E2;
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+        .btn-next:hover { background: #357ABD; }
+        .btn-next.finish {
+            background: #10B981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .btn-next.finish:hover { background: #059669; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-header">
+        <div class="progress-bar">
+            <div id="progressBar" class="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="header-info">
+            <div class="exam-title">
+                <i class="ph-fill ph-brain"></i>
+                Tes Minat Bakat (RIASEC)
+            </div>
+            <div class="timer">
+                <i class="ph-fill ph-timer"></i>
+                <span id="timeDisplay">00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="quizArea" class="card-body">
+        <h2 id="qText" class="question-text">Memuat pertanyaan...</h2>
+        <p class="question-hint">*Pilih semua yang sesuai dengan diri Anda</p>
+
+        <div id="optionsContainer" class="options">
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <button id="btnPrev" class="btn btn-back" disabled>
+            <i class="ph-bold ph-arrow-left"></i> Kembali
+        </button>
+        <button id="btnNext" class="btn btn-next">
+            Selanjutnya <i class="ph-bold ph-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+@vite('resources/js/student/exam.js')
 </body>
 </html>

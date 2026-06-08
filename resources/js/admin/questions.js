@@ -23,6 +23,18 @@ window.initPublisherFolders = function() {
     window.updatePublisherFolderCounts();
 };
 
+/**
+ * Load for publisher (called when switching to publisher tab)
+ */
+window.loadForPublisher = function() {
+    window.updatePublisherFolderCounts();
+    // Reset to initial state
+    window.closePublisherFolder();
+ // Clear selections
+    window.selectedQuestionIds.clear();
+    window.updateTotalSelected();
+};
+
 window.updatePublisherFolderCounts = function() {
     const counts = { 10: 0, 11: 0, 12: 0 };
 

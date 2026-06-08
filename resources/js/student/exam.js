@@ -186,8 +186,20 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert(`✅ Tes Berhasil Disimpan!\nKode Dominan Anda: ${dominantCode}`);
-                window.location.href = data.redirect_url;
+                // Show simple success message and redirect
+                const quizArea = document.getElementById('quizArea');
+                if (quizArea) {
+                    quizArea.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+                            <h2 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 10px;">Tes Selesai!</h2>
+                            <p style="color: #64748b; margin-bottom: 30px;">Jawaban Anda telah disimpan dan akan direview oleh admin.</p>
+                            <a href="${data.redirect_url}" style="display: inline-block; padding: 14px 28px; background: #4A90E2; color: white; border-radius: 10px; font-weight: 600; text-decoration: none;">
+                                Kembali ke Dashboard
+                            </a>
+                        </div>
+                    `;
+                }
             }
         })
         .catch(err => {

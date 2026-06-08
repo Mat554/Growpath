@@ -3,28 +3,134 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Shared\ReportTrait;
 use App\Models\Exam;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class ExamController extends Controller
 {
+    use ReportTrait; // Use real AI like parent report
+
     /**
-     * Beta test preview
+     * Beta test preview page - dedicated page for admin to test the student experience
+     */
+    public function betaTestPreview(Request $request)
+    {
+        $questionIds = Session::get('beta_question_ids', []);
+
+        // If stored as JSON string, decode it
+        if (is_string($questionIds)) {
+            $questionIds = json_decode($questionIds, true) ?? [];
+        }
+
+        $duration = Session::get('beta_duration', 60);
+        $cardTitle = Session::get('beta_title', 'Beta Test Preview');
+
+        if (empty($questionIds)) {
+            return redirect()->route('admin.dashboard')->with('error', 'Tidak ada soal yang dipilih untuk Beta Test.');
+        }
+
+        // Ensure questionIds are integers
+        $questionIds = array_map('intval', $questionIds);
+
+        $questions = Question::whereIn('id', $questionIds)->get();
+
+        if ($questions->isEmpty()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Soal tidak ditemukan.');
+        }
+
+        return view('admin.beta-test-preview', [
+            'questions' => $questions,
+            'duration' => $duration,
+            'cardTitle' => $cardTitle
+        ]);
+    }
+
+    /**
+     * Beta test - store question IDs in session and redirect to preview page
      */
     public function betaTest(Request $request)
     {
-        $questionIds = explode(',', $request->question_ids);
-        $questions = Question::whereIn('id', $questionIds)->get();
+        // Handle both string (comma-separated) and array input
+        if (is_string($request->question_ids)) {
+            $questionIds = array_filter(explode(',', $request->question_ids));
+        } else {
+            $questionIds = $request->question_ids ?? [];
+        }
 
-        // Default 60 minutes if not specified
+        // Ensure we have integers
+        $questionIds = array_map('intval', $questionIds);
+        $questionIds = array_values($questionIds); // Re-index
+
+        if (empty($questionIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada soal yang dipilih.'
+            ], 422);
+        }
+
         $duration = $request->duration ?? 60;
+        $title = $request->title ?? 'Beta Test Preview';
 
-        return view('tes', [
-            'questions' => $questions,
-            'is_beta' => true,
-            'duration' => $duration
+        // Validate question IDs
+        $validQuestions = Question::whereIn('id', $questionIds)->get();
+        if ($validQuestions->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada soal yang valid.'
+            ], 422);
+        }
+
+        // Store in session for the preview page (as array, not JSON string)
+        Session::put('beta_question_ids', $questionIds);
+        Session::put('beta_duration', $duration);
+        Session::put('beta_title', $title);
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('admin.beta.preview')
+        ]);
+    }
+
+    /**
+     * Beta test report preview - show parent-style report for beta test results
+     */
+    public function betaReportPreview(Request $request)
+    {
+        $scores = Session::get('beta_scores', []);
+        $dominantCode = Session::get('beta_dominant_code', '');
+
+        if (empty($scores)) {
+            return redirect()->route('admin.beta.preview')->with('error', 'Tidak ada hasil beta test.');
+        }
+
+        // Generate REAL AI data like parent report
+        $aiData = $this->generateOllamaAnalysis($dominantCode);
+
+        return view('admin.beta-report-preview', [
+            'scores' => $scores,
+            'dominantCode' => $dominantCode,
+            'aiData' => $aiData
+        ]);
+    }
+
+    /**
+     * Store beta test results in session
+     */
+    public function storeBetaResults(Request $request)
+    {
+        $scores = $request->scores ?? [];
+        $dominantCode = $request->dominant_code ?? '';
+
+        Session::put('beta_scores', $scores);
+        Session::put('beta_dominant_code', $dominantCode);
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('admin.beta.report')
         ]);
     }
 

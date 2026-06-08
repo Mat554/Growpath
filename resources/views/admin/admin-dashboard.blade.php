@@ -630,68 +630,6 @@
 
     </main>
 
-    
-    <div id="betaModal" class="fixed inset-0 bg-black/60 z-[100] hidden justify-center items-center backdrop-blur-sm transition-all">
-        <div class="bg-white w-[95%] max-w-[700px] p-8 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            
-            <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800 m-0">Simulasi RIASEC</h3>
-                    <small class="text-gray-400">Mode Pratinjau (Preview)</small>
-                </div>
-                <div class="bg-[#FFF4E5] text-[#FF9F43] px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
-                    <i class="ph-fill ph-timer"></i> <span id="simTimer">00:00</span>
-                </div>
-            </div>
-
-            <div id="simQuizArea">
-                <div class="text-lg font-semibold text-gray-800 mb-6" id="simQText">Pertanyaan...</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="simOptions">
-                    </div>
-                
-                <div class="mt-8 flex justify-between items-center">
-                    <span id="simProgress" class="text-gray-400 text-sm">Soal 1 / ?</span>
-                    <button onclick="nextSimQuestion()" class="px-5 py-2.5 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all flex items-center gap-2">
-                        Lanjut <i class="ph-bold ph-caret-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div id="simResultArea" class="hidden text-center">
-                <div class="bg-gray-50 p-6 rounded-2xl mb-6">
-                    <i class="ph-fill ph-seal-check text-5xl text-[#2ECC71] mb-2 inline-block"></i>
-                    <h3 class="text-xl font-bold text-gray-800">Simulasi Selesai</h3>
-                    <p class="text-sm text-gray-500 mb-4">Profil minat RIASEC Anda:</p>
-                    
-                    <div class="grid grid-cols-6 gap-2 mb-4">
-                        <div class="bg-white p-2 rounded border border-gray-100"><div class="text-lg font-bold text-[#4A90E2]" id="scoreR">0</div><div class="text-[10px] text-gray-400">R</div></div>
-                        <div class="bg-white p-2 rounded border border-gray-100"><div class="text-lg font-bold text-[#4A90E2]" id="scoreI">0</div><div class="text-[10px] text-gray-400">I</div></div>
-                        <div class="bg-white p-2 rounded border border-gray-100"><div class="text-lg font-bold text-[#4A90E2]" id="scoreA">0</div><div class="text-[10px] text-gray-400">A</div></div>
-                        <div class="bg-white p-2 rounded border border-gray-100"><div class="text-lg font-bold text-[#4A90E2]" id="scoreS">0</div><div class="text-[10px] text-gray-400">S</div></div>
-                        <div class="bg-white p-2 rounded border border-gray-100"><div class="text-lg font-bold text-[#4A90E2]" id="scoreE">0</div><div class="text-[10px] text-gray-400">E</div></div>
-                        <div class="bg-white p-2 rounded border border-gray-100"><div class="text-lg font-bold text-[#4A90E2]" id="scoreC">0</div><div class="text-[10px] text-gray-400">C</div></div>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded-xl border border-dashed border-gray-300">
-                        <div class="text-sm text-gray-500 mb-1">Kode Kepribadian (Top 3):</div>
-                        <span id="finalDominance" class="text-2xl font-extrabold text-[#4A90E2] tracking-[4px]">-</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="closeBetaTest()" class="py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-semibold text-sm transition-all flex justify-center items-center gap-2">
-                        <i class="ph-bold ph-arrow-counter-clockwise"></i> Revisi
-                    </button>
-                    <button onclick="confirmPublishFromBeta()" class="py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all flex justify-center items-center gap-2">
-                        <i class="ph-fill ph-check-circle"></i> Publish
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <script>
         // Data from Laravel — read by questions.js, dashboard.js, publisher.js
         window.globalQuestionsData = @json($questions ?? []);

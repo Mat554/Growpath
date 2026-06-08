@@ -594,6 +594,213 @@
         window.globalQuestionsData = @json($questions ?? []);
         window.activeTabSession = "{{ session('tab') ?? '' }}";
         window.csrfToken = "{{ csrf_token() }}";
+
+        // Beta Test Modal State
+        window.betaTestState = {
+            questions: [],
+            currentIndex: 0,
+            userAnswers: {},
+            timerInterval: null,
+            timeRemaining: 0
+        };
+
+        // Start Beta Test - opens modal with inline simulation
+        window.startBetaTest = function() {
+            if (window.selectedQuestionIds.size === 0) {
+                alert("Pilih minimal 1 soal untuk Beta Test!");
+                return;
+            }
+
+            const timeInput = document.getElementById('cardTime');
+            const duration = timeInput ? (timeInput.value || 60) : 60;
+
+            // Get selected questions from global data
+            window.betaTestState.questions = window.globalQuestionsData.filter(q =>
+                window.selectedQuestionIds.has(q.id)
+            );
+            window.betaTestState.currentIndex = 0;
+            window.betaTestState.userAnswers = {};
+            window.betaTestState.timeRemaining = (duration || 60) * 60;
+
+            // Show modal
+            const modal = document.getElementById('betaModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                window.initBetaSimulation();
+            }
+        };
+
+        // Initialize beta simulation
+        window.initBetaSimulation = function() {
+            window.betaTestState.currentIndex = 0;
+            window.renderBetaQuestion();
+            window.startBetaTimer();
+        };
+
+        // Render beta question
+        window.renderBetaQuestion = function() {
+            const quizArea = document.getElementById('simQuizArea');
+            const resultArea = document.getElementById('simResultArea');
+            if (!quizArea || !resultArea) return;
+
+            quizArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+
+            const q = window.betaTestState.questions[window.betaTestState.currentIndex];
+            if (!q) return;
+
+            document.getElementById('simQText').innerText = q.question_text;
+
+            const optionsMap = [
+                { code: 'R', text: q.opt_r },
+                { code: 'I', text: q.opt_i },
+                { code: 'A', text: q.opt_a },
+                { code: 'S', text: q.opt_s },
+                { code: 'E', text: q.opt_e },
+                { code: 'C', text: q.opt_c }
+            ];
+
+            const container = document.getElementById('simOptions');
+            container.innerHTML = '';
+
+            optionsMap.forEach(opt => {
+                const isSelected = (window.betaTestState.userAnswers[window.betaTestState.currentIndex] || []).includes(opt.code);
+                const baseClass = "p-4 border-2 rounded-xl cursor-pointer transition-all text-center font-medium";
+                const activeClass = isSelected
+                    ? "bg-[#4A90E2] border-[#4A90E2] text-white"
+                    : "bg-white border-gray-200 text-gray-600 hover:border-[#4A90E2] hover:bg-blue-50";
+
+                const btn = document.createElement('div');
+                btn.className = `${baseClass} ${activeClass}`;
+                btn.innerText = opt.text;
+                btn.onclick = () => window.toggleBetaAnswer(opt.code);
+                container.appendChild(btn);
+            });
+
+            const total = window.betaTestState.questions.length;
+            document.getElementById('simProgress').innerText =
+                `Soal ${window.betaTestState.currentIndex + 1} / ${total}`;
+        };
+
+        // Toggle beta answer selection
+        window.toggleBetaAnswer = function(code) {
+            const idx = window.betaTestState.currentIndex;
+            if (!window.betaTestState.userAnswers[idx]) {
+                window.betaTestState.userAnswers[idx] = [];
+            }
+            const answers = window.betaTestState.userAnswers[idx];
+            const pos = answers.indexOf(code);
+            if (pos > -1) {
+                answers.splice(pos, 1);
+            } else {
+                answers.push(code);
+            }
+            window.renderBetaQuestion();
+        };
+
+        // Next simulation question
+        window.nextSimQuestion = function() {
+            const idx = window.betaTestState.currentIndex;
+            if (!window.betaTestState.userAnswers[idx] || window.betaTestState.userAnswers[idx].length === 0) {
+                alert("Mohon pilih setidaknya satu jawaban.");
+                return;
+            }
+
+            if (window.betaTestState.currentIndex < window.betaTestState.questions.length - 1) {
+                window.betaTestState.currentIndex++;
+                window.renderBetaQuestion();
+            } else {
+                window.finishBetaSimulation();
+            }
+        };
+
+        // Start beta timer
+        window.startBetaTimer = function() {
+            if (window.betaTestState.timerInterval) {
+                clearInterval(window.betaTestState.timerInterval);
+            }
+
+            const updateTimer = () => {
+                const m = Math.floor(window.betaTestState.timeRemaining / 60).toString().padStart(2, '0');
+                const s = (window.betaTestState.timeRemaining % 60).toString().padStart(2, '0');
+                const display = document.getElementById('simTimer');
+                if (display) display.innerText = `${m}:${s}`;
+
+                if (window.betaTestState.timeRemaining <= 0) {
+                    clearInterval(window.betaTestState.timerInterval);
+                    alert("⏰ Waktu habis!");
+                    window.finishBetaSimulation();
+                }
+                window.betaTestState.timeRemaining--;
+            };
+
+            updateTimer();
+            window.betaTestState.timerInterval = setInterval(updateTimer, 1000);
+        };
+
+        // Finish beta simulation and show results
+        window.finishBetaSimulation = function() {
+            if (window.betaTestState.timerInterval) {
+                clearInterval(window.betaTestState.timerInterval);
+            }
+
+            // Calculate scores
+            let scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+            Object.values(window.betaTestState.userAnswers).forEach(answers => {
+                answers.forEach(code => {
+                    if (scores[code] !== undefined) scores[code]++;
+                });
+            });
+
+            // Update result display
+            document.getElementById('scoreR').innerText = scores.R;
+            document.getElementById('scoreI').innerText = scores.I;
+            document.getElementById('scoreA').innerText = scores.A;
+            document.getElementById('scoreS').innerText = scores.S;
+            document.getElementById('scoreE').innerText = scores.E;
+            document.getElementById('scoreC').innerText = scores.C;
+
+            // Get top 3 dominant codes
+            let sortedCodes = Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(item => item[0]);
+            document.getElementById('finalDominance').innerText = sortedCodes.join("");
+
+            // Show result area
+            document.getElementById('simQuizArea').classList.add('hidden');
+            document.getElementById('simResultArea').classList.remove('hidden');
+        };
+
+        // Close beta test modal
+        window.closeBetaTest = function() {
+            if (window.betaTestState.timerInterval) {
+                clearInterval(window.betaTestState.timerInterval);
+            }
+            const modal = document.getElementById('betaModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            // Reset
+            window.betaTestState = {
+                questions: [],
+                currentIndex: 0,
+                userAnswers: {},
+                timerInterval: null,
+                timeRemaining: 0
+            };
+        };
+
+        // Confirm publish from beta test
+        window.confirmPublishFromBeta = function() {
+            window.closeBetaTest();
+            // Trigger publish with current card configuration
+            if (typeof window.compileCard === 'function') {
+                window.compileCard();
+            }
+        };
     </script>
 </body>
 </html>

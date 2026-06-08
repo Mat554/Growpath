@@ -4,47 +4,57 @@
  */
 
 /**
- * Start beta test with selected questions
+ * Start beta test - redirects to dedicated preview page
  */
 window.startBetaTest = function() {
-    if (window.selectedQuestionIds.size === 0) {
+    if (!window.selectedQuestionIds || window.selectedQuestionIds.size === 0) {
         alert("Pilih minimal 1 soal untuk Beta Test!");
         return;
     }
 
     const timeInput = document.getElementById('cardTime');
     const duration = timeInput ? (timeInput.value || 60) : 60;
+    const title = document.getElementById('cardTitle')?.value || 'Beta Test Preview';
 
-    // Create form to submit to new tab
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/admin-dashboard/beta-test';
-    form.target = '_blank';
+    const btn = document.querySelector('button[onclick*="startBetaTest"]');
+    if (btn) {
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memuat...';
+        btn.disabled = true;
+    }
 
-    // CSRF token
-    const csrf = document.createElement('input');
-    csrf.type = 'hidden';
-    csrf.name = '_token';
-    csrf.value = window.csrfToken;
-    form.appendChild(csrf);
-
-    // Question IDs
-    const qInput = document.createElement('input');
-    qInput.type = 'hidden';
-    qInput.name = 'question_ids';
-    qInput.value = Array.from(window.selectedQuestionIds).join(',');
-    form.appendChild(qInput);
-
-    // Duration
-    const durInput = document.createElement('input');
-    durInput.type = 'hidden';
-    durInput.name = 'duration';
-    durInput.value = duration;
-    form.appendChild(durInput);
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    fetch('/admin-dashboard/beta-test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': window.csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            question_ids: Array.from(window.selectedQuestionIds).join(','),
+            duration: duration,
+            title: title
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.redirect_url) {
+            window.location.href = data.redirect_url;
+        } else {
+            alert(data.message || 'Terjadi kesalahan.');
+            if (btn) {
+                btn.innerHTML = '<i class="ph-fill ph-flask"></i> Beta Test';
+                btn.disabled = false;
+            }
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Terjadi kesalahan saat memuat Beta Test.');
+        if (btn) {
+            btn.innerHTML = '<i class="ph-fill ph-flask"></i> Beta Test';
+            btn.disabled = false;
+        }
+    });
 };
 
 /**
@@ -107,6 +117,7 @@ window.compileCard = function(event) {
             // Reset form
             window.selectedQuestionIds.clear();
             window.loadForPublisher();
+            window.updatePublisherFolderCounts();
             document.getElementById('cardTitle').value = '';
         }
     })

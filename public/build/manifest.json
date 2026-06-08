@@ -21,12 +21,12 @@
     "src": "resources/js/admin/monitoring.js"
   },
   "resources/js/admin/publisher.js": {
-    "file": "assets/publisher-26ce3284.js",
+    "file": "assets/publisher-b4e6db0b.js",
     "isEntry": true,
     "src": "resources/js/admin/publisher.js"
   },
   "resources/js/admin/questions.js": {
-    "file": "assets/questions-60fb2c62.js",
+    "file": "assets/questions-9af3bd19.js",
     "isEntry": true,
     "src": "resources/js/admin/questions.js"
   },
@@ -115,7 +115,7 @@
     "src": "resources/js/student/dashboard.js"
   },
   "resources/js/student/exam.js": {
-    "file": "assets/exam-e1fb2885.js",
+    "file": "assets/exam-e6557b08.js",
     "isEntry": true,
     "src": "resources/js/student/exam.js"
   },
