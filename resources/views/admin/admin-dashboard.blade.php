@@ -259,15 +259,15 @@
 
                 <form id="createForm" method="POST" action="{{ route('admin.question.store') }}">
                     @csrf
-                    
+
                     <div class="mb-5">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Teks Pertanyaan (Studi Kasus / Pilihan)</label>
                         <textarea name="question_text" id="qText" rows="2" placeholder="Contoh: Kegiatan apa yang paling Anda sukai di waktu luang?" required
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10"></textarea>
                     </div>
-                    
+
                     <small class="block mb-4 text-gray-500 text-xs">Isi opsi jawaban sesuai kategori RIASEC:</small>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Opsi <span class="text-[#4A90E2]">R</span>ealistic</label>
@@ -311,37 +311,140 @@
         </div>
 
         <div id="publish" class="section">
-            <div class="bg-white p-8 rounded-2xl shadow-sm">
-                <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
-                    <i class="ph-fill ph-list-checks text-[#4A90E2]"></i> Manajemen Soal
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <div class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="ph-fill ph-archive text-[#4A90E2]"></i> Arsip Soal - Seret soal ke kelas yang diinginkan
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm w-3/5">Pertanyaan</th>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Status</th>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="questionTable">
-                            <tr><td colspan="3" class="p-8 text-center text-gray-400">Memuat data...</td></tr>
-                        </tbody>
-                    </table>
+
+                {{-- 3-Column Drag-Drop Archive --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {{-- Kelas 10 Column --}}
+                    <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 min-h-[400px] bg-blue-50/30"
+                         ondragover="window.handleColumnDragOver(event)"
+                         ondrop="window.handleColumnDrop(event, '10')"
+                         ondragleave="window.handleColumnDragLeave(event)">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-blue-600 flex items-center gap-2">
+                                <i class="ph-fill ph-book-open"></i> Kelas 10
+                            </h4>
+                            <span id="count-class-10" class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                        </div>
+                        <div id="archive-class-10" class="space-y-2">
+                            <div class="text-center py-8 text-gray-400 text-sm">Seret soal ke sini</div>
+                        </div>
+                    </div>
+
+                    {{-- Kelas 11 Column --}}
+                    <div class="border-2 border-dashed border-green-200 rounded-xl p-4 min-h-[400px] bg-green-50/30"
+                         ondragover="window.handleColumnDragOver(event)"
+                         ondrop="window.handleColumnDrop(event, '11')"
+                         ondragleave="window.handleColumnDragLeave(event)">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-green-600 flex items-center gap-2">
+                                <i class="ph-fill ph-book-open"></i> Kelas 11
+                            </h4>
+                            <span id="count-class-11" class="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                        </div>
+                        <div id="archive-class-11" class="space-y-2">
+                            <div class="text-center py-8 text-gray-400 text-sm">Seret soal ke sini</div>
+                        </div>
+                    </div>
+
+                    {{-- Kelas 12 Column --}}
+                    <div class="border-2 border-dashed border-purple-200 rounded-xl p-4 min-h-[400px] bg-purple-50/30"
+                         ondragover="window.handleColumnDragOver(event)"
+                         ondrop="window.handleColumnDrop(event, '12')"
+                         ondragleave="window.handleColumnDragLeave(event)">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-purple-600 flex items-center gap-2">
+                                <i class="ph-fill ph-book-open"></i> Kelas 12
+                            </h4>
+                            <span id="count-class-12" class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                        </div>
+                        <div id="archive-class-12" class="space-y-2">
+                            <div class="text-center py-8 text-gray-400 text-sm">Seret soal ke sini</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- All Questions Archive (Below) --}}
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-semibold text-gray-700 flex items-center gap-2">
+                            <i class="ph-fill ph-stack text-[#4A90E2]"></i> Semua Soal
+                            <span id="count-all" class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+                        </h4>
+                        <div class="flex gap-2">
+                            <button onclick="window.loadQuestionArchive()" class="px-3 py-1.5 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-all">
+                                <i class="ph-bold ph-arrows-clockwise mr-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div id="allQuestionsList" class="custom-scroll max-h-[300px] overflow-y-auto pr-2">
+                        <div class="text-center p-8 text-gray-400">Memuat semua soal...</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="publisher-v2" class="section">
             <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
-                
+
                 <div>
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4 flex justify-between items-center">
-                        <span class="text-sm text-gray-500"><i class="ph-fill ph-info"></i> Pilih soal untuk kartu ujian.</span>
+                    {{-- Folder Header --}}
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4">
+                        <span class="text-sm text-gray-500"><i class="ph-fill ph-folder-open"></i> Pilih folder kelas untuk melihat soal.</span>
+
+                        {{-- Class Folder Buttons --}}
+                        <div class="flex gap-3 mt-4">
+                            <button onclick="window.openPublisherFolder('10')" id="folder-btn-10" class="flex-1 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-xl p-4 transition-all">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="ph-fill ph-folder text-4xl text-blue-500"></i>
+                                    <span class="font-bold text-blue-600">Kelas 10</span>
+                                    <span id="folder-count-10" class="text-xs text-blue-400">0 soal</span>
+                                </div>
+                            </button>
+                            <button onclick="window.openPublisherFolder('11')" id="folder-btn-11" class="flex-1 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-xl p-4 transition-all">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="ph-fill ph-folder text-4xl text-green-500"></i>
+                                    <span class="font-bold text-green-600">Kelas 11</span>
+                                    <span id="folder-count-11" class="text-xs text-green-400">0 soal</span>
+                                </div>
+                            </button>
+                            <button onclick="window.openPublisherFolder('12')" id="folder-btn-12" class="flex-1 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-xl p-4 transition-all">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="ph-fill ph-folder text-4xl text-purple-500"></i>
+                                    <span class="font-bold text-purple-600">Kelas 12</span>
+                                    <span id="folder-count-12" class="text-xs text-purple-400">0 soal</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
-                    <div id="publisherList" class="custom-scroll max-h-[600px] overflow-y-auto pr-2">
-                        <div class="text-center p-8 text-gray-400">Memuat Bank Soal...</div>
+                    {{-- Question List (shown when folder is opened) --}}
+                    <div id="publisherFolderContent" class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <button onclick="window.closePublisherFolder()" class="text-gray-400 hover:text-gray-600">
+                                    <i class="ph-fill ph-arrow-left text-xl"></i>
+                                </button>
+                                <span id="publisherFolderTitle" class="font-semibold text-gray-700">Pilih folder di atas</span>
+                            </div>
+                            <div id="publisherFolderActions" class="hidden gap-2 flex">
+                                <button onclick="window.selectAllInFolder()" class="px-3 py-1.5 bg-[#E8F9F5] text-[#16A34A] hover:bg-green-100 rounded-lg text-xs font-semibold transition-all">
+                                    <i class="ph-fill ph-check-square mr-1"></i> Pilih Semua
+                                </button>
+                                <button onclick="window.clearFolderSelection()" class="px-3 py-1.5 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-all">
+                                    <i class="ph-bold ph-x-square mr-1"></i> Hapus
+                                </button>
+                            </div>
+                        </div>
+                        <div id="publisherList" class="custom-scroll max-h-[450px] overflow-y-auto pr-2">
+                            <div class="text-center p-8 text-gray-400">
+                                <i class="ph-fill ph-folder-open text-5xl mb-3 text-gray-300"></i>
+                                <p>Klik folder di atas untuk melihat soal</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -350,7 +453,7 @@
                         <div class="text-lg font-semibold text-gray-800 mb-4 pb-4 border-b border-gray-100 flex items-center gap-2">
                             <i class="ph-fill ph-file-code text-[#4A90E2]"></i> Konfigurasi Card
                         </div>
-                        
+
                         <div class="mb-4">
                             <label class="block text-xs font-bold text-gray-600 mb-1">Judul Tes</label>
                             <input type="text" id="cardTitle" placeholder="Misal: Tes Minat Bakat X" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#4A90E2] focus:outline-none">

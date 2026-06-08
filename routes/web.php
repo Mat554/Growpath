@@ -95,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/admin-dashboard/question', [QuestionController::class, 'store'])->name('admin.question.store');
         Route::post('/admin-dashboard/question/{id}/toggle', [QuestionController::class, 'toggleStatus'])->name('admin.question.toggle');
+        Route::post('/admin-dashboard/question/{id}/class', [QuestionController::class, 'updateClass'])->name('admin.question.updateClass');
         Route::post('/admin-dashboard/beta-test', [AdminExam::class, 'betaTest'])->name('admin.beta.test');
         Route::post('/admin-dashboard/publish', [AdminExam::class, 'publish'])->name('admin.publish.exam');
 

@@ -42,8 +42,27 @@ class QuestionController extends Controller
         $question->is_active = !$question->is_active;
         $question->save();
 
-        return redirect()->route('admin.dashboard')
-            ->with('success', 'Status soal berhasil diubah!')
-            ->with('tab', 'publish');
+        return response()->json(['success' => true, 'is_active' => $question->is_active]);
+    }
+
+    /**
+     * Update question target class (for drag-drop archive)
+     */
+    public function updateClass(Request $request, $id)
+    {
+        $question = Question::findOrFail($id);
+
+        $validated = $request->validate([
+            'target_class' => 'nullable|string',
+        ]);
+
+        $question->target_class = $validated['target_class'] ?? null;
+        $question->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kelas soal berhasil diupdate.',
+            'target_class' => $question->target_class
+        ]);
     }
 }

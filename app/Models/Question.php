@@ -10,6 +10,6 @@ class Question extends Model
     use HasFactory;
 
     protected $fillable = [
-        'question_text', 'opt_r', 'opt_i', 'opt_a', 'opt_s', 'opt_e', 'opt_c', 'is_active'
+        'question_text', 'opt_r', 'opt_i', 'opt_a', 'opt_s', 'opt_e', 'opt_c', 'is_active', 'target_class'
     ];
 }
