@@ -46,6 +46,30 @@ class QuestionController extends Controller
     }
 
     /**
+     * Remove question from active (make it draft/inactive)
+     */
+    public function removeFromActive($id)
+    {
+        $question = Question::findOrFail($id);
+
+        $question->is_active = false;
+        $question->save();
+
+        return response()->json(['success' => true, 'is_active' => false]);
+    }
+
+    /**
+     * Delete question from database
+     */
+    public function destroy($id)
+    {
+        $question = Question::findOrFail($id);
+        $question->delete();
+
+        return response()->json(['success' => true, 'message' => 'Soal berhasil dihapus.']);
+    }
+
+    /**
      * Update question target class (for drag-drop archive)
      */
     public function updateClass(Request $request, $id)

@@ -314,10 +314,6 @@ window.createArchiveCard = function(question, classLevel) {
     const colors = { 10: 'blue', 11: 'green', 12: 'purple' };
     const color = colors[classLevel] || 'gray';
     const isActive = question.is_active == 1;
-    const activeBtnClass = isActive
-        ? 'bg-green-500 hover:bg-green-600 text-white'
-        : 'bg-gray-300 hover:bg-gray-400 text-gray-600';
-    const activeBtnText = isActive ? 'Aktif' : 'Draft';
 
     return `
         <div class="question-card bg-white p-3 rounded-lg border border-${color}-200 shadow-sm mb-2"
@@ -341,10 +337,18 @@ window.createArchiveCard = function(question, classLevel) {
                     <div class="flex items-center gap-2 mt-2 flex-wrap">
                         <span class="px-2 py-0.5 bg-${color}-50 text-${color}-600 rounded text-[10px] font-semibold">Kelas ${classLevel}</span>
                         <button onclick="window.toggleQuestionStatus(${question.id})"
-                                class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${activeBtnClass}">
+                                class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${isActive ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-600'}">
                             <i class="ph-fill ph-power ${isActive ? '' : 'hidden'}"></i>
                             <i class="ph ph-power ${isActive ? 'hidden' : ''}"></i>
-                            ${activeBtnText}
+                            ${isActive ? 'Aktif' : 'Draft'}
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-1 mt-2">
+                        <button onclick="window.removeFromClass(${question.id}, '${classLevel}')" class="px-2 py-0.5 bg-yellow-100 hover:bg-yellow-200 text-yellow-600 rounded text-[10px] font-semibold transition-all">
+                            <i class="ph-fill ph-arrow-square-out mr-0.5"></i> Hapus dari Kelas
+                        </button>
+                        <button onclick="window.deleteQuestion(${question.id})" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-500 rounded text-[10px] font-semibold transition-all">
+                            <i class="ph-fill ph-trash mr-0.5"></i> Hapus
                         </button>
                     </div>
                 </div>
@@ -363,10 +367,7 @@ window.createAllQuestionsCard = function(question) {
         : '<span class="px-2 py-0.5 bg-gray-100 text-gray-400 rounded text-[10px] font-semibold">-</span>';
 
     const isActive = question.is_active == 1;
-    const activeBtnClass = isActive
-        ? 'bg-green-500 hover:bg-green-600 text-white'
-        : 'bg-gray-300 hover:bg-gray-400 text-gray-600';
-    const activeBtnText = isActive ? 'Aktif' : 'Draft';
+    const hasClasses = classes.length > 0;
 
     return `
         <div class="question-card bg-white p-3 rounded-lg border border-gray-200 shadow-sm mb-2"
@@ -382,10 +383,19 @@ window.createAllQuestionsCard = function(question) {
                     <div class="flex items-center gap-2 mt-2 flex-wrap">
                         ${classBadges}
                         <button onclick="window.toggleQuestionStatus(${question.id})"
-                                class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${activeBtnClass}">
+                                class="px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${isActive ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-600'}">
                             <i class="ph-fill ph-power ${isActive ? '' : 'hidden'}"></i>
                             <i class="ph ph-power ${isActive ? 'hidden' : ''}"></i>
-                            ${activeBtnText}
+                            ${isActive ? 'Aktif' : 'Draft'}
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-1 mt-2">
+                        ${hasClasses ? `
+                        <button onclick="window.removeFromAllClasses(${question.id})" class="px-2 py-0.5 bg-yellow-100 hover:bg-yellow-200 text-yellow-600 rounded text-[10px] font-semibold transition-all">
+                            <i class="ph-fill ph-arrow-square-out mr-0.5"></i> Hapus dari Semua Kelas
+                        </button>` : ''}
+                        <button onclick="window.deleteQuestion(${question.id})" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-500 rounded text-[10px] font-semibold transition-all">
+                            <i class="ph-fill ph-trash mr-0.5"></i> Hapus
                         </button>
                     </div>
                 </div>
@@ -533,5 +543,89 @@ window.toggleQuestionStatus = function(questionId) {
     })
     .catch(err => {
         console.error("Error toggling status:", err);
+    });
+};
+
+/**
+ * Remove question from a specific class column
+ */
+window.removeFromClass = function(questionId, classLevel) {
+    const question = window.globalQuestionsData.find(q => q.id == questionId);
+    if (!question) return;
+
+    let currentClasses = question.target_class ? question.target_class.split(',').map(c => c.trim()) : [];
+
+    // Remove the specific class
+    currentClasses = currentClasses.filter(c => c !== classLevel);
+
+    const newTargetClass = currentClasses.join(',');
+
+    window.updateQuestionClass(questionId, newTargetClass);
+};
+
+/**
+ * Remove question from all classes (make it unassigned)
+ */
+window.removeFromAllClasses = function(questionId) {
+    if (!confirm('Hapus soal dari semua kelas? Soal akan tetap Aktif tapi tidak ada di arsip manapun.')) return;
+
+    window.updateQuestionClass(questionId, '');
+};
+
+/**
+ * Remove question from active (make it draft)
+ */
+window.removeFromActive = function(questionId) {
+    if (!confirm('Hapus soal dari status Aktif? Soal akan menjadi Draft.')) return;
+
+    fetch(`/admin-dashboard/question/${questionId}/remove`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': window.csrfToken,
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const question = window.globalQuestionsData.find(q => q.id == questionId);
+            if (question) {
+                question.is_active = 0;
+            }
+            window.loadQuestionArchive();
+        }
+    })
+    .catch(err => {
+        console.error("Error removing from active:", err);
+        alert("Gagal menghapus dari aktif.");
+    });
+};
+
+/**
+ * Delete question from database
+ */
+window.deleteQuestion = function(questionId) {
+    if (!confirm('Yakin ingin menghapus soal ini? Tindakan ini tidak dapat dibatalkan.')) return;
+
+    fetch(`/admin-dashboard/question/${questionId}/delete`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': window.csrfToken,
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Remove from local data
+            window.globalQuestionsData = window.globalQuestionsData.filter(q => q.id != questionId);
+            window.selectedQuestionIds.delete(questionId);
+            window.loadQuestionArchive();
+            window.updatePublisherFolderCounts();
+        }
+    })
+    .catch(err => {
+        console.error("Error deleting question:", err);
+        alert("Gagal menghapus soal.");
     });
 };
