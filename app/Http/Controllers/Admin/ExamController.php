@@ -102,10 +102,15 @@ class ExamController extends Controller
     {
         $scores = Session::get('beta_scores', []);
         $dominantCode = Session::get('beta_dominant_code', '');
+        $questionIds = Session::get('beta_question_ids', []);
 
         if (empty($scores)) {
             return redirect()->route('admin.beta.preview')->with('error', 'Tidak ada hasil beta test.');
         }
+
+        // Dynamic max score = question count (number of questions taken)
+        $questionCount = is_array($questionIds) ? count($questionIds) : 0;
+        $maxScore = $questionCount > 0 ? $questionCount : 60;
 
         // Generate REAL AI data like parent report
         $aiData = $this->generateOllamaAnalysis($dominantCode);
@@ -113,7 +118,8 @@ class ExamController extends Controller
         return view('admin.beta-report-preview', [
             'scores' => $scores,
             'dominantCode' => $dominantCode,
-            'aiData' => $aiData
+            'aiData' => $aiData,
+            'maxScore' => $maxScore
         ]);
     }
 

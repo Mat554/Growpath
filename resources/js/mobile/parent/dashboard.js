@@ -28,11 +28,14 @@
      */
     function animateScoreBars(scores) {
         const riasecKeys = ['R', 'I', 'A', 'S', 'E', 'C'];
-        const maxScore = 100;
+        // Calculate dynamic max score based on actual scores
+        const scoresArray = [scores.R || 0, scores.I || 0, scores.A || 0, scores.S || 0, scores.E || 0, scores.C || 0];
+        const maxActualScore = Math.max(...scoresArray);
+        const maxDisplayScore = Math.max(10, Math.min(window.reportData.max_score || 60, Math.ceil(maxActualScore * 1.5)));
 
         riasecKeys.forEach(function(key) {
             const score = scores[key] || 0;
-            const percentage = (score / maxScore) * 100;
+            const percentage = (score / maxDisplayScore) * 100;
 
             const scoreEl = document.getElementById('score' + key);
             if (scoreEl) {
@@ -64,6 +67,10 @@
         if (!ctx) return;
 
         const scores = window.reportData.scores;
+        // Calculate dynamic max score based on actual scores
+        const scoresArray = [scores.R || 0, scores.I || 0, scores.A || 0, scores.S || 0, scores.E || 0, scores.C || 0];
+        const maxActualScore = Math.max(...scoresArray);
+        const maxDisplayScore = Math.max(10, Math.min(window.reportData.max_score || 60, Math.ceil(maxActualScore * 1.5)));
 
         new Chart(ctx, {
             type: 'radar',
@@ -88,9 +95,9 @@
                 scales: {
                     r: {
                         beginAtZero: true,
-                        max: 100,
+                        max: maxDisplayScore,
                         ticks: {
-                            stepSize: 20,
+                            stepSize: Math.max(1, Math.ceil(maxDisplayScore / 5)),
                             display: false
                         },
                         grid: {

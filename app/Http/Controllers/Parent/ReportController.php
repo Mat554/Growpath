@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shared\ReportTrait;
 use App\Models\ExamResult;
 use App\Models\User;
+use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,9 +40,13 @@ class ReportController extends Controller
             return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda sedang direview oleh Admin atau belum tersedia.');
         }
 
+        // Get exam to determine question count (max score)
+        $exam = Exam::with('questions')->find($result->exam_id);
+        $maxScore = $exam ? $exam->questions->count() : 60;
+
         $aiData = $this->generateOllamaAnalysis($result->dominant_code);
         $namaPemilik = $anak->name;
 
-        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
+        return view('laporan', compact('result', 'namaPemilik', 'aiData', 'maxScore'));
     }
 }

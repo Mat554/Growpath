@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shared\ReportTrait;
 use App\Models\ExamResult;
+use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,9 +21,13 @@ class ReportController extends Controller
         $result = ExamResult::with('user')->findOrFail($id);
         $namaPemilik = $result->user->name ?? 'Siswa';
 
+        // Get exam to determine question count (max score)
+        $exam = Exam::with('questions')->find($result->exam_id);
+        $maxScore = $exam ? $exam->questions->count() : 60;
+
         $aiData = $this->generateOllamaAnalysis($result->dominant_code);
 
-        return view('laporan', compact('result', 'namaPemilik', 'aiData'));
+        return view('laporan', compact('result', 'namaPemilik', 'aiData', 'maxScore'));
     }
 
     /**

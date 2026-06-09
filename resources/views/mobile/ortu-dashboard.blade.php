@@ -454,7 +454,8 @@
                 E: {{ $result->score_e }},
                 C: {{ $result->score_c }}
             },
-            dominant_code: "{{ $result->dominant_code }}"
+            dominant_code: "{{ $result->dominant_code }}",
+            max_score: {{ $maxScore ?? 60 }}
         };
 
         // ===== RENDER REPORT =====
@@ -468,7 +469,7 @@
                 });
                 document.getElementById('domCode').innerText = mockResult.dominant_code;
 
-                const maxDisplayScore = 15;
+                const maxDisplayScore = mockResult.max_score || 60;
                 updateBar('barR', 'scoreR', mockResult.scores.R, maxDisplayScore);
                 updateBar('barI', 'scoreI', mockResult.scores.I, maxDisplayScore);
                 updateBar('barA', 'scoreA', mockResult.scores.A, maxDisplayScore);
@@ -511,9 +512,14 @@
                             scales: {
                                 y: {
                                     beginAtZero: true,
-                                    max: 10,
+                                    max: maxDisplayScore,
                                     grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                                    border: { display: false }
+                                    border: { display: false },
+                                    ticks: {
+                                        stepSize: Math.ceil(maxDisplayScore / 6),
+                                        font: { family: "'Poppins', sans-serif" },
+                                        color: '#9ca3af'
+                                    }
                                 },
                                 x: {
                                     grid: { display: false },
@@ -740,13 +746,13 @@ if (canvas && '${chartImageSrc}') {
     canvas.parentNode.replaceChild(img, canvas);
 }
 
-// Set bar widths
-const scores = ${JSON.stringify(mockResult.scores)};
-const max = 15;
+// Set bar widths using dynamic max score
+const maxScore = {{ $maxScore ?? 60 }};
+const scores = ${JSON.stringify($result->score_r > 0 ? ['R' => $result->score_r, 'I' => $result->score_i, 'A' => $result->score_a, 'S' => $result->score_s, 'E' => $result->score_e, 'C' => $result->score_c] : ['R' => 0, 'I' => 0, 'A' => 0, 'S' => 0, 'E' => 0, 'C' => 0])};
 const barMap = { R:'barR', I:'barI', A:'barA', S:'barS', E:'barE', C:'barC' };
 Object.entries(barMap).forEach(([key, id]) => {
     const bar = document.getElementById(id);
-    if (bar) bar.style.width = Math.min((scores[key] / max) * 100, 100) + '%';
+    if (bar) bar.style.width = Math.min((scores[key] / maxScore) * 100, 100) + '%';
 });
 
 // Set date and dominant code

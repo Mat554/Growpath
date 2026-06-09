@@ -20,7 +20,8 @@
                 E: {{ $scores['E'] ?? 0 }},
                 C: {{ $scores['C'] ?? 0 }}
             },
-            dominant_code: "{{ $dominantCode }}"
+            dominant_code: "{{ $dominantCode }}",
+            max_score: {{ $maxScore ?? 60 }}
         };
     </script>
 
@@ -523,8 +524,12 @@
         const domCode = document.getElementById('domCode');
         if (domCode) domCode.innerText = data.dominant_code;
 
+        // Calculate dynamic max score based on actual scores
+        const scores = [data.scores.R, data.scores.I, data.scores.A, data.scores.S, data.scores.E, data.scores.C];
+        const maxActualScore = Math.max(...scores);
+        const maxDisplayScore = Math.max(10, Math.min(data.max_score || 60, Math.ceil(maxActualScore * 1.5)));
+
         // Update Progress Bars
-        const maxDisplayScore = 15;
         updateBar('barR', 'scoreR', data.scores.R, maxDisplayScore);
         updateBar('barI', 'scoreI', data.scores.I, maxDisplayScore);
         updateBar('barA', 'scoreA', data.scores.A, maxDisplayScore);
@@ -566,9 +571,14 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 10,
+                            max: maxDisplayScore,
                             grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                            border: { display: false }
+                            border: { display: false },
+                            ticks: {
+                                stepSize: Math.max(1, Math.ceil(maxDisplayScore / 6)),
+                                font: { family: "'Poppins', sans-serif" },
+                                color: '#9ca3af'
+                            }
                         },
                         x: {
                             grid: { display: false },

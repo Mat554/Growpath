@@ -6,8 +6,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.reportData === 'undefined') return;
 
-    const mockResult = window.reportData;
-
     // Run render after short delay
     setTimeout(() => {
         renderReport();
@@ -35,8 +33,12 @@ window.renderReport = function() {
     const domCode = document.getElementById('domCode');
     if (domCode) domCode.innerText = data.dominant_code;
 
-    // Dynamic max score based on exam (60 questions = max 60 points, etc.)
-    const maxDisplayScore = data.max_score || 60;
+    // Calculate dynamic max score based on actual scores (max 10 per category for RIASEC)
+    // or use the exam's max score if available, but scale it appropriately
+    const scores = [data.scores.R, data.scores.I, data.scores.A, data.scores.S, data.scores.E, data.scores.C];
+    const maxActualScore = Math.max(...scores);
+    // Use reasonable max: at least 1.5x the highest score, min 10, max from exam
+    const maxDisplayScore = Math.max(10, Math.min(data.max_score || 60, Math.ceil(maxActualScore * 1.5)));
 
     // Update Progress Bars with dynamic max
     window.updateBar('barR', 'scoreR', data.scores.R, maxDisplayScore);
@@ -53,16 +55,6 @@ window.renderReport = function() {
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
         gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
         gradient.addColorStop(1, 'rgba(74, 144, 226, 0.0)');
-
-        // Chart colors for each RIASEC dimension
-        const chartColors = {
-            R: '#EF4444', // red
-            I: '#3B82F6', // blue
-            A: '#EAB308', // yellow
-            S: '#22C55E', // green
-            E: '#A855F7', // purple
-            C: '#6B7280'  // gray
-        };
 
         new Chart(ctx, {
             type: 'line',
@@ -94,7 +86,7 @@ window.renderReport = function() {
                         grid: { color: '#f3f4f6', borderDash: [5, 5] },
                         border: { display: false },
                         ticks: {
-                            stepSize: Math.ceil(maxDisplayScore / 6),
+                            stepSize: Math.max(1, Math.ceil(maxDisplayScore / 6)),
                             font: { family: "'Poppins', sans-serif" },
                             color: '#9ca3af'
                         }
@@ -128,23 +120,55 @@ window.updateBar = function(barId, textId, score, max) {
 window.downloadPDF = function() {
     const element = document.getElementById('report-content');
     const buttons = document.getElementById('action-buttons');
+    const chart = document.getElementById('riasecChart');
     const data = window.reportData;
 
     if (!element || !data) return;
 
+    // Hide interactive elements before PDF generation
     if (buttons) buttons.style.display = 'none';
+    if (chart) chart.style.visibility = 'hidden';
 
     const opt = {
         margin: [0.5, 0.5, 0.5, 0.5],
         filename: 'Laporan_RIASEC_' + data.dominant_code + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        image: { type: 'jpeg', quality: 0.8 },
+        html2canvas: {
+            scale: 1, // Lower scale for faster rendering
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+        },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     if (typeof html2pdf !== 'undefined') {
+        // Show generating text
+        const btn = document.querySelector('[onclick="downloadPDF()"]');
+        const originalText = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Generating PDF...';
+            btn.disabled = true;
+        }
+
         html2pdf().set(opt).from(element).save().then(() => {
+            // Restore elements after PDF generation
             if (buttons) buttons.style.display = 'flex';
+            if (chart) chart.style.visibility = 'visible';
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }).catch(err => {
+            console.error('PDF generation error:', err);
+            if (buttons) buttons.style.display = 'flex';
+            if (chart) chart.style.visibility = 'visible';
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+            alert('Gagal generate PDF. Silakan coba lagi.');
         });
     }
 };

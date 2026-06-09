@@ -65,7 +65,7 @@
     "src": "resources/js/mobile/admin/dashboard.js"
   },
   "resources/js/mobile/parent/dashboard.js": {
-    "file": "assets/dashboard-fdfe8fac.js",
+    "file": "assets/dashboard-0fdf74b8.js",
     "isEntry": true,
     "src": "resources/js/mobile/parent/dashboard.js"
   },
@@ -90,7 +90,7 @@
     "src": "resources/js/mobile/student/profile.js"
   },
   "resources/js/parent/dashboard-report.js": {
-    "file": "assets/dashboard-report-2c7c5723.js",
+    "file": "assets/dashboard-report-29949e3b.js",
     "isEntry": true,
     "src": "resources/js/parent/dashboard-report.js"
   },
@@ -105,7 +105,7 @@
     "src": "resources/js/parent/profile.js"
   },
   "resources/js/parent/report.js": {
-    "file": "assets/report-d4b2f357.js",
+    "file": "assets/report-a7eb44aa.js",
     "isEntry": true,
     "src": "resources/js/parent/report.js"
   },
@@ -130,7 +130,7 @@
     "src": "resources/js/student/profile.js"
   },
   "resources/js/student/report.js": {
-    "file": "assets/report-c548f9a9.js",
+    "file": "assets/report-b044303b.js",
     "isEntry": true,
     "src": "resources/js/student/report.js"
   }
