@@ -90,7 +90,7 @@
     "src": "resources/js/mobile/student/profile.js"
   },
   "resources/js/parent/dashboard-report.js": {
-    "file": "assets/dashboard-report-29949e3b.js",
+    "file": "assets/dashboard-report-f5402d07.js",
     "isEntry": true,
     "src": "resources/js/parent/dashboard-report.js"
   },
@@ -130,7 +130,7 @@
     "src": "resources/js/student/profile.js"
   },
   "resources/js/student/report.js": {
-    "file": "assets/report-b044303b.js",
+    "file": "assets/report-d99f9b0d.js",
     "isEntry": true,
     "src": "resources/js/student/report.js"
   }

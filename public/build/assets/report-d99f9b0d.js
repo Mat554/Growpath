@@ -1,168 +1,4 @@
-/**
- * Report JavaScript
- * Handles report rendering, charts, and PDF export
- */
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.reportData === 'undefined') return;
-
-    // Run render after short delay
-    setTimeout(() => {
-        renderReport();
-    }, 100);
-});
-
-// Make these functions globally accessible
-window.renderReport = function() {
-    const data = window.reportData;
-    if (!data) return;
-
-    const loading = document.getElementById('loading');
-    if (loading) loading.style.display = 'none';
-
-    // Format Date
-    const dateObj = new Date(data.created_at);
-    const testDate = document.getElementById('testDate');
-    if (testDate) {
-        testDate.innerText = dateObj.toLocaleDateString('id-ID', {
-            day: 'numeric', month: 'long', year: 'numeric'
-        });
-    }
-
-    // Show Dominant Code
-    const domCode = document.getElementById('domCode');
-    if (domCode) domCode.innerText = data.dominant_code;
-
-    // Calculate dynamic max score based on actual scores (max 10 per category for RIASEC)
-    // or use the exam's max score if available, but scale it appropriately
-    const scores = [data.scores.R, data.scores.I, data.scores.A, data.scores.S, data.scores.E, data.scores.C];
-    const maxActualScore = Math.max(...scores);
-    // Use reasonable max: at least 1.5x the highest score, min 10, max from exam
-    const maxDisplayScore = Math.max(10, Math.min(data.max_score || 60, Math.ceil(maxActualScore * 1.5)));
-
-    // Update Progress Bars with dynamic max
-    window.updateBar('barR', 'scoreR', data.scores.R, maxDisplayScore);
-    window.updateBar('barI', 'scoreI', data.scores.I, maxDisplayScore);
-    window.updateBar('barA', 'scoreA', data.scores.A, maxDisplayScore);
-    window.updateBar('barS', 'scoreS', data.scores.S, maxDisplayScore);
-    window.updateBar('barE', 'scoreE', data.scores.E, maxDisplayScore);
-    window.updateBar('barC', 'scoreC', data.scores.C, maxDisplayScore);
-
-    // Render Chart.js with dynamic Y-axis max
-    const canvas = document.getElementById('riasecChart');
-    if (canvas && typeof Chart !== 'undefined') {
-        const ctx = canvas.getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
-        gradient.addColorStop(1, 'rgba(74, 144, 226, 0.0)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'],
-                datasets: [{
-                    label: 'Poin',
-                    data: [data.scores.R, data.scores.I, data.scores.A, data.scores.S, data.scores.E, data.scores.C],
-                    borderColor: '#4A90E2',
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#4A90E2',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                animation: { onComplete: () => { window._chartReady = true; } },
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: maxDisplayScore,
-                        grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                        border: { display: false },
-                        ticks: {
-                            stepSize: Math.max(1, Math.ceil(maxDisplayScore / 6)),
-                            font: { family: "'Poppins', sans-serif" },
-                            color: '#9ca3af'
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        border: { display: false },
-                        ticks: { font: { family: "'Poppins', sans-serif", weight: '500' }, color: '#6b7280' }
-                    }
-                }
-            }
-        });
-    }
-};
-
-window.updateBar = function(barId, textId, score, max) {
-    let percentage = (score / max) * 100;
-    if (percentage > 100) percentage = 100;
-
-    const bar = document.getElementById(barId);
-    const text = document.getElementById(textId);
-
-    if (text) text.innerText = `${score} Poin`;
-    if (bar) {
-        setTimeout(() => {
-            bar.style.width = percentage + "%";
-        }, 100);
-    }
-};
-
-window.downloadPDF = async function() {
-    const loading = document.getElementById('loading');
-    const buttons = document.getElementById('action-buttons');
-    const data = window.reportData;
-
-    if (!data) return;
-
-    // Hide interactive elements
-    if (buttons) buttons.style.display = 'none';
-    if (loading) loading.style.display = 'none';
-
-    // Wait for chart to be ready
-    if (!window._chartReady) {
-        await new Promise(r => setTimeout(r, 1000));
-    }
-
-    // Capture chart as image
-    const chartCanvas = document.getElementById('riasecChart');
-    let chartImageSrc = '';
-    if (chartCanvas && chartCanvas.width > 0) {
-        chartImageSrc = chartCanvas.toDataURL('image/png', 1.0);
-    }
-
-    // Get report HTML
-    const reportContent = document.getElementById('report-content');
-    if (!reportContent) {
-        alert('Laporan tidak ditemukan.');
-        if (buttons) buttons.style.display = 'flex';
-        if (loading) loading.style.display = 'flex';
-        return;
-    }
-    const reportHTML = reportContent.innerHTML;
-
-    // Calculate max score for bars
-    const maxScore = 15;
-
-    // Create iframe
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;top:0;left:0;width:750px;height:100vh;opacity:0;pointer-events:none;border:none;z-index:-1;';
-    iframe.setAttribute('data-pdf-frame', 'true');
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(`<!DOCTYPE html>
+document.addEventListener("DOMContentLoaded",()=>{typeof window.reportData>"u"||setTimeout(()=>{renderReport()},100)});window.renderReport=function(){const t=window.reportData;if(!t)return;const e=document.getElementById("loading");e&&(e.style.display="none");const o=new Date(t.created_at),n=document.getElementById("testDate");n&&(n.innerText=o.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}));const r=document.getElementById("domCode");r&&(r.innerText=t.dominant_code);const d=[t.scores.R,t.scores.I,t.scores.A,t.scores.S,t.scores.E,t.scores.C],s=Math.max(...d),i=Math.max(10,Math.min(t.max_score||60,Math.ceil(s*1.5)));window.updateBar("barR","scoreR",t.scores.R,i),window.updateBar("barI","scoreI",t.scores.I,i),window.updateBar("barA","scoreA",t.scores.A,i),window.updateBar("barS","scoreS",t.scores.S,i),window.updateBar("barE","scoreE",t.scores.E,i),window.updateBar("barC","scoreC",t.scores.C,i);const a=document.getElementById("riasecChart");if(a&&typeof Chart<"u"){const m=a.getContext("2d"),l=m.createLinearGradient(0,0,0,300);l.addColorStop(0,"rgba(74, 144, 226, 0.5)"),l.addColorStop(1,"rgba(74, 144, 226, 0.0)"),new Chart(m,{type:"line",data:{labels:["Realistic","Investigative","Artistic","Social","Enterprising","Conventional"],datasets:[{label:"Poin",data:[t.scores.R,t.scores.I,t.scores.A,t.scores.S,t.scores.E,t.scores.C],borderColor:"#4A90E2",backgroundColor:l,borderWidth:3,pointBackgroundColor:"#ffffff",pointBorderColor:"#4A90E2",pointBorderWidth:2,pointRadius:6,pointHoverRadius:8,fill:!0,tension:.4}]},options:{animation:{onComplete:()=>{window._chartReady=!0}},responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0,max:i,grid:{color:"#f3f4f6",borderDash:[5,5]},border:{display:!1},ticks:{stepSize:Math.max(1,Math.ceil(i/6)),font:{family:"'Poppins', sans-serif"},color:"#9ca3af"}},x:{grid:{display:!1},border:{display:!1},ticks:{font:{family:"'Poppins', sans-serif",weight:"500"},color:"#6b7280"}}}}})}};window.updateBar=function(t,e,o,n){let r=o/n*100;r>100&&(r=100);const d=document.getElementById(t),s=document.getElementById(e);s&&(s.innerText=`${o} Poin`),d&&setTimeout(()=>{d.style.width=r+"%"},100)};window.downloadPDF=async function(){const t=document.getElementById("loading"),e=document.getElementById("action-buttons"),o=window.reportData;if(!o)return;e&&(e.style.display="none"),t&&(t.style.display="none"),window._chartReady||await new Promise(p=>setTimeout(p,1e3));const n=document.getElementById("riasecChart");let r="";n&&n.width>0&&(r=n.toDataURL("image/png",1));const d=document.getElementById("report-content");if(!d){alert("Laporan tidak ditemukan."),e&&(e.style.display="flex"),t&&(t.style.display="flex");return}const s=d.innerHTML,i=15,a=document.createElement("iframe");a.style.cssText="position:fixed;top:0;left:0;width:750px;height:100vh;opacity:0;pointer-events:none;border:none;z-index:-1;",a.setAttribute("data-pdf-frame","true"),document.body.appendChild(a);const m=a.contentDocument||a.contentWindow.document;m.open(),m.write(`<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -308,27 +144,27 @@ body { font-family: 'Poppins', sans-serif; background: white; color: #333; -webk
 </head>
 <body>
 <div id="pdf-root" style="width:750px;background:white;margin:0 auto;padding:0;">
-${reportHTML}
+${s}
 </div>
 <script>
 const canvas = document.querySelector('canvas');
-if (canvas && '${chartImageSrc}') {
+if (canvas && '${r}') {
     const img = document.createElement('img');
-    img.src = '${chartImageSrc}';
+    img.src = '${r}';
     img.style.cssText = 'width:100%;height:100%;object-fit:fill;display:block;';
     canvas.parentNode.replaceChild(img, canvas);
 }
-const scores = ${JSON.stringify(data.scores)};
+const scores = ${JSON.stringify(o.scores)};
 const barMap = { R:'barR', I:'barI', A:'barA', S:'barS', E:'barE', C:'barC' };
 Object.entries(barMap).forEach(([key, id]) => {
     const bar = document.getElementById(id);
-    if (bar) bar.style.width = Math.min((scores[key] / ${maxScore}) * 100, 100) + '%';
+    if (bar) bar.style.width = Math.min((scores[key] / ${i}) * 100, 100) + '%';
 });
-const dateObj = new Date('${data.created_at}');
+const dateObj = new Date('${o.created_at}');
 const testDateEl = document.getElementById('testDate');
 if (testDateEl) testDateEl.innerText = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 const domCodeEl = document.getElementById('domCode');
-if (domCodeEl) domCodeEl.innerText = '${data.dominant_code}';
+if (domCodeEl) domCodeEl.innerText = '${o.dominant_code}';
 const ebfCard = document.querySelector('[class*="EBF5FF"]');
 if (ebfCard) {
     ebfCard.style.cssText += 'display:flex !important;flex-direction:row !important;align-items:center !important;gap:1.5rem !important;margin-left:-2.5rem !important;margin-right:-2.5rem !important;padding-left:2.5rem !important;padding-right:2.5rem !important;border-radius:0 !important;';
@@ -348,7 +184,7 @@ window.addEventListener('load', async function() {
     const el = document.getElementById('pdf-root');
     const opt = {
         margin: [0.4, 0.4, 0.4, 0.4],
-        filename: 'Laporan_RIASEC_${data.dominant_code}.pdf',
+        filename: 'Laporan_RIASEC_${o.dominant_code}.pdf',
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 750, logging: false },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
@@ -359,22 +195,4 @@ window.addEventListener('load', async function() {
 });
 <\/script>
 </body>
-</html>`);
-    iframeDoc.close();
-
-    // Wait for message
-    await new Promise(resolve => {
-        window.addEventListener('message', function handler(e) {
-            if (e.data === 'pdf-done') {
-                window.removeEventListener('message', handler);
-                resolve();
-            }
-        });
-    });
-
-    // Cleanup
-    const frame = document.querySelector('iframe[data-pdf-frame]');
-    if (frame) frame.remove();
-    if (buttons) buttons.style.display = 'flex';
-    if (loading) loading.style.display = 'flex';
-};
+</html>`),m.close(),await new Promise(p=>{window.addEventListener("message",function c(g){g.data==="pdf-done"&&(window.removeEventListener("message",c),p())})});const l=document.querySelector("iframe[data-pdf-frame]");l&&l.remove(),e&&(e.style.display="flex"),t&&(t.style.display="flex")};
