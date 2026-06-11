@@ -18,14 +18,13 @@ class ReportController extends Controller
      */
     public function show()
     {
-        // Siswa hanya boleh melihat laporannya JIKA sudah di-publish oleh Admin
+        // Siswa bisa melihat laporan setelah mengerjakan tes
         $result = ExamResult::where('user_id', Auth::id())
-                            ->where('status', 'published')
                             ->latest()
                             ->first();
 
         if (!$result) {
-            return redirect()->route('dashboard')->with('error', 'Laporan Anda belum tersedia atau sedang dievaluasi oleh Admin.');
+            return redirect()->route('dashboard')->with('error', 'Anda belum mengerjakan tes. Silakan kerjakan kuesioner terlebih dahulu.');
         }
 
         // Get exam to determine question count (max score)

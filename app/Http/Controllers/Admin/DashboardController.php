@@ -27,7 +27,6 @@ class DashboardController extends Controller
         $totalSoal = Question::count(); // Bank soal
         $totalLaporan = ExamResult::count();
 
-        $pendingReports = ExamResult::with('user')->where('status', 'review')->get();
         $questions = Question::all();
 
         // === Rata-rata Skor RIASEC ===
@@ -75,14 +74,13 @@ class DashboardController extends Controller
         $activeExamCount = Exam::where('exam_date', '>=', now()->startOfDay())->count();
 
         // === Published vs Review status ===
-        $publishedCount = ExamResult::where('status', 'published')->count();
-        $reviewCount = ExamResult::where('status', 'review')->count();
+        $publishedCount = ExamResult::count();
 
         $viewName = ViewHelper::resolveView('admin.admin-dashboard');
         return view($viewName, compact(
-            'totalSiswa', 'totalSoal', 'totalLaporan', 'pendingReports',
+            'totalSiswa', 'totalSoal', 'totalLaporan',
             'questions', 'riasecAvg', 'codeDistribution', 'classDistribution',
-            'recentResults', 'activeExamCount', 'publishedCount', 'reviewCount'
+            'recentResults', 'activeExamCount', 'publishedCount'
         ));
     }
 }

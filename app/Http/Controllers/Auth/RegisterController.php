@@ -25,14 +25,22 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/'
+            ],
             'role' => 'required|in:siswa,ortu',
             'kelas' => 'required_if:role,siswa|nullable|integer',
 
             // Opsional tapi harus valid jika diisi
             'child_id_code' => 'nullable|string|exists:users,user_code',
         ], [
-            'child_id_code.exists' => 'User ID Siswa tidak ditemukan. Pastikan kodenya sudah benar.'
+            'child_id_code.exists' => 'User ID Siswa tidak ditemukan. Pastikan kodenya sudah benar.',
+            'password.min' => 'Password terlalu pendek, minimal 8 karakter.',
+            'password.regex' => 'Password harus mengandung minimal 1 huruf besar dan 1 angka.'
         ]);
 
         // 2. Logika Generate Kode Siswa

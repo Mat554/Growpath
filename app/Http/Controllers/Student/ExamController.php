@@ -70,7 +70,7 @@ class ExamController extends Controller
             'score_e' => $scores['E'],
             'score_c' => $scores['C'],
             'dominant_code' => $request->dominant_code,
-            'status' => 'review',
+            'status' => 'published',
         ]);
 
         return response()->json(['success' => true, 'redirect_url' => route('dashboard')]);

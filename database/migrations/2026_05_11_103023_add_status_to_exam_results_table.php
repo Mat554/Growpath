@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
 {
     Schema::table('exam_results', function (Blueprint $table) {
-        // Menambahkan kolom status dengan nilai default 'completed'
-        $table->string('status')->default('completed')->after('user_id'); 
+        // Menambahkan kolom status dengan nilai default 'published' agar langsung bisa dilihat
+ $table->string('status')->default('published')->after('user_id'); 
     });
 }
 

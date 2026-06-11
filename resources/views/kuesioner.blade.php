@@ -76,13 +76,12 @@
                     // Logika Status Kuesioner
                     $result = isset($completedExams) ? $completedExams->get($exam->id) : null;
                     $isCompleted = $result !== null;
-                    $isPublished = $isCompleted && $result->status === 'published';
 
                     $startDate = \Carbon\Carbon::parse($exam->exam_date)->startOfDay();
                     $endDate = $exam->exam_end_date ? \Carbon\Carbon::parse($exam->exam_end_date)->startOfDay() : $startDate;
                     $today = \Carbon\Carbon::now()->startOfDay();
                     $isLocked  = $today->lt($startDate);
-                    $isOverdue = $today->gt($endDate); 
+                    $isOverdue = $today->gt($endDate);
 
                     // Menentukan tag kategori untuk filter tab
                     $kategoriFilter = $isCompleted ? 'selesai' : 'belum';
@@ -146,14 +145,10 @@
                     </div>
                     
                     <div class="w-full md:w-auto mt-4 md:mt-0 shrink-0">
-                        @if($isPublished)
-                            <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                                Laporan Dikirim ke Wali
-                            </button>
-                        @elseif($isCompleted)
-                            <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                                Telah Dikirim (Review)
-                            </button>
+                        @if($isCompleted)
+                            <a href="{{ route('laporan') }}" class="block w-full md:w-auto px-8 py-3.5 text-center bg-[#2ECC71] hover:bg-[#27ae60] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#2ECC71]/30 flex items-center justify-center gap-2">
+                                <i class="ph ph-eye"></i> Lihat Laporan
+                            </a>
                         @elseif($isLocked)
                             <button disabled class="block w-full md:w-auto px-8 py-3.5 text-center bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
                                 Belum Dibuka

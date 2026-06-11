@@ -32,12 +32,11 @@ class ReportController extends Controller
         }
 
         $result = ExamResult::where('user_id', $anak->id)
-                            ->where('status', 'published')
                             ->latest()
                             ->first();
 
         if (!$result) {
-            return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda sedang direview oleh Admin atau belum tersedia.');
+            return redirect()->route('dashboard.ortu')->with('error', 'Laporan anak Anda belum tersedia.');
         }
 
         // Get exam to determine question count (max score)

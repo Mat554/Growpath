@@ -90,8 +90,8 @@ Route::middleware(['auth'])->group(function () {
     // -----------------------------------------------------
     Route::middleware(['admin'])->group(function () {
         Route::get('/admin-dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+        Route::get('/admin/laporan', [AdminReport::class, 'index'])->name('admin.laporan.index');
         Route::get('/admin/laporan/{id}', [AdminReport::class, 'view'])->name('admin.laporan.view');
-        Route::post('/admin/laporan/{id}/publish', [AdminReport::class, 'publish'])->name('admin.laporan.publish');
 
         Route::post('/admin-dashboard/question', [QuestionController::class, 'store'])->name('admin.question.store');
         Route::post('/admin-dashboard/question/{id}/toggle', [QuestionController::class, 'toggleStatus'])->name('admin.question.toggle');

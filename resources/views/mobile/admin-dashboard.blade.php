@@ -53,12 +53,12 @@
             </button>
 
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Laporan</div>
+            <a href="{{ route('admin.laporan.index') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-file-text text-lg"></i> Lihat Laporan
+            </a>
             <a href="{{ route('admin.monitoring') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-monitor-play text-lg"></i> Monitoring
             </a>
-            <button onclick="showSection('report')" id="nav-report" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
-                <i class="ph ph-file-text text-lg"></i> Publish Laporan
-            </button>
         </div>
 
         <form action="{{ route('logout') }}" method="POST">
@@ -474,48 +474,42 @@
 
        <div id="report" class="section">
             <div class="bg-white p-8 rounded-2xl shadow-sm">
-                <div class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
-                    <i class="ph-fill ph-file-text text-[#4A90E2]"></i> Validasi & Publish Laporan
+                <div class="flex items-center justify-between mb-6">
+                    <div class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <i class="ph-fill ph-file-text text-[#4A90E2]"></i> Daftar Laporan Hasil Tes
+                    </div>
+                    <a href="{{ route('admin.laporan.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+                        <i class="ph-bold ph-arrow-square-out"></i> Lihat Semua Laporan
+                    </a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Nama Siswa</th>
+                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Kelas</th>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Kode Dominan</th>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Detail Skor (Top 3)</th>
-                                <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm">Status</th>
                                 <th class="p-4 border-b-2 border-gray-100 text-gray-500 font-semibold text-sm text-right">Aksi</th>
                             </tr>
                         </thead>
-                        
+
                         <tbody>
-                            @forelse($pendingReports ?? [] as $report)
+                            @forelse($recentResults ?? [] as $report)
                             <tr>
                                 <td class="p-4 border-b border-gray-50">{{ $report->user->name ?? 'Siswa' }}</td>
+                                <td class="p-4 border-b border-gray-50 text-gray-600">{{ $report->user->kelas ?? '-' }}</td>
                                 <td class="p-4 border-b border-gray-50 text-[#4A90E2] font-bold">{{ $report->dominant_code }}</td>
-                                <td class="p-4 border-b border-gray-50 text-sm text-gray-600">S:{{ $report->score_s }}, E:{{ $report->score_e }}, C:{{ $report->score_c }}</td>
-                                <td class="p-4 border-b border-gray-50">
-                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-bold uppercase">Review</span>
-                                </td>
-                                <td class="p-4 border-b border-gray-50 flex justify-end gap-2">
-                                    <a href="{{ route('admin.laporan.view', $report->id) }}" target="_blank" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-200 transition-all">
-                                        Lihat
+                                <td class="p-4 border-b border-gray-50 text-right">
+                                    <a href="{{ route('admin.laporan.view', $report->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-200 transition-all">
+                                        <i class="ph ph-eye"></i> Lihat
                                     </a>
-                                    
-                                    <form action="{{ route('admin.laporan.publish', $report->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="px-3 py-1.5 bg-[#2ECC71] text-white rounded-lg text-xs font-semibold hover:bg-green-600 transition-all shadow-sm">
-                                            Publish
-                                        </button>
-                                    </form>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="p-8 text-center text-gray-400">
-                                    <i class="ph-fill ph-check-circle text-4xl mb-2 text-gray-300"></i><br>
-                                    Semua laporan sudah divalidasi dan di-publish!
+                                <td colspan="4" class="p-8 text-center text-gray-400">
+                                    <i class="ph-fill ph-clipboard-text text-4xl mb-2 text-gray-300"></i><br>
+                                    Belum ada laporan hasil tes.
                                 </td>
                             </tr>
                             @endforelse

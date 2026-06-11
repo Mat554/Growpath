@@ -262,31 +262,41 @@
                 $hasAnyCompletedExam = count($completedExamIds ?? []) > 0;
             @endphp
 
-            <div class="bg-white p-6 rounded-[18px] border border-gray-100 transition-all duration-300 flex flex-col {{ $hasAnyCompletedExam ? 'shadow-[0_5px_20px_rgba(0,0,0,0.05)] hover:-translate-y-1' : 'shadow-sm opacity-60' }}">
+            <div class="bg-white p-6 rounded-[18px] border border-gray-100 transition-all duration-300 flex flex-col {{ $hasAnyCompletedExam ? 'shadow-[0_5px_20px_rgba(0,0,0,0.05)] hover:-translate-y-1' : 'shadow-sm' }}">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl {{ $hasAnyCompletedExam ? 'bg-[#EBF5FF] text-[#4A90E2]' : 'bg-gray-100 text-gray-400' }}">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl {{ $hasAnyCompletedExam ? 'bg-[#EBF5FF] text-[#4A90E2]' : 'bg-orange-100 text-orange-400' }}">
                         <i class="ph-fill ph-files"></i>
                     </div>
-                    
+
                     @if($hasAnyCompletedExam)
                         <span class="px-3 py-1 bg-[#E8F9F5] text-[#2ECC71] rounded-full text-[10px] md:text-xs font-bold uppercase border border-green-100">
                             Tersedia
                         </span>
                     @else
-                        <span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] md:text-xs font-bold uppercase border border-gray-200">
-                            Terkunci
+                        <span class="px-3 py-1 bg-orange-100 text-orange-500 rounded-full text-[10px] md:text-xs font-bold uppercase border border-orange-200">
+                            Belum Tersedia
                         </span>
                     @endif
                 </div>
-                
+
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Laporan Hasil</h3>
                 <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                    Hasil analisis kuesioner Anda akan dikirimkan langsung ke dashboard Orang Tua/Wali Anda untuk dievaluasi.
+                    @if($hasAnyCompletedExam)
+                        Laporan hasil tes minat dan bakat Anda sudah tersedia! Klik tombol di bawah untuk melihat.
+                    @else
+                        Anda belum mengerjakan tes. Silakan kerjakan kuesioner terlebih dahulu untuk melihat laporan hasil.
+                    @endif
                 </p>
-                
-                <button disabled class="mt-auto w-full py-3 bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
-                    <i class="ph ph-lock-key mr-1"></i> Khusus Wali
-                </button>
+
+                @if($hasAnyCompletedExam)
+                    <a href="{{ route('laporan') }}" class="mt-auto w-full py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm">
+                        <i class="ph ph-eye mr-1"></i> Lihat Laporan
+                    </a>
+                @else
+                    <a href="{{ route('kuesioner') }}" class="mt-auto w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm">
+                        <i class="ph ph-clipboard-text mr-1"></i> Kerjakan Test
+                    </a>
+                @endif
             </div>
             
         </div>

@@ -125,7 +125,7 @@
                 <div class="mb-8">
                     <label class="block text-sm font-medium text-[#333] mb-2">Password</label>
                     <div class="relative">
-                        <input type="password" name="password" id="password" placeholder="Masukkan Password" required 
+                        <input type="password" name="password" id="password" placeholder="Min 8 karakter, 1 huruf besar & 1 angka" required 
                             class="w-full pl-12 pr-10 py-3.5 border border-[#e1e1e1] rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all text-[#333] bg-[#FCFCFC] focus:bg-white peer">
                         <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa] text-xl peer-focus:text-[#4A90E2] transition-colors"></i>
                         

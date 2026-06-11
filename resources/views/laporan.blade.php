@@ -28,6 +28,7 @@
             dominant_code: "{{ $result->dominant_code }}",
             max_score: {{ $maxScore ?? 60 }}
         };
+        window.userRole = "{{ Auth::user()->role ?? 'guest' }}";
     </script>
 
     <style>
@@ -223,17 +224,19 @@
                     } elseif ($role === 'ortu') {
                         $ruteKembali = route('dashboard.ortu');
                     } else {
-                        $ruteKembali = route('dashboard'); 
+                        $ruteKembali = route('dashboard');
                     }
                 @endphp
 
                 <button onclick="window.location.href='{{ $ruteKembali }}'" class="px-6 py-3 border border-gray-300 text-gray-600 hover:border-[#4A90E2] hover:text-[#4A90E2] hover:bg-blue-50 rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
                     <i class="ph-bold ph-house"></i> Kembali
                 </button>
-                
+
+                @if(in_array(Auth::user()->role, ['admin', 'ortu']))
                 <button onclick="downloadPDF()" class="px-8 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold shadow-lg shadow-[#4A90E2]/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                     <i class="ph-bold ph-download-simple"></i> Download PDF
                 </button>
+                @endif
             </div>
 
         </div>

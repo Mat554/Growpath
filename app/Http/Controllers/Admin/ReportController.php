@@ -6,19 +6,49 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shared\ReportTrait;
 use App\Models\ExamResult;
 use App\Models\Exam;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class ReportController extends Controller
 {
     use ReportTrait; // For AI analysis
 
     /**
+     * Show all reports with search functionality
+     */
+    public function index(Request $request)
+    {
+        $query = ExamResult::with(['user', 'user.child']);
+
+        // Search by student name or parent name
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->whereHas('user', function (Builder $q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            })
+            ->orWhereHas('user.child', function (Builder $q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $reports = $query->orderByDesc('created_at')->paginate(15);
+
+        return view('admin.laporan-index', compact('reports'));
+    }
+
+    /**
      * View any student report
      */
     public function view($id)
     {
-        $result = ExamResult::with('user')->findOrFail($id);
+        $result = ExamResult::with('user.child')->findOrFail($id);
         $namaPemilik = $result->user->name ?? 'Siswa';
 
         // Get exam to determine question count (max score)
@@ -28,16 +58,5 @@ class ReportController extends Controller
         $aiData = $this->generateOllamaAnalysis($result->dominant_code);
 
         return view('laporan', compact('result', 'namaPemilik', 'aiData', 'maxScore'));
-    }
-
-    /**
-     * Publish a student report
-     */
-    public function publish($id)
-    {
-        $result = ExamResult::findOrFail($id);
-        $result->update(['status' => 'published']);
-
-        return redirect()->back()->with('success', 'Laporan berhasil di-publish!');
     }
 }
