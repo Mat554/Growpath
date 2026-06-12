@@ -79,10 +79,17 @@
                                 <span class="text-blue-500 font-bold tracking-widest">{{ $report->dominant_code ?? '-' }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                @if($report->user->child)
-                                    <div class="text-gray-600">{{ $report->user->child->name ?? '-' }}</div>
+                                @if($report->user->parents->isNotEmpty())
+                                    <div class="flex flex-col gap-1">
+                                        @foreach($report->user->parents as $parent)
+                                            <div class="text-gray-700 text-sm flex items-center gap-1.5">
+                                                <i class="ph ph-user-circle text-blue-400"></i>
+                                                {{ $parent->name }}
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @else
-                                    <span class="text-gray-400">-</span>
+                                    <span class="text-gray-400 text-sm">Belum terhubung</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-gray-500 text-sm">

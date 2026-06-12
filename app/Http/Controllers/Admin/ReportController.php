@@ -20,7 +20,7 @@ class ReportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ExamResult::with(['user', 'user.child']);
+        $query = ExamResult::with(['user', 'user.parents']);
 
         // Search by student name or parent name
         if ($request->has('search') && $request->search) {
@@ -48,7 +48,7 @@ class ReportController extends Controller
      */
     public function view($id)
     {
-        $result = ExamResult::with('user.child')->findOrFail($id);
+        $result = ExamResult::with('user.parents')->findOrFail($id);
         $namaPemilik = $result->user->name ?? 'Siswa';
 
         // Get exam to determine question count (max score)

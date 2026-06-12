@@ -74,13 +74,14 @@ class DashboardController extends Controller
         $activeExamCount = Exam::where('exam_date', '>=', now()->startOfDay())->count();
 
         // === Published vs Review status ===
-        $publishedCount = ExamResult::count();
+        $publishedCount = ExamResult::where('status', 'published')->count();
+        $reviewCount = ExamResult::where('status', 'review')->count();
 
         $viewName = ViewHelper::resolveView('admin.admin-dashboard');
         return view($viewName, compact(
             'totalSiswa', 'totalSoal', 'totalLaporan',
             'questions', 'riasecAvg', 'codeDistribution', 'classDistribution',
-            'recentResults', 'activeExamCount', 'publishedCount'
+            'recentResults', 'activeExamCount', 'publishedCount', 'reviewCount'
         ));
     }
 }
