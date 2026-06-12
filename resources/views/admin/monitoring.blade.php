@@ -22,10 +22,13 @@
             <a href="{{ route('admin.dashboard') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-squares-four text-lg"></i> Dashboard
             </a>
-            
+
             <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2 pl-3">Laporan</div>
             <a href="{{ route('admin.monitoring') }}" class="w-full flex items-center gap-3 px-4 py-3 text-[#4A90E2] bg-[#EBF5FF] rounded-xl font-medium transition-all text-left">
                 <i class="ph ph-monitor-play text-lg"></i> Monitoring
+            </a>
+            <a href="{{ route('admin.laporan.index') }}" class="w-full flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#4A90E2] rounded-xl font-medium transition-all text-left">
+                <i class="ph ph-file-text text-lg"></i> Lihat Laporan
             </a>
         </div>
 

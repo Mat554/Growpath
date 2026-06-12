@@ -239,8 +239,8 @@
                     <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border-l-4 border-[#4A90E2]">
                         <i class="ph-fill ph-number-circle-four text-3xl text-[#4A90E2] mt-0.5"></i>
                         <div class="text-sm text-gray-600">
-                            <strong class="text-gray-800 block mb-1">4. Validasi & Publish Laporan</strong>
-                            Review detail skor dan kode kepribadian final siswa. Klik Publish agar laporan dan rekomendasi jurusan dapat diakses oleh siswa dan orang tua.
+                            <strong class="text-gray-800 block mb-1">4. View Laporan</strong>
+                            Lihat dan review hasil tes siswa beserta koneksi orang tua pada menu Lihat Laporan untuk memastikan data laporan tersimpan dengan baik.
                         </div>
                     </div>
                 </div>
