@@ -30,28 +30,25 @@ class DashboardController extends Controller
                     ->whereNotIn('id', $completedExamIds)
                     ->get();
 
-        // 3. Pisahkan menjadi 3 kelompok dan urutkan dengan cerdas
+        // 3. Filter hanya test yang masih VALID (belum expired)
         $today = Carbon::now()->startOfDay();
+        $validExams = $pendingExams->filter(function($exam) use ($today) {
+            $endDate = $exam->exam_end_date ? Carbon::parse($exam->exam_end_date)->startOfDay() : Carbon::parse($exam->exam_date)->startOfDay();
+            return $endDate->greaterThanOrEqualTo($today);
+        });
 
-        // a. Aktif Hari Ini (Kasta Tertinggi)
-        $activeExams = $pendingExams->filter(function($exam) use ($today) {
+        // 4. Urutkan: Aktif Hari Ini dulu, kemudian upcoming
+        $activeToday = $validExams->filter(function($exam) use ($today) {
             return Carbon::parse($exam->exam_date)->startOfDay()->equalTo($today);
         });
 
-        // b. Mendatang (Kasta Menengah - Diurutkan dari jadwal yang paling DEKAT)
-        $upcomingExams = $pendingExams->filter(function($exam) use ($today) {
+        $upcoming = $validExams->filter(function($exam) use ($today) {
             return Carbon::parse($exam->exam_date)->startOfDay()->greaterThan($today);
         })->sortBy('exam_date');
 
-        // c. Overdue (Kasta Terendah - Diurutkan dari yang PALING BARU terlewat)
-        $overdueExams = $pendingExams->filter(function($exam) use ($today) {
-            return Carbon::parse($exam->exam_date)->startOfDay()->lessThan($today);
-        })->sortByDesc('exam_date');
+        $sortedPending = $activeToday->concat($upcoming);
 
-        // 4. Gabungkan sesuai kasta
-        $sortedPending = $activeExams->concat($upcomingExams)->concat($overdueExams);
-
-        // 5. Ambil 1 kuesioner teratas
+        // 5. Ambil 1 test teratas
         $nextExam = $sortedPending->first();
 
         // 6. Bungkus hasilnya ke dalam koleksi
@@ -64,8 +61,15 @@ class DashboardController extends Controller
         $pendingParents = Auth::user()->parents()->where('child_connection_status', 'pending')->get();
         $connectedParents = Auth::user()->parents()->where('child_connection_status', 'approved')->get();
 
+        // 9. Hitung test VALID terbaru yang belum dikerjakan (hanya yang belum expired)
+        $newExamCount = $validExams->count();
+        $latestExam = $validExams->sortByDesc('exam_date')->first();
+
         $viewName = ViewHelper::resolveView('dashboard');
-        return view($viewName, compact('exams', 'completedExams', 'completedExamIds', 'connectedParents', 'pendingParents'));
+        return view($viewName, compact(
+            'exams', 'completedExams', 'completedExamIds',
+            'connectedParents', 'pendingParents', 'newExamCount', 'latestExam'
+        ));
     }
 
     /**

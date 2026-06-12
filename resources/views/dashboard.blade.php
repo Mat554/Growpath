@@ -68,10 +68,10 @@
                 
             <div class="relative" id="notificationDropdown">
     <button onclick="toggleNotifications()" class="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500 hover:text-[#4A90E2] transition-colors relative cursor-pointer border-none focus:outline-none">
-        
-        <i id="bellIcon" class="ph-fill ph-bell text-xl {{ count($pendingParents ?? []) > 0 ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
-        
-        @if(count($pendingParents ?? []) > 0)
+
+        <i id="bellIcon" class="ph-fill ph-bell text-xl {{ (count($pendingParents ?? []) > 0 || ($newExamCount ?? 0) > 0) ? 'text-[#4A90E2] animate-ring' : '' }}"></i>
+
+        @if(count($pendingParents ?? []) > 0 || ($newExamCount ?? 0) > 0)
             <span id="notifBadge" class="absolute top-2.5 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         @endif
     </button>
@@ -82,8 +82,33 @@
                 <i class="ph-fill ph-bell-ringing text-[#4A90E2]"></i> Notifikasi
             </h3>
         </div>
-        
+
         <div class="max-h-[350px] overflow-y-auto">
+
+            {{-- Notifikasi Soal Baru --}}
+            @if(($newExamCount ?? 0) > 0)
+                <div class="p-4 border-b border-blue-100 bg-[#EBF5FF]/30 flex flex-col gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#4A90E2] flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="ph-fill ph-exam text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-800 leading-snug">
+                                <strong class="text-[#4A90E2]">{{ $newExamCount }}</strong> test baru tersedia untuk kelas {{ Auth::user()->kelas }}!
+                            </p>
+                            @if($latestExam)
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Test terbaru: <strong>{{ $latestExam->title }}</strong>
+                                </p>
+                            @endif
+                            <span class="text-xs text-gray-400 mt-1 block">Baru saja</span>
+                        </div>
+                    </div>
+                    <a href="{{ route('kuesioner') }}" class="py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-lg font-semibold text-xs text-center transition-all">
+                        Lihat Test
+                    </a>
+                </div>
+            @endif
             
             @foreach($pendingParents ?? [] as $pending)
                 <div class="p-4 border-b border-orange-100 bg-[#FFF4E5]/30 flex flex-col gap-3">
@@ -93,7 +118,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-800 leading-snug">
-                                <strong class="text-[#FF9F43]">{{ $pending->name }}</strong> meminta izin untuk memantau laporan kuesioner Anda sebagai Wali.
+                                <strong class="text-[#FF9F43]">{{ $pending->name }}</strong> meminta izin untuk memantau laporan test Anda sebagai Wali.
                             </p>
                             <span class="text-xs text-gray-400 mt-1 block">
                                 {{ $pending->updated_at ? $pending->updated_at->diffForHumans() : 'Baru saja' }}
@@ -158,7 +183,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             @php
-                // Urutkan kuesioner berdasarkan prioritas: Aktif -> Terkunci -> Selesai -> Overdue
+                // Urutkan test berdasarkan prioritas: Aktif -> Terkunci -> Selesai -> Overdue
                 $sortedExams = collect($exams)->sortByDesc(function($exam) use ($completedExams) {
                     $result = isset($completedExams) ? collect($completedExams)->firstWhere('exam_id', $exam->id) : null;
                     $isCompleted = $result !== null;
@@ -224,7 +249,7 @@
                     
                     @if($isCompleted)
                         <button disabled class="mt-auto w-full py-3 bg-[#E8F9F5] text-[#2ECC71] border border-[#2ECC71]/30 rounded-xl font-semibold text-sm cursor-not-allowed">
-                            Kuesioner Selesai
+                            Test Selesai
                         </button>
                     @elseif($isLocked)
                         <button disabled class="mt-auto w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold text-sm cursor-not-allowed">
@@ -272,7 +297,7 @@
 
             <!-- KARTU LAPORAN HASIL (Fix Logic & UI) -->
             @php
-                // Cek apakah ada kuesioner yang sudah selesai di-publish
+                // Cek apakah ada test yang sudah selesai di-publish
                 $hasAnyCompletedExam = count($completedExamIds ?? []) > 0;
             @endphp
 
@@ -298,7 +323,7 @@
                     @if($hasAnyCompletedExam)
                         Laporan hasil tes minat dan bakat Anda sudah tersedia! Klik tombol di bawah untuk melihat.
                     @else
-                        Anda belum mengerjakan tes. Silakan kerjakan kuesioner terlebih dahulu untuk melihat laporan hasil.
+                        Anda belum mengerjakan tes. Silakan kerjakan test terlebih dahulu untuk melihat laporan hasil.
                     @endif
                 </p>
 
@@ -331,6 +356,95 @@
             <span class="text-[10px] font-medium mt-1">Profil</span>
         </a>
     </div>
+
+    {{-- POPUP NOTIFIKASI SOAL BARU --}}
+    @if(($newExamCount ?? 0) > 0)
+    <div id="newExamModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeExamModal()"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all duration-300" style="animation: modalSlideUp 0.4s ease-out;">
+            {{-- Header Gradient --}}
+            <div class="bg-gradient-to-r from-[#4A90E2] to-[#6DD5FA] p-6 text-center relative overflow-hidden">
+                <div class="absolute top-[-30%] right-[-20%] w-40 h-40 bg-white/10 rounded-full blur-xl"></div>
+                <div class="absolute bottom-[-30%] left-[-20%] w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+                <div class="relative z-10">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="ph-fill ph-exam text-4xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Test Baru!</h3>
+                    <p class="text-white/80 text-sm">{{ $newExamCount }} tes baru tersedia</p>
+                </div>
+            </div>
+
+            {{-- Body --}}
+            <div class="p-6">
+                @if($latestExam)
+                <div class="bg-[#F8FAFC] rounded-xl p-4 mb-5 border border-gray-100">
+                    <p class="text-sm text-gray-500 mb-1">Test terbaru:</p>
+                    <h4 class="font-semibold text-gray-800 text-lg mb-2">{{ $latestExam->title }}</h4>
+                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                        <span class="flex items-center gap-1">
+                            <i class="ph ph-clock text-[#4A90E2]"></i>
+                            {{ $latestExam->duration_minutes }} menit
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="ph ph-calendar text-[#4A90E2]"></i>
+                            {{ Carbon\Carbon::parse($latestExam->exam_date)->format('d M Y') }}
+                        </span>
+                    </div>
+                </div>
+                @endif
+
+                <p class="text-gray-600 text-sm text-center mb-5">
+                    Selesaikan test untuk mengetahui minat dan bakat Anda!
+                </p>
+
+                <div class="flex gap-3">
+                    <button onclick="closeExamModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-semibold transition-all cursor-pointer">
+                        Nanti Saja
+                    </button>
+                    <a href="{{ route('kuesioner') }}" class="flex-1 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-center transition-all shadow-lg shadow-[#4A90E2]/30">
+                        Mulai Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tampilkan popup saat halaman load
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('newExamModal');
+            if (modal) {
+                modal.style.opacity = '1';
+                modal.querySelector('.relative').style.transform = 'translateY(0)';
+            }
+        });
+
+        function closeExamModal() {
+            const modal = document.getElementById('newExamModal');
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    @endif
 
 </body>
 </html>

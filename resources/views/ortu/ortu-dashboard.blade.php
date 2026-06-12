@@ -403,7 +403,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-2">Laporan Belum Tersedia</h3>
                     <p class="text-gray-500 text-sm max-w-[400px]">
-                        Saat ini anak Anda belum menyelesaikan kuesioner minat bakat, atau Anda belum terhubung dengan akun siswa. Laporan akan otomatis muncul di sini setelah tes diselesaikan.
+                        Saat ini anak Anda belum menyelesaikan test minat bakat, atau Anda belum terhubung dengan akun siswa. Laporan akan otomatis muncul di sini setelah tes diselesaikan.
                     </p>
                 </div>
             @endif

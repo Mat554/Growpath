@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Kuesioner - Growpath</title>
+    <title>Daftar Test - Growpath</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -56,13 +56,13 @@
                 </div>
                 
                 <div class="w-full md:w-auto relative">
-                    <input type="text" id="searchInput" onkeyup="searchKuesioner()" placeholder="Cari kuesioner..." class="w-full md:w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all">
+                    <input type="text" id="searchInput" onkeyup="searchKuesioner()" placeholder="Cari test..." class="w-full md:w-64 pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#4A90E2] focus:ring-4 focus:ring-[#4A90E2]/10 transition-all">
                     <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
                 </div>
             </div>
 
             <div class="flex gap-2 border-b border-gray-200 pb-px overflow-x-auto" id="filterTabs">
-                <button onclick="filterKuesioner('semua', this)" class="tab-btn active px-5 py-2.5 text-sm font-semibold text-[#4A90E2] border-b-2 border-[#4A90E2] whitespace-nowrap transition-all">Semua Kuesioner</button>
+                <button onclick="filterKuesioner('semua', this)" class="tab-btn active px-5 py-2.5 text-sm font-semibold text-[#4A90E2] border-b-2 border-[#4A90E2] whitespace-nowrap transition-all">Semua Test</button>
                 <button onclick="filterKuesioner('belum', this)" class="tab-btn px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap transition-all">Belum Dikerjakan</button>
                 <button onclick="filterKuesioner('selesai', this)" class="tab-btn px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap transition-all">Selesai</button>
             </div>
