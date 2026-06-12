@@ -25,12 +25,19 @@ class ReportController extends Controller
         // Search by student name or parent name
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->whereHas('user', function (Builder $q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%');
-            })
-            ->orWhereHas('user.child', function (Builder $q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function (Builder $q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('user.parents', function (Builder $q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
             });
+        }
+
+        // Filter by dominant code (hasil tes)
+        if ($request->has('hasil') && $request->hasil) {
+            $query->where('dominant_code', $request->hasil);
         }
 
         // Filter by status

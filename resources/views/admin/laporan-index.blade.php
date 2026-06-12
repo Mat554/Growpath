@@ -56,20 +56,22 @@
                     <div class="relative">
                         <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari nama siswa atau orang tua..."
+                            placeholder="Cari nama siswa, hasil tes, atau orang tua..."
                             class="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#4A90E2] focus:ring-2 focus:ring-blue-100 transition-all">
                     </div>
                 </div>
                 <div class="w-48">
-                    <select name="status" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#4A90E2] focus:ring-2 focus:ring-blue-100 transition-all">
-                        <option value="">Semua Status</option>
-                        <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
+                    <select name="hasil" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#4A90E2] focus:ring-2 focus:ring-blue-100 transition-all">
+                        <option value="">Semua Hasil</option>
+                        @foreach(['RIA', 'RIS', 'RSA', 'ERA', 'ECS', 'CSI', 'CIS', 'SEC', 'AIR', 'SIA', 'CSE', 'ESA', 'ASI', 'IRE', 'REA'] as $code)
+                            <option value="{{ $code }}" {{ request('hasil') == $code ? 'selected' : '' }}>{{ $code }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <button type="submit" class="px-6 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold transition-all">
                     <i class="ph ph-funnel text-lg"></i> Filter
                 </button>
-                @if(request('search') || request('status'))
+                @if(request('search') || request('hasil') || request('status'))
                     <a href="{{ route('admin.laporan.index') }}" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-semibold transition-all">
                         Reset
                     </a>
