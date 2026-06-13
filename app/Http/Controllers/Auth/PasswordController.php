@@ -40,10 +40,11 @@ class PasswordController extends Controller
         // Generate OTP
         $otp = rand(100000, 999999);
 
-        // Save to database (5 minutes expiry - standardized)
+        // Save to database (10 minutes expiry)
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(5)
+            'otp_expires_at' => Carbon::now()->addMinutes(10),
+            'otp_resend_count' => 0
         ]);
 
         // Send email
@@ -64,8 +65,98 @@ class PasswordController extends Controller
      */
     public function showResetOtpForm(Request $request)
     {
-        $email = $request->query('email');
-        return view('auth.reset-otp', compact('email'));
+        $email = $request->query('email') ?? session('reset_email');
+
+        $user = User::where('email', $email)->first();
+        $expiredTime = $user && $user->otp_expires_at
+            ? $user->otp_expires_at->timestamp
+            : 0;
+
+        return view('auth.reset-otp', compact('email', 'expiredTime'));
+    }
+
+    /**
+     * Resend OTP for password reset
+     * - Reuses same OTP if still valid (< 10 minutes)
+     * - Max 3 retries, then must wait for OTP to expire
+     */
+    public function resendResetOtp(Request $request)
+    {
+        $email = session('reset_email');
+        if (!$email) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Sesi tidak valid. Silakan mulai dari awal.'
+            ], 400);
+        }
+
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Pengguna tidak ditemukan.'
+            ], 404);
+        }
+
+        // Check if OTP is still valid and resend count
+        $isOtpValid = $user->otp && Carbon::now()->lessThan($user->otp_expires_at);
+        $resendCount = $user->otp_resend_count ?? 0;
+
+        // If OTP is expired OR user exceeded 3 retries, generate new OTP
+        if (!$isOtpValid || $resendCount >= 3) {
+            // Generate new OTP
+            $otp = rand(100000, 999999);
+
+            // Reset resend count when generating new OTP
+            $user->update([
+                'otp' => $otp,
+                'otp_expires_at' => Carbon::now()->addMinutes(10),
+                'otp_resend_count' => 0
+            ]);
+
+            // Send email
+            try {
+                Mail::to($user->email)->send(new OTPMail($otp));
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Gagal mengirim email OTP. Coba lagi nanti.'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kode OTP baru telah dikirim ke email Anda.',
+                'expires_in' => 600,
+                'remaining_resends' => 3
+            ]);
+        }
+
+        // OTP is still valid - reuse same OTP and increment count
+        $newResendCount = $resendCount + 1;
+        $remainingTime = Carbon::now()->diffInSeconds($user->otp_expires_at);
+
+        // Send email with same OTP FIRST - if fails, don't count as a try
+        try {
+            Mail::to($user->email)->send(new OTPMail($user->otp));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Gagal mengirim email OTP. Coba lagi nanti.'
+            ], 500);
+        }
+
+        // Only increment count AFTER successful send
+        $user->update([
+            'otp_resend_count' => $newResendCount
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP telah dikirim ulang ke email Anda.',
+            'remaining_resends' => max(0, 3 - $newResendCount),
+            'expires_in' => $remainingTime
+        ]);
     }
 
     /**
@@ -98,7 +189,11 @@ class PasswordController extends Controller
         session(['temp_user_id' => $user->id]);
 
         // Hapus OTP agar tidak bisa dipakai 2x
-        $user->update(['otp' => null, 'otp_expires_at' => null]);
+        $user->update([
+            'otp' => null,
+            'otp_expires_at' => null,
+            'otp_resend_count' => 0
+        ]);
 
         return redirect()->route('password.reset');
     }

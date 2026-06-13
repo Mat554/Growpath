@@ -1,6 +1,6 @@
 /**
- * OTP verification page JavaScript
- * Handles countdown timer and OTP resend functionality
+ * Password reset OTP page JavaScript
+ * Handles countdown timer and OTP resend functionality for password reset flow
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,14 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = form?.querySelector('button[type="submit"]');
     const otpInput = form?.querySelector('input[name="otp_code"]');
 
-    // Check for expired time from server
-    const expiredTime = window.Laravel?.expiredTime || 0;
-    let expiresAt = expiredTime ? new Date(expiredTime * 1000) : null;
     let countdownInterval;
     const MAX_RESENDS = 3;
 
     // Get CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ||
+                      document.querySelector('input[name="_token"]')?.value || '';
 
     // Persist resend count in sessionStorage
     function getRemainingResends() {
@@ -67,15 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Start countdown
-    function startCountdown() {
-        if (!expiresAt) return;
+    // Start countdown (client-side since server doesn't send expiry time for reset OTP)
+    function startCountdown(durationSeconds = 600) {
+        let remaining = durationSeconds;
 
         function updateCountdown() {
-            const now = new Date();
-            const diff = Math.floor((expiresAt - now) / 1000);
-
-            if (diff <= 0) {
+            if (remaining <= 0) {
                 countdownDisplay.textContent = 'Kode OTP sudah kadaluarsa';
                 countdownDisplay.classList.add('text-red-500');
                 countdownDisplay.classList.remove('text-[#6b7280]');
@@ -88,9 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const minutes = Math.floor(diff / 60);
-            const seconds = diff % 60;
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
             countdownDisplay.textContent = `Kode berlaku dalam ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            remaining--;
         }
 
         updateCountdown();
@@ -106,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Mengirim...';
 
             try {
-                const response = await fetch('/otp-resend', {
+                const response = await fetch('/forgot-password/resend', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -121,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     remainingResends = data.remaining_resends;
                     setRemainingResends(remainingResends);
                     updateResendCountDisplay();
-                    expiresAt = new Date(Date.now() + (data.expires_in * 1000));
+                    clearInterval(countdownInterval);
 
                     if (remainingResends > 0) {
                         this.innerHTML = `<i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(${remainingResends}x)</span>`;
@@ -133,7 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         countdownDisplay.classList.remove('text-[#6b7280]');
                     }
 
-                    startCountdown();
+                    // Restart countdown
+                    const expiresIn = data.expires_in || 600;
+                    startCountdown(expiresIn);
                 } else {
                     this.disabled = false;
                     this.innerHTML = `<i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(${remainingResends}x)</span>`;
@@ -152,13 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', function() {
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memverifikasi...';
+                submitBtn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memproses...';
             }
         });
     }
 
-    // Start initial countdown
-    startCountdown();
+    // Start initial countdown (10 minutes default)
+    startCountdown(600);
 
     // Focus on OTP input
     if (otpInput) {

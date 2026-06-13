@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/js/auth/register.js',
                 'resources/js/auth/otp.js',
                 'resources/js/auth/password.js',
+                'resources/js/auth/password-reset.js',
 
                 // Student pages
                 'resources/js/student/dashboard.js',
