@@ -45,12 +45,12 @@
     "src": "resources/js/auth/login.js"
   },
   "resources/js/auth/otp.js": {
-    "file": "assets/otp-35eebe91.js",
+    "file": "assets/otp-1d36461d.js",
     "isEntry": true,
     "src": "resources/js/auth/otp.js"
   },
   "resources/js/auth/password-reset.js": {
-    "file": "assets/password-reset-e54c4486.js",
+    "file": "assets/password-reset-2b91159e.js",
     "isEntry": true,
     "src": "resources/js/auth/password-reset.js"
   },

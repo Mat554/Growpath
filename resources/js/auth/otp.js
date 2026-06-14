@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check for expired time from server
     const expiredTime = window.Laravel?.expiredTime || 0;
     let expiresAt = expiredTime ? new Date(expiredTime * 1000) : null;
-    let countdownInterval;
+    let countdownInterval = null;
     const MAX_RESENDS = 3;
 
     // Get CSRF token
@@ -67,9 +67,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Start countdown
-    function startCountdown() {
-        if (!expiresAt) return;
+    // Start countdown with new expiry time
+    function startCountdown(newExpiresAt) {
+        // Clear existing interval
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+
+        if (newExpiresAt) {
+            expiresAt = newExpiresAt;
+        }
+
+        if (!expiresAt) {
+            countdownDisplay.textContent = 'Tidak ada batas waktu';
+            return;
+        }
+
+        // Reset display state
+        countdownDisplay.classList.remove('text-red-500');
+        countdownDisplay.classList.add('text-[#6b7280]');
 
         function updateCountdown() {
             const now = new Date();
@@ -80,10 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 countdownDisplay.classList.add('text-red-500');
                 countdownDisplay.classList.remove('text-[#6b7280]');
                 clearInterval(countdownInterval);
+                countdownInterval = null;
 
                 // Re-enable resend if they still have tries left
                 if (remainingResends > 0) {
                     resendBtn.disabled = false;
+                    resendBtn.innerHTML = `<i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(${remainingResends}x)</span>`;
+                } else {
+                    countdownDisplay.textContent = 'Batas pengiriman tercapai. Tunggu hingga OTP kadaluarsa.';
                 }
                 return;
             }
@@ -121,19 +142,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     remainingResends = data.remaining_resends;
                     setRemainingResends(remainingResends);
                     updateResendCountDisplay();
-                    expiresAt = new Date(Date.now() + (data.expires_in * 1000));
+
+                    // Calculate new expiry time
+                    const newExpiresAt = new Date(Date.now() + (data.expires_in * 1000));
 
                     if (remainingResends > 0) {
                         this.innerHTML = `<i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(${remainingResends}x)</span>`;
                         showToast('Kode OTP telah dikirim ulang ke email Anda', 'success');
+                        // Re-enable button for next try
+                        this.disabled = false;
                     } else {
                         this.innerHTML = '<i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(0x)</span>';
+                        this.disabled = true;
                         countdownDisplay.textContent = 'Batas pengiriman tercapai. Tunggu hingga OTP kadaluarsa.';
                         countdownDisplay.classList.add('text-red-500');
                         countdownDisplay.classList.remove('text-[#6b7280]');
                     }
 
-                    startCountdown();
+                    // Restart countdown with new expiry
+                    startCountdown(newExpiresAt);
                 } else {
                     this.disabled = false;
                     this.innerHTML = `<i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(${remainingResends}x)</span>`;
