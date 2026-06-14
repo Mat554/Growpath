@@ -27,6 +27,10 @@
                 Kode dikirim ke <strong class="text-[#1f2937]">{{ $email }}</strong><br>
                 Masukkan kode 6 digit di bawah ini.
             </p>
+            <div class="mt-4 p-3 bg-[#FEF3C7] border border-[#FCD34D] rounded-xl flex items-start gap-2">
+                <i class="ph-fill ph-magnifying-glass text-[#D97706] mt-0.5"></i>
+                <span class="text-[#92400E] text-xs leading-relaxed">Tidak menemukan email? Coba cek folder <strong>Spam</strong> atau <strong>Trash</strong></span>
+            </div>
         </div>
 
         <form method="POST" action="{{ route('otp.check') }}" id="otpForm">
