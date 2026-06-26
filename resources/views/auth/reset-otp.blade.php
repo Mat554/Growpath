@@ -6,12 +6,18 @@
     <title>Verifikasi OTP - Growpath</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/password.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        window.Laravel = {
+            expiredTime: {{ $expiredTime ?? 0 }}
+        };
+    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/auth/password-reset.js'])
 </head>
 <body class="bg-[#f3f4f6] min-h-screen flex justify-center items-center p-5 font-sans">
 
     <div class="bg-white w-full max-w-[500px] rounded-[24px] shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1)] p-10 flex flex-col justify-center relative overflow-hidden">
-        
+
         <div class="mb-8 text-center">
             <div class="w-16 h-16 bg-[#EBF5FF] text-[#4A90E2] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
                 <i class="ph-fill ph-envelope-open"></i>
@@ -21,6 +27,10 @@
                 Kami telah mengirimkan 6 digit kode OTP ke email <br>
                 <strong class="text-[#1f2937]">{{ $email ?? 'email Anda' }}</strong>
             </p>
+            <div class="mt-4 p-3 bg-[#FEF3C7] border border-[#FCD34D] rounded-xl flex items-start gap-2">
+                <i class="ph-fill ph-magnifying-glass text-[#D97706] mt-0.5"></i>
+                <span class="text-[#92400E] text-xs leading-relaxed">Tidak menemukan email? Coba cek folder <strong>Spam</strong> atau <strong>Trash</strong></span>
+            </div>
         </div>
 
         <form method="POST" action="{{ route('password.otp.verify') }}" id="otpForm">
@@ -30,6 +40,13 @@
                 <div class="mb-4 p-3 bg-red-50 text-red-500 text-sm rounded-xl border border-red-100 flex items-start gap-2">
                     <i class="ph-fill ph-warning-circle mt-0.5"></i>
                     <span>{{ $errors->first() }}</span>
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="mb-4 p-3 bg-green-50 text-green-600 text-sm rounded-xl border border-green-100 flex items-start gap-2">
+                    <i class="ph-fill ph-check-circle mt-0.5"></i>
+                    <span>{{ session('success') }}</span>
                 </div>
             @endif
 
@@ -46,10 +63,11 @@
             </button>
         </form>
 
-        <div class="text-center mt-6 text-[0.9rem]">
-            <a href="{{ route('password.request') }}" class="text-[#6b7280] font-medium hover:text-[#4A90E2] transition">
-                Salah email atau OTP kadaluarsa? <span class="underline">Minta ulang</span>
-            </a>
+        <div class="text-center mt-6">
+            <p id="countdownDisplay" class="text-[#6b7280] text-sm mb-3"></p>
+            <button type="button" id="resendBtn" class="text-[#4A90E2] font-semibold hover:text-[#357ABD] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="ph ph-arrow-clockwise mr-1"></i> Kirim Ulang OTP <span id="resendCount">(3x)</span>
+            </button>
         </div>
 
     </div>

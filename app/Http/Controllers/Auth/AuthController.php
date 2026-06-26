@@ -67,10 +67,11 @@ class AuthController extends Controller
         // E. Generate OTP
         $otp = rand(100000, 999999);
 
-        // F. Simpan OTP ke Database (5 minutes expiry - standardized)
+        // F. Simpan OTP ke Database (10 minutes expiry)
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(5)
+            'otp_expires_at' => Carbon::now()->addMinutes(10),
+            'otp_resend_count' => 0
         ]);
 
         // G. Kirim Email
@@ -109,38 +110,87 @@ class AuthController extends Controller
     }
 
     /**
-     * Resend OTP
+     * Resend OTP (Login)
+     * - Reuses same OTP if still valid (< 10 minutes)
+     * - Max 3 retries, then must wait for OTP to expire
      */
     public function resendOtp(Request $request)
     {
         if (!session()->has('temp_user_id')) {
-            return redirect('/login');
+            return response()->json([
+                'success' => false,
+                'error' => 'Sesi tidak valid. Silakan login ulang.'
+            ], 400);
         }
 
         $user = User::find(session('temp_user_id'));
 
         if (!$user) {
-            return redirect('/login');
+            return response()->json([
+                'success' => false,
+                'error' => 'Sesi tidak valid. Silakan login ulang.'
+            ], 400);
         }
 
-        // 1. Generate OTP Baru
-        $otp = rand(100000, 999999);
+        // Check if OTP is still valid and resend count
+        $isOtpValid = $user->otp && Carbon::now()->lessThan($user->otp_expires_at);
+        $resendCount = $user->otp_resend_count ?? 0;
 
-        // 2. Update Database (5 minutes - standardized)
+        // If OTP is expired OR user exceeded 3 retries, generate new OTP
+        if (!$isOtpValid || $resendCount >= 3) {
+            // Generate new OTP
+            $otp = rand(100000, 999999);
+
+            // Reset resend count when generating new OTP
+            $user->update([
+                'otp' => $otp,
+                'otp_expires_at' => Carbon::now()->addMinutes(10),
+                'otp_resend_count' => 0
+            ]);
+
+            // Send email
+            try {
+                Mail::to($user->email)->send(new OTPMail($otp));
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Gagal mengirim email OTP. Coba lagi nanti.'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kode OTP baru telah dikirim ke email Anda.',
+                'expires_in' => 600,
+                'remaining_resends' => 3
+            ]);
+        }
+
+        // OTP is still valid - reuse same OTP and increment count
+        $newResendCount = $resendCount + 1;
+        $remainingTime = Carbon::now()->diffInSeconds($user->otp_expires_at);
+
+        // Send email with same OTP FIRST - if fails, don't count as a try
+        try {
+            Mail::to($user->email)->send(new OTPMail($user->otp));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Gagal mengirim email OTP. Coba lagi nanti.'
+            ], 500);
+        }
+
+        // Only increment count AFTER successful send
         $user->update([
-            'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(5)
+            'otp_resend_count' => $newResendCount
         ]);
 
-        // 3. Kirim Email
-        try {
-            Mail::to($user->email)->send(new OTPMail($otp));
-        } catch (\Exception $e) {
-            return back()->withErrors(['otp_code' => 'Gagal mengirim ulang email.']);
-        }
-
-        // 4. Kembali ke halaman OTP dengan pesan sukses
-        return back()->with('success', 'Kode OTP baru telah dikirim ke email Anda.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP telah dikirim ulang ke email Anda.',
+            'remaining_resends' => max(0, 3 - $newResendCount),
+            'expires_in' => $remainingTime
+        ]);
     }
 
     /**
@@ -183,7 +233,11 @@ class AuthController extends Controller
         Auth::login($user);
 
         // 3. Hapus data OTP bekas pakai & session sementara
-        $user->update(['otp' => null, 'otp_expires_at' => null]);
+        $user->update([
+            'otp' => null,
+            'otp_expires_at' => null,
+            'otp_resend_count' => 0
+        ]);
         session()->forget('temp_user_id');
 
         // 4. Set OTP bypass cookie (30 minutes - standardized)

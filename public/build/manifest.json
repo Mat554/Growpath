@@ -6,7 +6,7 @@
     "file": "assets/vendor-lodash-25305b17.js"
   },
   "resources/css/app.css": {
-    "file": "assets/app-95fd4025.css",
+    "file": "assets/app-16604022.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
@@ -45,9 +45,14 @@
     "src": "resources/js/auth/login.js"
   },
   "resources/js/auth/otp.js": {
-    "file": "assets/otp-321b5686.js",
+    "file": "assets/otp-1d36461d.js",
     "isEntry": true,
     "src": "resources/js/auth/otp.js"
+  },
+  "resources/js/auth/password-reset.js": {
+    "file": "assets/password-reset-2b91159e.js",
+    "isEntry": true,
+    "src": "resources/js/auth/password-reset.js"
   },
   "resources/js/auth/password.js": {
     "file": "assets/password-c92174d0.js",
@@ -115,7 +120,7 @@
     "src": "resources/js/student/dashboard.js"
   },
   "resources/js/student/exam.js": {
-    "file": "assets/exam-e9f1ecf9.js",
+    "file": "assets/exam-4ee36770.js",
     "isEntry": true,
     "src": "resources/js/student/exam.js"
   },
