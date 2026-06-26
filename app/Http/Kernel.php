@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\ExtendOTPticket::class,
             \App\Http\Middleware\DetectMobileDevice::class,
+            \App\Http\Middleware\ClearCacheOnLogout::class,
         ],
 
         'api' => [
