@@ -65,10 +65,16 @@ class DashboardController extends Controller
         $newExamCount = $validExams->count();
         $latestExam = $validExams->sortByDesc('exam_date')->first();
 
+        // 10. Cek apakah popup sudah pernah ditampilkan di session ini
+        $showExamPopup = false;
+        if ($latestExam && !session()->has('exam_popup_shown_for_' . $latestExam->id)) {
+            $showExamPopup = true;
+        }
+
         $viewName = ViewHelper::resolveView('dashboard');
         return view($viewName, compact(
             'exams', 'completedExams', 'completedExamIds',
-            'connectedParents', 'pendingParents', 'newExamCount', 'latestExam'
+            'connectedParents', 'pendingParents', 'newExamCount', 'latestExam', 'showExamPopup'
         ));
     }
 

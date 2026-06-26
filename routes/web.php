@@ -119,6 +119,8 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/exam/{id}', [ExamController::class, 'takeExam'])->name('exam.take');
         Route::post('/exam/{id}/submit', [ExamController::class, 'submitExam'])->name('exam.submit');
+        Route::post('/exam/popup/dismiss/{id}', [ExamController::class, 'dismissExamPopup'])->name('exam.popup.dismiss');
+        Route::post('/exam/latest/start', [ExamController::class, 'getLatestExam'])->name('exam.latest.start');
 
         Route::get('/laporan', [StudentReport::class, 'show'])->name('laporan');
         Route::get('/tes', [StudentDashboard::class, 'tipsbelajar'])->name('tes');

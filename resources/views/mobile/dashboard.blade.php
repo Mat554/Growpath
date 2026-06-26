@@ -80,8 +80,8 @@
 
                         <div class="max-h-[350px] overflow-y-auto">
 
-                            {{-- Notifikasi Soal Baru --}}
-                            @if(($newExamCount ?? 0) > 0)
+                            {{-- Notifikasi Soal Baru (tampil jika ada test baru) --}}
+                            @if(($newExamCount ?? 0) > 0 && $latestExam)
                                 <div class="p-4 border-b border-blue-100 bg-[#EBF5FF]/30 flex flex-col gap-3">
                                     <div class="flex items-start gap-3">
                                         <div class="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#4A90E2] flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -99,8 +99,8 @@
                                             <span class="text-xs text-gray-400 mt-1 block">Baru saja</span>
                                         </div>
                                     </div>
-                                    <a href="{{ route('kuesioner') }}" class="py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-lg font-semibold text-xs text-center transition-all">
-                                        Lihat Test
+                                    <a href="{{ route('exam.take', $latestExam->id) }}" class="py-2 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-lg font-semibold text-xs text-center transition-all">
+                                        Mulai Test
                                     </a>
                                 </div>
                             @endif
@@ -382,9 +382,9 @@
 </script>
 
 {{-- POPUP NOTIFIKASI SOAL BARU --}}
-@if(($newExamCount ?? 0) > 0)
+@if($showExamPopup ?? false)
 <div id="newExamModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeExamModal()"></div>
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer" onclick="dismissPopup()"></div>
     <div class="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all duration-300" style="animation: modalSlideUp 0.4s ease-out;">
         {{-- Header Gradient --}}
         <div class="bg-gradient-to-r from-[#4A90E2] to-[#6DD5FA] p-6 text-center relative overflow-hidden">
@@ -423,10 +423,10 @@
             </p>
 
             <div class="flex gap-3">
-                <button onclick="closeExamModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-semibold transition-all cursor-pointer">
+                <button type="button" onclick="dismissPopup()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-semibold transition-all cursor-pointer">
                     Nanti Saja
                 </button>
-                <a href="{{ route('kuesioner') }}" class="flex-1 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-center transition-all shadow-lg shadow-[#4A90E2]/30">
+                <a href="{{ route('exam.take', $latestExam->id) }}" class="flex-1 py-3 bg-[#4A90E2] hover:bg-[#357ABD] text-white rounded-xl font-semibold text-center transition-all shadow-lg shadow-[#4A90E2]/30 flex items-center justify-center gap-2">
                     Mulai Sekarang
                 </a>
             </div>
@@ -437,22 +437,102 @@
 <script>
     // Tampilkan popup saat halaman load
     document.addEventListener('DOMContentLoaded', function() {
+        // Cek localStorage terlebih dahulu untuk handle refresh
+        const latestExamId = {{ $latestExam->id ?? 'null' }};
         const modal = document.getElementById('newExamModal');
+
+        if (latestExamId && modal) {
+            const dismissed = localStorage.getItem('exam_popup_dismissed_' + latestExamId);
+            if (dismissed === 'true') {
+                modal.style.display = 'none';
+                return;
+            }
+        }
+
         if (modal) {
             modal.style.opacity = '1';
-            modal.querySelector('.relative').style.transform = 'translateY(0)';
+            modal.style.pointerEvents = 'auto';
+            const card = modal.querySelector('.relative');
+            if (card) card.style.transform = 'translateY(0)';
         }
     });
 
-    function closeExamModal() {
+    // Fungsi dismiss popup (simpan ke localStorage agar tidak muncul lagi)
+    function dismissPopup() {
         const modal = document.getElementById('newExamModal');
+        const latestExamId = {{ $latestExam->id ?? 'null' }};
+
+        // Langsung dismiss tanpa wait untuk API
         if (modal) {
             modal.style.opacity = '0';
-            modal.style.transition = 'opacity 0.3s ease';
+            modal.style.pointerEvents = 'none';
             setTimeout(() => {
                 modal.style.display = 'none';
-            }, 300);
+            }, 200);
         }
+
+        // Simpan di localStorage sebagai fallback
+        if (latestExamId) {
+            localStorage.setItem('exam_popup_dismissed_' + latestExamId, 'true');
+        }
+
+        // Call API di background untuk menyimpan status session
+        if (latestExamId) {
+            fetch('/exam/popup/dismiss/' + latestExamId, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                }
+            }).catch(() => {}); // Ignore errors
+        }
+    }
+</script>
+
+<style>
+    @keyframes modalSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    #newExamModal {
+        pointer-events: auto !important;
+    }
+    #modalBackdrop {
+        pointer-events: auto !important;
+    }
+</style>
+@endif
+        fetch('/exam/latest/start', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
+                btn.textContent = 'Mulai Sekarang';
+                icon.classList.remove('ph-spinner', 'animate-spin');
+                icon.classList.add('ph-arrow-right');
+                alert(data.message || 'Tidak ada test yang tersedia');
+                dismissPopup();
+            }
+        })
+        .catch(err => {
+            btn.textContent = 'Mulai Sekarang';
+            icon.classList.remove('ph-spinner', 'animate-spin');
+            icon.classList.add('ph-arrow-right');
+            alert('Terjadi kesalahan');
+        });
     }
 </script>
 

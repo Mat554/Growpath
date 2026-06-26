@@ -70,7 +70,7 @@
         <div class="flex-1 p-4 md:p-8 pt-6 md:pt-6 overflow-y-auto pb-24 md:pb-8">
             <div class="flex flex-col gap-4" id="kuesionerContainer">
 
-                @forelse ($exams as $exam)
+                @forelse ($allExams as $exam)
                 @php
                     $result = isset($completedExams) ? $completedExams->get($exam->id) : null;
                     $isCompleted = $result !== null;

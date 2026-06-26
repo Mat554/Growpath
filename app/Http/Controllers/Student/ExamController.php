@@ -8,6 +8,7 @@ use App\Models\Exam;
 use App\Models\ExamResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ExamController extends Controller
 {
@@ -18,16 +19,27 @@ class ExamController extends Controller
     {
         $user = Auth::user();
 
+        // Ambil daftar ID ujian yang sudah dikerjakan
+        $completedExamIds = ExamResult::where('user_id', $user->id)
+                                ->pluck('exam_id')
+                                ->toArray();
+
+        // Ambil SEMUA ujian untuk kelas ini (termasuk yang sudah dikerjakan)
+        $allExams = Exam::where('target_class', $user->kelas)
+                     ->get();
+
+        // Get completed exams for status display
         $completedExams = ExamResult::where('user_id', $user->id)
                                 ->get()
                                 ->keyBy('exam_id');
 
-        $exams = Exam::where('target_class', $user->kelas)
-                     ->orderBy('exam_date', 'asc')
-                     ->get();
+        // Untuk backward compatibility dengan view lama
+        $exams = $allExams->filter(function($exam) use ($completedExamIds) {
+            return !in_array($exam->id, $completedExamIds);
+        });
 
         $viewName = ViewHelper::resolveView('kuesioner');
-        return view($viewName, compact('exams', 'completedExams'));
+        return view($viewName, compact('allExams', 'exams', 'completedExams'));
     }
 
     /**
@@ -74,5 +86,57 @@ class ExamController extends Controller
         ]);
 
         return response()->json(['success' => true, 'redirect_url' => route('dashboard')]);
+    }
+
+    /**
+     * Mark exam popup as shown (called via AJAX when popup is closed)
+     */
+    public function dismissExamPopup(Request $request, $id)
+    {
+        session()->put('exam_popup_shown_for_' . $id, true);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Get latest valid exam for direct start
+     */
+    public function getLatestExam()
+    {
+        $user = Auth::user();
+
+        // Ambil daftar ID ujian yang sudah dikerjakan
+        $completedExamIds = ExamResult::where('user_id', $user->id)
+                                ->pluck('exam_id')
+                                ->toArray();
+
+        // Ambil test valid terbaru yang belum dikerjakan
+        $today = Carbon::now()->startOfDay();
+        $latestExam = Exam::where('target_class', $user->kelas)
+                    ->whereNotIn('id', $completedExamIds)
+                    ->get()
+                    ->filter(function($exam) use ($today) {
+                        $endDate = $exam->exam_end_date
+                            ? Carbon::parse($exam->exam_end_date)->startOfDay()
+                            : Carbon::parse($exam->exam_date)->startOfDay();
+                        return $endDate->greaterThanOrEqualTo($today);
+                    })
+                    ->sortByDesc('exam_date')
+                    ->first();
+
+        if ($latestExam) {
+            // Tandai popup sudah ditampilkan
+            session()->put('exam_popup_shown_for_' . $latestExam->id, true);
+
+            return response()->json([
+                'success' => true,
+                'redirect_url' => route('exam.take', $latestExam->id)
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Tidak ada test yang tersedia'
+        ]);
     }
 }

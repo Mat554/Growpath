@@ -256,9 +256,31 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Clear all cache before logout
+        $this->clearAllUserCache();
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
+    }
+
+    /**
+     * Clear all user-related cache
+     */
+    protected function clearAllUserCache(): void
+    {
+        // Clear Laravel cache
+        \Illuminate\Support\Facades\Cache::flush();
+
+        // Clear session data
+        session()->flush();
+
+        // Clear system caches
+        if (function_exists('exec')) {
+            exec('php ' . base_path('artisan') . ' config:clear 2>/dev/null >/dev/null &');
+            exec('php ' . base_path('artisan') . ' view:clear 2>/dev/null >/dev/null &');
+        }
     }
 }
